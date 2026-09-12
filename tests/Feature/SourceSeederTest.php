@@ -16,12 +16,20 @@ class SourceSeederTest extends TestCase
         $this->seed(SourceSeeder::class);
 
         $this->assertSame(count(config('trend.sources')), Source::count());
-        $this->assertTrue(Source::where('key', 'reddit')->first()->enabled);
+
+        $gdelt = Source::where('key', 'gdelt')->first();
+        $this->assertTrue($gdelt->enabled);
+        $this->assertNull($gdelt->geo, 'a global source carries no watched geo');
+
+        $youtube = Source::where('key', 'youtube_trending')->first();
+        $this->assertSame('US', $youtube->geo, 'a per-country source records its watched geo');
+
+        $this->assertFalse(Source::where('key', 'reddit')->first()->enabled, 'Reddit is blocked pending approval');
         $this->assertFalse(Source::where('key', 'x_trends')->first()->enabled);
 
-        Source::where('key', 'reddit')->update(['last_item_count' => 12]);
+        Source::where('key', 'gdelt')->update(['last_item_count' => 12]);
         $this->seed(SourceSeeder::class);
 
-        $this->assertSame(12, Source::where('key', 'reddit')->first()->last_item_count);
+        $this->assertSame(12, Source::where('key', 'gdelt')->first()->last_item_count);
     }
 }

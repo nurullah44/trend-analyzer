@@ -29,8 +29,12 @@ An official API, RSS feed, public dataset, or licensed third-party provider the 
 _Avoid_: page, website, scrape, feed
 
 **Mainstream marker**:
-One of the three signals that a Subject has arrived where the analyzer was trying to beat it: the Google Trends Turkey top ten, the Turkish top-free app chart, or Turkish top news stories. A marker has to hold rather than flash once — a single chart appearance is a Spike, not arrival.
+One of the three signals that a Subject has arrived where the analyzer was trying to beat it: the Google Trends top ten, the top-free app chart, or the top news stories — each read for the watched geo. A marker has to hold rather than flash once — a single chart appearance is a Spike, not arrival.
 _Avoid_: viral, popular
+
+**Watched geo**:
+The country a per-country Source is read for, such as YouTube's trending chart, Google Trends, the app chart or a news edition. The analyzer watches subjects globally: Sources that are global by nature — GDELT, Wikimedia, Hacker News, Stack Exchange, Product Hunt — have no watched geo at all.
+_Avoid_: region, locale, country filter
 
 **Spike**:
 A short burst of Volume that does not persist. It is worth recording, but it does not move a Subject into Mainstream and it is not a trend on its own.

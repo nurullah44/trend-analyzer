@@ -16,6 +16,7 @@ class SourceSeeder extends Seeder
                 [
                     'name' => $source['name'],
                     'kind' => $source['kind'],
+                    'geo' => $source['geo'] ?? null,
                     'enabled' => $source['enabled'],
                     'cost_note' => $source['cost_note'] ?? null,
                     'docs_url' => $source['docs_url'] ?? null,
