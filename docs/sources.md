@@ -22,6 +22,8 @@ Everything the analyzer is allowed to collect from, with the facts that decided 
 
 Working request — `POST /v25/customers/{id}:generateKeywordHistoricalMetrics` with `keywords`, `geo_target_constants` (2840 = US, 2792 = Türkiye), `language` (`languageConstants/1000` = English) and `keyword_plan_network: GOOGLE_SEARCH`. Each result carries **`keywordMetrics`** (note the field name, not `metrics`): `avgMonthlySearches`, `competition`, `competitionIndex`, `lowTopOfPageBidMicros`, `highTopOfPageBidMicros` and **`monthlySearchVolumes`** — twelve points, one per month. All values arrive as strings.
 
+**Currency trap:** the bid fields (`lowTopOfPageBidMicros`, `highTopOfPageBidMicros`) are in micros of the **account's currency**, not USD. This account is TRY, so `27966173` is ₺27.97 ≈ $0.58 — not $27.97. The account currency is fixed at account creation and applies to every money field regardless of which geo is targeted; targeting the US buys US clicks billed in TRY. Always store the account currency alongside the figures and convert for display.
+
 That is three signals at once: **volume** (how many search a month), **direction** (the twelve points), and **what advertisers pay per click** (the bid range) — the last being a direct monetisation signal. Used only on Subjects that already reached Rising, never for discovery. |
 | **Meta Ad Library API** | Ad creatives and spend ranges | Free | Low value for Turkey: outside the EU it returns only politics/social-issue ads. |
 
