@@ -9,13 +9,13 @@ Everything the analyzer is allowed to collect from, with the facts that decided 
 | **Google Trends TR trending RSS** — `trends.google.com/trending/rss?geo=TR` | ~10 daily Turkish trending searches with `approx_traffic` and news links | Free, no key | Undocumented and can change without notice. Gives *today's top*, not rising/breakout long tail — the official API is alpha and application-gated. |
 | **GDELT DOC 2.0** — `api.gdeltproject.org/api/v2/doc/doc` | News volume timelines across 65 languages, 3-month windows | Free, no key | Best "one month early" news-emergence signal. Attribution + polite request rates requested. |
 | **Reddit Data API** | Posts, comments, upvotes per subreddit and query | Free tier ~100 queries/min per client ID | **Not collectable yet — see Excluded.** |
-| **Stack Exchange API** | Question volume per tag/query — people asking for help | Free | The "problems people are asking" signal, and a legal replacement for Quora. |
-| **YouTube Data API v3** — `videos.list?chart=mostPopular&regionCode=TR` | Turkish trending videos, 1 unit per call | Free, 10,000 units/day | `search.list` has its own 100 calls/day bucket. ToS: no storing metadata beyond 30 days, no substitute YouTube experience. |
+| **Stack Exchange API** | Question volume per tag/query — people asking for help | Free, no key needed at this volume (a key raises the daily quota) | The "problems people are asking" signal, and a legal replacement for Quora. |
+| **YouTube Data API v3** — `videos.list?chart=mostPopular&regionCode=TR` | Turkish trending videos, 1 unit per call | Free, 10,000 units/day — **needs a Google Cloud API key** | `search.list` has its own 100 calls/day bucket. ToS: no storing metadata beyond 30 days, no substitute YouTube experience. |
 | **Apple Marketing Tools RSS** — `itunes.apple.com/tr/rss/topfreeapplications/...` | Turkish top-free app chart | Free, no key | One of the three Mainstream markers. Apple has retired these feeds in phases before — pin the URL and watch it. |
 | **Google News RSS** — `news.google.com/rss?hl=tr&gl=TR&ceid=TR:tr` | Turkish news headlines | Free, no key | Personal use; no bulk redistribution. |
 | **Wikimedia Pageviews API** | Daily article view series and top pages per project | Free, no key | Clean spike detection for a Subject that has an article. CC BY-SA attribution. |
 | **Hacker News (Algolia + Firebase)** | Dev/tech emergence | Free, no key | Fair use. |
-| **Product Hunt GraphQL API** | New-product emergence | Free with token | Fair-use limits unpublished; attribution required. |
+| **Product Hunt GraphQL API** | New-product emergence | Free — **needs a developer token** from a Product Hunt app | Fair-use limits unpublished; attribution required. |
 | **X API** — Trends endpoint | Trending topics by location | Pay-per-use: **$0.010/request** | No free read allowance remains. At hourly polling ≈ $3/month. Optional in v1. |
 | **Pinterest API v5** — `/trends/keywords/{region}/top/{trend_type}` | Trend keywords and product categories | Free with approved app | Access tier for the trends scopes is UNVERIFIED; `trends.pinterest.com` is the manual fallback. |
 | **Meta Ad Library API** | Ad creatives and spend ranges | Free | Low value for Turkey: outside the EU it returns only politics/social-issue ads. |
