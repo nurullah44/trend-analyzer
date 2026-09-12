@@ -8,7 +8,7 @@ Everything the analyzer is allowed to collect from, with the facts that decided 
 |---|---|---|---|
 | **Google Trends TR trending RSS** — `trends.google.com/trending/rss?geo=TR` | ~10 daily Turkish trending searches with `approx_traffic` and news links | Free, no key | Undocumented and can change without notice. Gives *today's top*, not rising/breakout long tail — the official API is alpha and application-gated. |
 | **GDELT DOC 2.0** — `api.gdeltproject.org/api/v2/doc/doc` | News volume timelines across 65 languages, 3-month windows | Free, no key | Best "one month early" news-emergence signal. Attribution + polite request rates requested. |
-| **Reddit Data API (OAuth)** | Posts, comments, upvotes per subreddit and query | Free tier ~100 queries/min per client ID | ToS forbids training ML models without rightsholders' permission and requires a separate agreement for commercial use. Datacenter IPs get 403 — collect from the local machine. |
+| **Reddit Data API** | Posts, comments, upvotes per subreddit and query | Free tier ~100 queries/min per client ID | **Not collectable yet — see Excluded.** |
 | **Stack Exchange API** | Question volume per tag/query — people asking for help | Free | The "problems people are asking" signal, and a legal replacement for Quora. |
 | **YouTube Data API v3** — `videos.list?chart=mostPopular&regionCode=TR` | Turkish trending videos, 1 unit per call | Free, 10,000 units/day | `search.list` has its own 100 calls/day bucket. ToS: no storing metadata beyond 30 days, no substitute YouTube experience. |
 | **Apple Marketing Tools RSS** — `itunes.apple.com/tr/rss/topfreeapplications/...` | Turkish top-free app chart | Free, no key | One of the three Mainstream markers. Apple has retired these feeds in phases before — pin the URL and watch it. |
@@ -32,10 +32,11 @@ Everything the analyzer is allowed to collect from, with the facts that decided 
 | **Google Play charts** | No API — only scraping — and paid third parties start in the hundreds per month. |
 | **Amazon** | Creators API requires an Associates account with qualifying sales; PA-API 5 is being sunset. |
 | **Kickstarter / Indiegogo** | No licensed API; automated access is fragile and against terms. |
-| **Pushshift / bulk Reddit history** | Now moderator-only. |
+| **Reddit (API and RSS)** | The Responsible Builder Policy, updated 2026-09-12, requires explicit approval before any API access and a registered developer profile, and bans unapproved mining or scraping — which automated RSS polling is. An access request through Reddit's developer form is pending; revisit only if it is approved in writing. |
 | **Scraping-based vendors** (Tokchart, Kalodata, Virlo, Exolyt, TipAPI, Apify actors) | Not licensed by the platforms they resell; a supplier risk the project chose not to carry. |
 
 ## Rules
 
 - Bulk collection only through the approved list. A human may read a public page by hand; the analyzer never fetches pages.
+- A Source that needs vendor approval stays out of the approved list until that approval exists in writing, whatever the technical access looks like.
 - Anything paid must be justified by a need seen in real data, not by anticipation.
