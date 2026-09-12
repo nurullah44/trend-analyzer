@@ -21,6 +21,22 @@ Everything the analyzer is allowed to collect from, with the facts that decided 
 | **Google Ads API — `GenerateKeywordHistoricalMetrics`** | Average monthly searches (past 12 months), approximate monthly volume, competition level and index, for named keywords, with geo and language targets | Free per call; needs a Google Ads **manager account**, a **developer token with Basic access** (Test-level tokens return no real data) and OAuth credentials — no ad spend required | The Keyword Planner numbers, read programmatically, and the sizing half of validation. **Verified 2026-09-12:** the OAuth flow and API work (versions v22–v25; v20/v21 are retired) and the owner's customer id is `7588048331`, but the account answers `CUSTOMER_NOT_ENABLED` — the Ads account is not active, so nothing can be read from it until it is enabled or a working account id is supplied. Used only on Subjects that already reached Rising, never for discovery. |
 | **Meta Ad Library API** | Ad creatives and spend ranges | Free | Low value for Turkey: outside the EU it returns only politics/social-issue ads. |
 
+## Candidate: keyword volume without a Google Ads account
+
+Google's own route to keyword volumes is effectively closed for a private tool: **Explorer** access cannot call keyword planning (verified — `DEVELOPER_TOKEN_NOT_APPROVED: "This method is not allowed for use with explorer access"`), and **Basic** requires brand verification, which means owning a domain verified in Google Search Console plus homepage and privacy-policy URLs.
+
+**DataForSEO Google Ads API** sells the same Keyword Planner data without any Google account:
+
+| | |
+|---|---|
+| Price | **$0.09 per task** live (~7s), **$0.06 per task** in the standard queue (up to 45 min) — each task covers up to **1,000 keywords** |
+| Minimum | **$50** one-time credit top-up |
+| Gives | search volume, impressions, average CPC, competition, monthly volumes, geo down to city level |
+| Also sells | a **Google Trends API** product — the interest-over-time series Google's own alpha API keeps gated |
+| Caveat | a reseller, so the upstream provenance is theirs, not Google's contract with us |
+
+At this project's volume — a handful of keywords a week — the $50 credit would last years.
+
 ## Excluded
 
 | Source | Why |
