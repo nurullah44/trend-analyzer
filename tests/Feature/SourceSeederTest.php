@@ -17,9 +17,15 @@ class SourceSeederTest extends TestCase
 
         $this->assertSame(count(config('trend.sources')), Source::count());
 
-        $gdelt = Source::where('key', 'gdelt')->first();
-        $this->assertTrue($gdelt->enabled);
-        $this->assertNull($gdelt->geo, 'a global source carries no watched geo');
+        $stack = Source::where('key', 'stack_exchange')->first();
+        $this->assertTrue($stack->enabled);
+        $this->assertNull($stack->geo, 'a global source carries no watched geo');
+        $this->assertSame('discovery', $stack->roles);
+
+        $this->assertFalse(Source::where('key', 'gdelt')->first()->enabled, 'news volume is attention, not demand');
+        $this->assertFalse(Source::where('key', 'google_news')->first()->enabled);
+        $this->assertSame('marker', Source::where('key', 'google_trends')->first()->roles);
+        $this->assertSame('discovery,marker', Source::where('key', 'apple_chart')->first()->roles);
 
         $youtube = Source::where('key', 'youtube_trending')->first();
         $this->assertSame('US', $youtube->geo, 'a per-country source records its watched geo');

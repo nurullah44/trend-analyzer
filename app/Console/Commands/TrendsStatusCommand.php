@@ -30,11 +30,11 @@ class TrendsStatusCommand extends Command
         $this->newLine();
         $this->line('Sources ('.$sources->count().')');
         $this->table(
-            ['key', 'on', 'kind', 'geo', 'last run', 'last success', 'items', 'last error'],
+            ['key', 'on', 'roles', 'geo', 'last run', 'last success', 'items', 'last error'],
             $sources->map(fn (Source $source) => [
                 $source->key,
                 $source->enabled ? 'yes' : 'no',
-                $source->kind,
+                $source->roles,
                 $source->geo ?? 'global',
                 $source->last_run_at?->format('Y-m-d H:i') ?? 'never',
                 $source->last_success_at?->format('Y-m-d H:i') ?? 'never',

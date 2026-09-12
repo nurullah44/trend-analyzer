@@ -36,6 +36,18 @@ Everything the analyzer is allowed to collect from, with the facts that decided 
 | **Reddit (API and RSS)** | The Responsible Builder Policy, updated 2026-09-12, requires explicit approval before any API access and a registered developer profile, and bans unapproved mining or scraping — which automated RSS polling is. An access request through Reddit's developer form is pending; revisit only if it is approved in writing. |
 | **Scraping-based vendors** (Tokchart, Kalodata, Virlo, Exolyt, TipAPI, Apify actors) | Not licensed by the platforms they resell; a supplier risk the project chose not to carry. |
 
+## Roles
+
+A Source is collected for one or more jobs, recorded on the Source itself:
+
+| Role | Job | Who does it now |
+|---|---|---|
+| **discovery** | Surfaces Subjects nobody named | Stack Exchange, Hacker News, Product Hunt, Apple charts by genre, YouTube trending **by category** |
+| **marker** | Confirms a Subject has arrived | Google Trends trending, Apple charts |
+| **validation** | Sizes or shapes a Subject already tracked | Wikimedia pageviews, Google Ads keyword metrics |
+
+The rule that decides this: **demand and supply are signal; attention and news are dirt.** A Source that only reports what people are reading about — news volume, generic trending lists — is disabled no matter how free it is, because it cannot tell us that somebody wants something.
+
 ## Rules
 
 - Bulk collection only through the approved list. A human may read a public page by hand; the analyzer never fetches pages.
