@@ -52,7 +52,7 @@ class TrendsStatusCommand extends Command
 
         if (Item::count() === 0) {
             $this->newLine();
-            $this->comment('No Items collected yet — collection arrives with the next ticket.');
+            $this->comment('No Items collected yet. Run: php artisan trends:collect');
         }
 
         return self::SUCCESS;

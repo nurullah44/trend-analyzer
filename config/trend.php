@@ -1,5 +1,7 @@
 <?php
 
+use App\Collection\Sources\StackExchange;
+
 /*
 | The approved Sources, mirroring docs/sources.md. Adding a Source means one
 | entry here plus one implementation of the collection contract — nothing else.
@@ -20,7 +22,7 @@ return [
 
     'sources' => [
         // Demand: people asking for help, by category.
-        ['key' => 'stack_exchange', 'name' => 'Stack Exchange API', 'kind' => 'api', 'geo' => null, 'roles' => 'discovery', 'enabled' => true, 'cost_note' => 'free, no key needed at this volume', 'docs_url' => 'https://api.stackexchange.com/docs'],
+        ['key' => 'stack_exchange', 'name' => 'Stack Exchange API', 'kind' => 'api', 'geo' => null, 'roles' => 'discovery', 'enabled' => true, 'cost_note' => 'free, no key needed at this volume', 'docs_url' => 'https://api.stackexchange.com/docs', 'collector' => StackExchange::class],
         ['key' => 'hacker_news', 'name' => 'Hacker News (Algolia + Firebase)', 'kind' => 'api', 'geo' => null, 'roles' => 'discovery', 'enabled' => true, 'cost_note' => 'free', 'docs_url' => 'https://hn.algolia.com/api'],
 
         // Supply: what is actually launching and being adopted.
