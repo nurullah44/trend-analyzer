@@ -107,4 +107,41 @@ curl_setopt_array($ch, [
 $acls = curl_exec($ch);
 $aclStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 echo "GET /v1/acls -> HTTP $aclStatus\n";
-echo substr((string) $acls, 0, 800)."\n";
+echo substr((string) $acls, 0, 800)."\n\n";
+
+// The payoff: most-searched App Store terms for a genre, last complete week.
+$adAccountId = env('APPLE_ADS_AD_ACCOUNT_ID');
+$sunday = strtotime('last sunday -7 days');
+$range = ['start' => date('Y-m-d', $sunday), 'end' => date('Y-m-d', $sunday + 6 * 86400), 'granularity' => 'WEEKLY_SUN_SAT'];
+
+foreach (['PRODUCTIVITY_UTILITIES', 'HEALTH_FITNESS'] as $genre) {
+    $payload = json_encode([
+        'filters' => [
+            ['field' => 'countryOrRegion', 'operator' => 'EQUALS', 'value' => 'US'],
+            ['field' => 'genre', 'operator' => 'EQUALS', 'value' => $genre],
+        ],
+        'timeRange' => $range,
+        'sorting' => [['field' => 'rankInGenre', 'order' => 'ASC']],
+        'pagination' => ['offset' => 0, 'pageSize' => 10],
+    ]);
+    $headers = ['Authorization: Bearer '.$token['access_token'], 'Content-Type: application/json', 'Accept: application/json'];
+    if ($adAccountId) $headers[] = 'X-AP-Context: adAccountId='.$adAccountId;
+
+    $ch = curl_init(APPLE_API.'/insights/apps/search-term-popularity/query');
+    curl_setopt_array($ch, [CURLOPT_POST => true, CURLOPT_POSTFIELDS => $payload, CURLOPT_HTTPHEADER => $headers, CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 40]);
+    $res = curl_exec($ch);
+    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    echo "=== $genre, US, {$range['start']} to {$range['end']} -> HTTP $code ===\n";
+    $json = json_decode((string) $res, true);
+    $rows = $json['result']['rows'] ?? null;
+    if (is_array($rows)) {
+        foreach (array_slice($rows, 0, 10) as $row) {
+            printf("  %-34s rank=%-4s pop100=%-4s popInGenre=%-4s\n",
+                $row['searchTerm'] ?? '?', $row['rankInGenre'] ?? '-', $row['searchPopularity1to100'] ?? '-', $row['searchPopularityInGenre'] ?? '-');
+        }
+    } else {
+        echo "  raw response keys: ".implode(', ', array_keys($json ?? []))."\n";
+        echo "  ".substr(json_encode($json), 0, 1200)."\n";
+    }
+    echo "\n";
+}
