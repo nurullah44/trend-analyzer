@@ -94,8 +94,8 @@ final class StackExchange implements SourceCollector
 
         $payload = $response->json();
 
-        // An answer we cannot read must fail the run, never pass as a day with no questions:
-        // the runner replaces the day's Items with what a collector returns.
+        // An answer we cannot read must fail the run: a broken response is not a day
+        // with no questions, and it must never look like one in the Source's health.
         if (! is_array($payload) || ! is_array($payload['items'] ?? null)) {
             throw new UnexpectedValueException(
                 'Stack Exchange answered without items for '.$from->toDateString().'.'
@@ -114,7 +114,7 @@ final class StackExchange implements SourceCollector
             excerpt: implode(', ', $question['tags'] ?? []),
             url: $question['link'] ?? null,
             publishedAt: CarbonImmutable::createFromTimestampUTC((int) $question['creation_date']),
-            signal: max(0, (int) ($question['score'] ?? 0)),
+            signal: (int) ($question['score'] ?? 0),
         );
     }
 

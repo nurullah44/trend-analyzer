@@ -11,9 +11,8 @@ use Throwable;
 
 /**
  * Runs collectors and owns everything that happens after a fetch: storing the
- * day's Items, replacing the day's previous set, and recording the Source's
- * health. A failing Source never stops another one, and never loses what an
- * earlier run already collected.
+ * day's Items and recording the Source's health. A failing Source never stops
+ * another one, and never loses what an earlier run already collected.
  */
 final class CollectionRunner
 {
@@ -62,22 +61,15 @@ final class CollectionRunner
     }
 
     /**
-     * Replace the Source's Items for the collected day with what the Source now
-     * says it published: upsert by the Source's own identifier, and drop what it
-     * no longer reports. Nothing is written until the whole day arrived.
+     * Upsert the day's Items for the Source: one Item per Source per day per
+     * external id, updated in place on a re-run and never duplicated. Nothing
+     * is written until the whole day arrived.
      */
     private function store(Source $source, CollectedDay $collected): void
     {
         $observedOn = $collected->day->toDateString();
-        $externalIds = array_map(fn (CollectedItem $item) => $item->externalId, $collected->items);
 
-        DB::transaction(function () use ($source, $collected, $observedOn, $externalIds) {
-            Item::query()
-                ->where('source_id', $source->id)
-                ->whereDate('observed_on', $observedOn)
-                ->when($externalIds !== [], fn ($query) => $query->whereNotIn('external_id', $externalIds))
-                ->delete();
-
+        DB::transaction(function () use ($source, $collected, $observedOn) {
             foreach ($collected->items as $item) {
                 $this->record($source, $observedOn, $item);
             }
@@ -87,14 +79,17 @@ final class CollectionRunner
     private function record(Source $source, string $observedOn, CollectedItem $item): void
     {
         Item::updateOrCreate(
-            ['source_id' => $source->id, 'external_id' => $item->externalId],
+            [
+                'source_id' => $source->id,
+                'observed_on' => $observedOn,
+                'external_id' => $item->externalId,
+            ],
             [
                 'title' => $item->title,
                 'excerpt' => $item->excerpt,
                 'url' => $item->url,
                 // Timestamps are read back in the app timezone, so store them there; the instant is what matters.
                 'published_at' => $item->publishedAt?->setTimezone(config('app.timezone')),
-                'observed_on' => $observedOn,
                 'signal' => $item->signal,
             ],
         );

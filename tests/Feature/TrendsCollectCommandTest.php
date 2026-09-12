@@ -12,6 +12,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
 use Tests\Support\FakeCollector;
+use Tests\Support\Fixtures;
 use Tests\TestCase;
 
 class TrendsCollectCommandTest extends TestCase
@@ -22,7 +23,7 @@ class TrendsCollectCommandTest extends TestCase
     {
         $this->seed(SourceSeeder::class);
         Http::preventStrayRequests();
-        Http::fake(['api.stackexchange.com/*' => Http::response($this->fixture('2026-09-11-page-1.json'))]);
+        Http::fake(['api.stackexchange.com/*' => Http::response(Fixtures::json('StackExchange/2026-09-11-page-1.json'))]);
 
         $this->artisan('trends:collect', ['--source' => 'stack_exchange', '--day' => '2026-09-11'])
             ->expectsOutputToContain('stack_exchange')
@@ -127,7 +128,8 @@ class TrendsCollectCommandTest extends TestCase
 
     public function test_status_shows_the_health_a_collection_recorded(): void
     {
-        $this->travelTo(CarbonImmutable::parse('2026-09-12 07:30:00', 'Europe/Istanbul'));
+        $runAt = CarbonImmutable::parse('2026-09-12 07:30:00', 'Europe/Istanbul');
+        $this->travelTo($runAt);
         $this->seed(SourceSeeder::class);
         $this->app->instance(SourceRegistry::class, new SourceRegistry([
             'stack_exchange' => FakeCollector::returning('stack_exchange', $this->question('q-1'), $this->question('q-2')),
@@ -137,18 +139,12 @@ class TrendsCollectCommandTest extends TestCase
 
         $this->assertSame(0, Artisan::call('trends:status'));
 
+        $stamp = preg_quote($runAt->setTimezone(config('app.timezone'))->format('Y-m-d H:i'), '/');
+
         $this->assertMatchesRegularExpression(
-            '/stack_exchange\s+\| yes\s+\| discovery\s+\| global\s+\| 2026-09-12 07:30\s+\| 2026-09-12 07:30\s+\| 2\s+\|/',
+            '/stack_exchange\s+\| yes\s+\| discovery\s+\| global\s+\| '.$stamp.'\s+\| '.$stamp.'\s+\| 2\s+\|/',
             Artisan::output(),
         );
-    }
-
-    /** @return array<string, mixed> */
-    private function fixture(string $name): array
-    {
-        $path = base_path("tests/Fixtures/StackExchange/{$name}");
-
-        return json_decode(file_get_contents($path), true, flags: JSON_THROW_ON_ERROR);
     }
 
     private function question(string $id): CollectedItem

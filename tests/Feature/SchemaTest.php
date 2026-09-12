@@ -17,11 +17,11 @@ class SchemaTest extends TestCase
         }
     }
 
-    public function test_items_are_unique_per_source_and_external_id(): void
+    public function test_items_are_unique_per_source_per_day_and_external_id(): void
     {
         $this->assertTrue(
             collect(Schema::getIndexes('items'))->contains(
-                fn (array $index) => $index['unique'] && $index['columns'] === ['source_id', 'external_id']
+                fn (array $index) => $index['unique'] && $index['columns'] === ['source_id', 'observed_on', 'external_id']
             )
         );
     }

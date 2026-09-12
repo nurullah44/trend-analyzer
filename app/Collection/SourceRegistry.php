@@ -34,12 +34,6 @@ final class SourceRegistry
         return $this->collectors[$key] ?? throw new UnknownSourceException($key);
     }
 
-    /** @return array<string, SourceCollector> */
-    public function all(): array
-    {
-        return $this->collectors;
-    }
-
     /** @return list<string> */
     public function keys(): array
     {

@@ -43,9 +43,21 @@ class CollectionRunnerTest extends TestCase
         $this->assertSame(5, $item->signal);
     }
 
+    public function test_a_negative_measured_quantity_is_stored_as_the_source_reported_it(): void
+    {
+        $source = $this->source('stack_exchange');
+
+        $this->runner(
+            FakeCollector::returning('stack_exchange', $this->question('q-1', signal: -2)),
+        )->collect($source, $this->day());
+
+        $this->assertSame(-2, Item::query()->sole()->signal);
+    }
+
     public function test_a_successful_collection_records_health_on_the_source(): void
     {
-        $this->travelTo(CarbonImmutable::parse('2026-09-12 06:30:00', 'Europe/Istanbul'));
+        $runAt = CarbonImmutable::parse('2026-09-12 06:30:00', 'Europe/Istanbul');
+        $this->travelTo($runAt);
 
         $source = $this->source('stack_exchange');
 
@@ -53,9 +65,11 @@ class CollectionRunnerTest extends TestCase
             FakeCollector::returning('stack_exchange', $this->question('q-1'), $this->question('q-2')),
         )->collect($source, $this->day());
 
+        $stamp = $runAt->setTimezone(config('app.timezone'))->format('Y-m-d H:i');
+
         $source->refresh();
-        $this->assertSame('2026-09-12 06:30', $source->last_run_at->format('Y-m-d H:i'));
-        $this->assertSame('2026-09-12 06:30', $source->last_success_at->format('Y-m-d H:i'));
+        $this->assertSame($stamp, $source->last_run_at->format('Y-m-d H:i'));
+        $this->assertSame($stamp, $source->last_success_at->format('Y-m-d H:i'));
         $this->assertSame(2, $source->last_item_count);
         $this->assertNull($source->last_error);
     }
@@ -76,22 +90,19 @@ class CollectionRunnerTest extends TestCase
         $this->assertSame($before, Item::query()->orderBy('id')->get()->toArray());
     }
 
-    public function test_re_running_the_same_day_replaces_the_items_that_are_no_longer_published(): void
+    public function test_the_same_item_published_on_two_days_belongs_to_both_days(): void
     {
         $source = $this->source('stack_exchange');
-        $day = $this->day();
+        $runner = $this->runner(FakeCollector::returning('stack_exchange', $this->question('q-1')));
 
-        $this->runner(
-            FakeCollector::returning('stack_exchange', $this->question('q-1'), $this->question('q-2', 'Old title')),
-        )->collect($source, $day);
+        $runner->collect($source, $this->day('2026-09-10'));
+        $runner->collect($source, $this->day('2026-09-11'));
 
-        $this->runner(
-            FakeCollector::returning('stack_exchange', $this->question('q-2', 'New title'), $this->question('q-3')),
-        )->collect($source, $day);
-
-        $this->assertSame(2, Item::query()->count());
-        $this->assertSame(['q-2', 'q-3'], Item::query()->orderBy('external_id')->pluck('external_id')->all());
-        $this->assertSame('New title', Item::query()->where('external_id', 'q-2')->value('title'));
+        $this->assertSame(
+            ['2026-09-10', '2026-09-11'],
+            Item::query()->orderBy('observed_on')->get()
+                ->map(fn (Item $item) => $item->observed_on->toDateString())->all(),
+        );
     }
 
     public function test_a_failing_source_keeps_its_previously_collected_items_and_records_the_failure(): void
@@ -161,9 +172,9 @@ class CollectionRunnerTest extends TestCase
         return new CollectionRunner($registry);
     }
 
-    private function day(): CarbonImmutable
+    private function day(string $date = self::DAY): CarbonImmutable
     {
-        return CarbonImmutable::parse(self::DAY, 'UTC');
+        return CarbonImmutable::parse($date, 'UTC');
     }
 
     private function question(string $id, string $title = 'A question', int $signal = 0, ?CarbonImmutable $publishedAt = null): CollectedItem

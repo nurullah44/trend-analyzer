@@ -11,6 +11,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
+use Tests\Support\Fixtures;
 use Tests\TestCase;
 use UnexpectedValueException;
 
@@ -29,7 +30,7 @@ class StackExchangeTest extends TestCase
     public function test_it_collects_a_recorded_day_of_questions(): void
     {
         Http::preventStrayRequests();
-        Http::fake(['api.stackexchange.com/*' => Http::response($this->fixture('2026-09-11-page-1.json'))]);
+        Http::fake(['api.stackexchange.com/*' => Http::response(Fixtures::json('StackExchange/2026-09-11-page-1.json'))]);
 
         $collected = $this->app->make(StackExchange::class)
             ->collectForDay($this->source(), CarbonImmutable::parse('2026-09-11', 'UTC'));
@@ -43,7 +44,7 @@ class StackExchangeTest extends TestCase
         $this->assertSame('swift, xcode, macos, swiftui, background-assets-framework', $first->excerpt, 'the question’s tags are its text beyond the title');
         $this->assertSame('https://stackoverflow.com/questions/80002501/downloading-apple-hosted-asset-packs-in-a-swiftui-macos-app', $first->url);
         $this->assertTrue($first->publishedAt->equalTo(CarbonImmutable::createFromTimestampUTC(1789164382)));
-        $this->assertSame(0, $first->signal, 'a downvoted question carries no positive quantity');
+        $this->assertSame(-2, $first->signal, 'the measured quantity is the score the Source reports');
 
         $upvoted = collect($collected->items)->firstWhere('externalId', '80002473');
         $this->assertSame(2, $upvoted->signal);
@@ -52,7 +53,7 @@ class StackExchangeTest extends TestCase
     public function test_it_asks_for_the_whole_utc_day_and_nothing_else(): void
     {
         Http::preventStrayRequests();
-        Http::fake(['api.stackexchange.com/*' => Http::response($this->fixture('2026-09-11-page-1.json'))]);
+        Http::fake(['api.stackexchange.com/*' => Http::response(Fixtures::json('StackExchange/2026-09-11-page-1.json'))]);
 
         $this->app->make(StackExchange::class)
             ->collectForDay($this->source(), CarbonImmutable::parse('2026-09-11', 'UTC'));
@@ -77,8 +78,8 @@ class StackExchangeTest extends TestCase
         Http::preventStrayRequests();
         Http::fake([
             'api.stackexchange.com/*' => Http::sequence()
-                ->push($this->fixture('2026-08-01-page-1.json'))
-                ->push($this->fixture('2026-08-01-page-2.json')),
+                ->push(Fixtures::json('StackExchange/2026-08-01-page-1.json'))
+                ->push(Fixtures::json('StackExchange/2026-08-01-page-2.json')),
         ]);
 
         $collected = $this->app->make(StackExchange::class)
@@ -111,14 +112,6 @@ class StackExchangeTest extends TestCase
         } finally {
             Http::assertSentCount(1);
         }
-    }
-
-    /** @return array<string, mixed> */
-    private function fixture(string $name): array
-    {
-        $path = base_path("tests/Fixtures/StackExchange/{$name}");
-
-        return json_decode(file_get_contents($path), true, flags: JSON_THROW_ON_ERROR);
     }
 
     private function source(): Source
