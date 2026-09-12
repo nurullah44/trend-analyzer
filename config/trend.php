@@ -14,12 +14,12 @@ return [
     'default_geo' => env('TREND_GEO', 'US'),
 
     'sources' => [
-        ['key' => 'google_trends', 'name' => 'Google Trends trending searches', 'kind' => 'rss', 'geo' => 'US', 'enabled' => true, 'cost_note' => 'free', 'docs_url' => 'https://trends.google.com/trending/rss?geo=US'],
+        ['key' => 'google_trends', 'name' => 'Google Trends trending searches', 'kind' => 'rss', 'geo' => 'GLOBAL', 'enabled' => true, 'cost_note' => 'free', 'docs_url' => 'https://trends.google.com/trending/rss?geo=GLOBAL'],
         ['key' => 'gdelt', 'name' => 'GDELT DOC 2.0', 'kind' => 'api', 'geo' => null, 'enabled' => true, 'cost_note' => 'free', 'docs_url' => 'https://api.gdeltproject.org/api/v2/doc/doc'],
         ['key' => 'stack_exchange', 'name' => 'Stack Exchange API', 'kind' => 'api', 'geo' => null, 'enabled' => true, 'cost_note' => 'free, no key needed at this volume', 'docs_url' => 'https://api.stackexchange.com/docs'],
         ['key' => 'youtube_trending', 'name' => 'YouTube Data API — trending videos', 'kind' => 'api', 'geo' => 'US', 'enabled' => true, 'cost_note' => 'free, 10k units/day; needs a Google Cloud API key', 'docs_url' => 'https://developers.google.com/youtube/v3/docs/videos/list'],
         ['key' => 'apple_chart', 'name' => 'Apple Marketing Tools — top free apps', 'kind' => 'rss', 'geo' => 'US', 'enabled' => true, 'cost_note' => 'free', 'docs_url' => 'https://rss.applemarketingtools.com/'],
-        ['key' => 'google_news', 'name' => 'Google News RSS', 'kind' => 'rss', 'geo' => 'US', 'enabled' => true, 'cost_note' => 'free', 'docs_url' => 'https://news.google.com/rss?hl=en-US&gl=US&ceid=US:en'],
+        ['key' => 'google_news', 'name' => 'Google News RSS (topic feeds)', 'kind' => 'rss', 'geo' => 'GLOBAL', 'enabled' => true, 'cost_note' => 'free; topics are read as global sections, not one country front page', 'docs_url' => 'https://news.google.com/rss/headlines/section/topic/TECHNOLOGY?hl=en-US&gl=US&ceid=US:en'],
         ['key' => 'wikimedia', 'name' => 'Wikimedia Pageviews API', 'kind' => 'api', 'geo' => null, 'enabled' => true, 'cost_note' => 'free', 'docs_url' => 'https://wikimedia.org/api/rest_v1/'],
         ['key' => 'hacker_news', 'name' => 'Hacker News (Algolia + Firebase)', 'kind' => 'api', 'geo' => null, 'enabled' => true, 'cost_note' => 'free', 'docs_url' => 'https://hn.algolia.com/api'],
         ['key' => 'product_hunt', 'name' => 'Product Hunt GraphQL API', 'kind' => 'api', 'geo' => null, 'enabled' => true, 'cost_note' => 'free; needs a developer token', 'docs_url' => 'https://api.producthunt.com/v2/docs'],
