@@ -25,7 +25,11 @@ class SourceSeederTest extends TestCase
         $this->assertSame('US', $youtube->geo, 'a per-country source records its watched geo');
 
         $this->assertFalse(Source::where('key', 'reddit')->first()->enabled, 'Reddit is blocked pending approval');
-        $this->assertFalse(Source::where('key', 'x_trends')->first()->enabled);
+        $this->assertFalse(Source::where('key', 'pinterest')->first()->enabled, 'Pinterest needs a business account');
+
+        $x = Source::where('key', 'x_trends')->first();
+        $this->assertTrue($x->enabled);
+        $this->assertSame('GLOBAL', $x->geo);
 
         Source::where('key', 'gdelt')->update(['last_item_count' => 12]);
         $this->seed(SourceSeeder::class);
