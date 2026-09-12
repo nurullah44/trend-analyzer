@@ -16,7 +16,7 @@ Everything the analyzer is allowed to collect from, with the facts that decided 
 | **Wikimedia Pageviews API** | Daily article view series and top pages per project | Free, no key | Clean spike detection for a Subject that has an article. CC BY-SA attribution. |
 | **Hacker News (Algolia + Firebase)** | Dev/tech emergence | Free, no key | Fair use. |
 | **Product Hunt GraphQL API** | New-product emergence | Free — **needs a developer token** from a Product Hunt app | Fair-use limits unpublished; attribution required. |
-| **X API** — Trends endpoint | Trending topics by location | Pay-per-use: **$0.010/request** | No free read allowance remains. At hourly polling ≈ $3/month. Optional in v1. |
+| **X API** — Trends endpoint `GET /2/trends/by/woeid/1` | The 20 ranked worldwide trends (WOEID 1 = Worldwide, per X's own docs), verified live | Pay-per-use: **$0.010/request** — about $0.30/month at one request a day | **Names and rank only: no tweet counts.** `trend.fields=trend_name,tweet_count` returns `trend_name` alone, so X is a corroboration signal (rank as strength), never a volume series. Rate limit 75 per window; the worldwide and US lists were near-identical in testing. |
 | **Pinterest API v5** — `/trends/keywords/{region}/top/{trend_type}` | Trend keywords and product categories | Free with approved app | Access tier for the trends scopes is UNVERIFIED; `trends.pinterest.com` is the manual fallback. |
 | **Meta Ad Library API** | Ad creatives and spend ranges | Free | Low value for Turkey: outside the EU it returns only politics/social-issue ads. |
 
