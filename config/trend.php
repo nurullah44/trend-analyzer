@@ -14,6 +14,8 @@
 | leave it null. `enabled` false means allowed but deliberately not collected.
 */
 return [
+    // The fallback for Sources that can only be read one country at a time.
+    // Global or the United States only — Türkiye is never used as a geo.
     'default_geo' => env('TREND_GEO', 'US'),
 
     'sources' => [

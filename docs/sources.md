@@ -69,6 +69,14 @@ A Source is collected for one or more jobs, recorded on the Source itself:
 
 The rule that decides this: **demand and supply are signal; attention and news are dirt.** A Source that only reports what people are reading about — news volume, generic trending lists — is disabled no matter how free it is, because it cannot tell us that somebody wants something.
 
+## Geo rule
+
+**Global, or the United States — never Türkiye.**
+
+For Google Ads keyword metrics, **omitting `geo_target_constants` returns worldwide figures** (verified: one keyword reads **110,000/month** with no geo, 18,100 in the US alone, 5,400 in Germany). Passing geo constants restricts to those markets, and **multiple geos sum** (US + Germany = 22,200). So global costs no extra call: leave the field out. `geoTargetConstants/2840` is the United States when a national view is wanted.
+
+Per-country Sources that have no worldwide mode — YouTube's trending chart, Apple's chart, Pinterest — fall back to `US`.
+
 ## Rules
 
 - Bulk collection only through the approved list. A human may read a public page by hand; the analyzer never fetches pages.
