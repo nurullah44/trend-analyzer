@@ -17,6 +17,7 @@ Everything the analyzer is allowed to collect from, with the facts that decided 
 | **Hacker News (Algolia + Firebase)** | Dev/tech emergence | Free, no key | Fair use. |
 | **Product Hunt GraphQL API** | New-product emergence | Free — **needs a developer token** from a Product Hunt app | Fair-use limits unpublished; attribution required. |
 | **Pinterest API v5** — `/trends/keywords/{region}/top/{trend_type}` | Trend keywords and product categories | Free with approved app | Access tier for the trends scopes is UNVERIFIED; `trends.pinterest.com` is the manual fallback. |
+| **Google Ads API — `GenerateKeywordHistoricalMetrics`** | Average monthly searches (past 12 months), approximate monthly volume, competition level and index, for named keywords, with geo and language targets | Free per call; needs a Google Ads **manager account**, a **developer token with Basic access** (Test-level tokens return no real data) and OAuth credentials — no ad spend required | The Keyword Planner numbers, read programmatically, and the sizing half of validation. Used only on Subjects that already reached Rising, never for discovery. |
 | **Meta Ad Library API** | Ad creatives and spend ranges | Free | Low value for Turkey: outside the EU it returns only politics/social-issue ads. |
 
 ## Excluded
