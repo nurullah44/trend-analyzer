@@ -118,13 +118,13 @@ final class StackExchange implements SourceCollector
         );
     }
 
-    /** Stack Exchange asks clients to wait when it sends a backoff; never for longer than a minute. */
+    /** Stack Exchange asks clients to wait when it sends a backoff; this is a daily batch, so waiting is safe. */
     private function respectBackoff(mixed $backoff): void
     {
         $seconds = (int) $backoff;
 
         if ($seconds > 0) {
-            sleep(min($seconds, 60));
+            sleep($seconds);
         }
     }
 }

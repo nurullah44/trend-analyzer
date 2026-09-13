@@ -15,8 +15,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Collectors are built from the approved list, so adding a Source is one
-        // config entry plus one implementation of the contract — nothing else.
+        // Collectors are built from config/trend.php, which mirrors the approved
+        // list in docs/sources.md. Adding a Source is one docs entry, one config
+        // entry and one implementation of the contract — nothing else.
         $this->app->singleton(SourceRegistry::class, function (Application $app): SourceRegistry {
             $collectors = [];
 
