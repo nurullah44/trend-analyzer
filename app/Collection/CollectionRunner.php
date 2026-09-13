@@ -90,7 +90,7 @@ final class CollectionRunner
                 'url' => $item->url,
                 // Timestamps are read back in the app timezone, so store them there; the instant is what matters.
                 'published_at' => $item->publishedAt?->setTimezone(config('app.timezone')),
-                'signal' => $item->signal,
+                'measured_quantity' => $item->measuredQuantity,
             ],
         );
     }

@@ -44,10 +44,10 @@ class StackExchangeTest extends TestCase
         $this->assertSame('swift, xcode, macos, swiftui, background-assets-framework', $first->excerpt, 'the question’s tags are its text beyond the title');
         $this->assertSame('https://stackoverflow.com/questions/80002501/downloading-apple-hosted-asset-packs-in-a-swiftui-macos-app', $first->url);
         $this->assertTrue($first->publishedAt->equalTo(CarbonImmutable::createFromTimestampUTC(1789164382)));
-        $this->assertSame(-2, $first->signal, 'the measured quantity is the score the Source reports');
+        $this->assertSame(-2, $first->measuredQuantity, 'the measured quantity is the score the Source reports');
 
         $upvoted = collect($collected->items)->firstWhere('externalId', '80002473');
-        $this->assertSame(2, $upvoted->signal);
+        $this->assertSame(2, $upvoted->measuredQuantity);
     }
 
     public function test_it_asks_for_the_whole_utc_day_and_nothing_else(): void

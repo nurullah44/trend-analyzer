@@ -40,7 +40,7 @@ class CollectionRunnerTest extends TestCase
         $this->assertSame('https://stackoverflow.com/questions/80002501', $item->url);
         $this->assertTrue($item->published_at->equalTo($published), 'the instant the Source published it survives storage');
         $this->assertSame(self::DAY, $item->observed_on->toDateString());
-        $this->assertSame(5, $item->signal);
+        $this->assertSame(5, $item->measured_quantity);
     }
 
     public function test_a_negative_measured_quantity_is_stored_as_the_source_reported_it(): void
@@ -48,10 +48,10 @@ class CollectionRunnerTest extends TestCase
         $source = $this->source('stack_exchange');
 
         $this->runner(
-            FakeCollector::returning('stack_exchange', $this->question('q-1', signal: -2)),
+            FakeCollector::returning('stack_exchange', $this->question('q-1', measuredQuantity: -2)),
         )->collect($source, $this->day());
 
-        $this->assertSame(-2, Item::query()->sole()->signal);
+        $this->assertSame(-2, Item::query()->sole()->measured_quantity);
     }
 
     public function test_a_successful_collection_records_health_on_the_source(): void
@@ -78,7 +78,7 @@ class CollectionRunnerTest extends TestCase
     {
         $source = $this->source('stack_exchange');
         $runner = $this->runner(
-            FakeCollector::returning('stack_exchange', $this->question('q-1'), $this->question('q-2', signal: 3)),
+            FakeCollector::returning('stack_exchange', $this->question('q-1'), $this->question('q-2', measuredQuantity: 3)),
         );
 
         $runner->collect($source, $this->day());
@@ -177,7 +177,7 @@ class CollectionRunnerTest extends TestCase
         return CarbonImmutable::parse($date, 'UTC');
     }
 
-    private function question(string $id, string $title = 'A question', int $signal = 0, ?CarbonImmutable $publishedAt = null): CollectedItem
+    private function question(string $id, string $title = 'A question', int $measuredQuantity = 0, ?CarbonImmutable $publishedAt = null): CollectedItem
     {
         return new CollectedItem(
             externalId: $id,
@@ -185,7 +185,7 @@ class CollectionRunnerTest extends TestCase
             excerpt: 'tags',
             url: "https://stackoverflow.com/questions/{$id}",
             publishedAt: $publishedAt ?? CarbonImmutable::parse(self::DAY.' 08:30:00', 'UTC'),
-            signal: $signal,
+            measuredQuantity: $measuredQuantity,
         );
     }
 }

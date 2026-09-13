@@ -114,7 +114,7 @@ final class StackExchange implements SourceCollector
             excerpt: implode(', ', $question['tags'] ?? []),
             url: $question['link'] ?? null,
             publishedAt: CarbonImmutable::createFromTimestampUTC((int) $question['creation_date']),
-            signal: (int) ($question['score'] ?? 0),
+            measuredQuantity: (int) ($question['score'] ?? 0),
         );
     }
 

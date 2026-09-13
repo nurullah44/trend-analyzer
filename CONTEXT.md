@@ -16,6 +16,10 @@ _Avoid_: topic, keyword, hashtag, query
 A verifiable observation supporting or weakening a Subject's rise: source, timestamp, measured quantity, and verbatim text or link. Evidence is collected, never generated.
 _Avoid_: insight, take, summary
 
+**Measured quantity**:
+The number a Source itself reports for one thing it published — a question's score, a video's view count, an app's chart rank. The analyzer never computes it.
+_Avoid_: signal, weight, metric
+
 **Verdict**:
 The ruling a reviewer makes on an Alarm — worth considering, or noise — recorded so thresholds can later be tuned against real outcomes instead of guesses.
 _Avoid_: score, rating, feedback

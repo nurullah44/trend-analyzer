@@ -9,8 +9,9 @@ use Carbon\CarbonImmutable;
  *
  * `externalId` is the Source's own identifier and is what makes collection
  * idempotent. `excerpt` carries whatever verbatim text the Source offers
- * beyond the title — for Stack Exchange, the question's tags. `signal` carries
- * the Source's own measured quantity for the item, such as a question's score.
+ * beyond the title — for Stack Exchange, the question's tags.
+ * `measuredQuantity` is the number the Source itself reports for the item,
+ * such as a question's score.
  */
 final readonly class CollectedItem
 {
@@ -20,6 +21,6 @@ final readonly class CollectedItem
         public ?string $excerpt = null,
         public ?string $url = null,
         public ?CarbonImmutable $publishedAt = null,
-        public int $signal = 0,
+        public int $measuredQuantity = 0,
     ) {}
 }

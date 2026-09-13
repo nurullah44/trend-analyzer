@@ -15,7 +15,7 @@ class Item extends Model
 
     protected $casts = [
         'published_at' => 'datetime',
-        'signal' => 'integer',
+        'measured_quantity' => 'integer',
     ];
 
     public function source(): BelongsTo
