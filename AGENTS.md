@@ -9,7 +9,7 @@ Read these first, in order: `CONTEXT.md` (the domain glossary and the only sourc
 - **SQLite only, on the Linux filesystem.** WAL mode, never `/mnt/c`.
 - **No scraping, ever.** Collection uses the Sources in `docs/sources.md` and nothing else, and no agent fetches or reads external pages on the analyzer's behalf.
 - **Statistics detect, agents explain.** No model decides whether something is emerging and no model writes an Alarm. A model may only group and name Subjects, and tidy report output.
-- **Read-only agent doors.** The MCP server and the CLI expose reads; recording a Verdict is the only write.
+- **Agents read and discuss, nothing else.** The MCP server and the CLI give an agent the collected data and nothing more: it reads, it talks the results over with the owner, and it never runs the app, never collects, never fixes or changes anything. Collection is the app's own scheduled job, and the only write anywhere is the owner recording a Verdict.
 
 ## Environment
 
