@@ -21,3 +21,8 @@ php artisan test           # the suite must pass with no network access
 ## Work
 
 Issues live in GitHub Issues on `nurullah44/trend-analyzer`; see `docs/agents/issue-tracker.md`. Tickets are vertical slices and declare their blockers — work the frontier, keep the suite green, and commit per ticket.
+
+## Subagents
+
+- This project dispatches only `opencode-go/deepseek-v4.1-flash`, always with `--thinking max`. Never another provider or model, never a lower thinking level.
+- Reviews run as separate read-only Pi processes, one axis each (Standards and Spec), concurrently; the dispatch recipe is in the global `AGENTS.md`.
