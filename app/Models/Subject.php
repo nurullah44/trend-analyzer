@@ -32,9 +32,10 @@ class Subject extends Model
         return Str::slug(strtr($name, ['+' => ' plus', '#' => ' sharp']), language: null);
     }
 
-    public function days(): HasMany
+    /** @return HasMany<SubjectWeek, $this> */
+    public function weeks(): HasMany
     {
-        return $this->hasMany(SubjectDay::class);
+        return $this->hasMany(SubjectWeek::class);
     }
 
     public function alarms(): HasMany

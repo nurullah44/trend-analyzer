@@ -12,7 +12,7 @@ class SchemaTest extends TestCase
 
     public function test_the_analyzer_schema_exists(): void
     {
-        foreach (['sources', 'items', 'subjects', 'subject_days', 'alarms', 'events', 'labels', 'label_subject'] as $table) {
+        foreach (['sources', 'items', 'subjects', 'subject_weeks', 'alarms', 'events', 'labels', 'label_subject'] as $table) {
             $this->assertTrue(Schema::hasTable($table), "missing table: {$table}");
         }
     }

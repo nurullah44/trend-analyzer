@@ -70,8 +70,9 @@ final class Intake
             return $this->create($name, SubjectState::Watching, CarbonImmutable::now('UTC')->startOfDay(), 'seeded', [], null, $query);
         }
 
-        if (filled($query)) {
-            $subject->update(['query' => trim($query)]);
+        // A new query measures something else, so it starts a new series (rows are keyed by query).
+        if (filled($query) && trim($query) !== $subject->query) {
+            $subject->update(['query' => trim($query), 'scored_week' => null]);
         }
 
         if (in_array($subject->state, [SubjectState::Backlog, SubjectState::Archived], true)) {

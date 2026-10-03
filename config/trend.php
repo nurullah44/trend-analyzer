@@ -47,6 +47,19 @@ return [
         ],
     ],
 
+    // The weekly score (ADR-0004). A crude placeholder until Verdicts and the backtest tune it.
+    'scoring' => [
+        'baseline_weeks' => 8,          // the trailing weeks a Velocity is measured against
+        'min_baseline_weeks' => 4,      // fewer measured weeks is a cold start: no Velocity
+        'rising_velocity' => 2.0,       // a Source counts towards Corroboration at or above this…
+        'min_volume' => 3,              // …and with at least this Volume in the week
+        'velocity_cap' => 5.0,          // one loud Source adds at most this to the Trend Score
+        'rising_score' => 2.0,          // Watching → Rising
+        'trending_score' => 5.0,        // → Trending, together with…
+        'trending_corroboration' => 2,  // …at least this many Sources rising
+        'archive_after_days' => 30,     // Watching this long without rising → Archived
+    ],
+
     'sources' => [
         // Demand: people asking for help, by category.
         ['key' => 'stack_exchange', 'name' => 'Stack Exchange API', 'kind' => 'api', 'geo' => null, 'roles' => 'discovery,measurement', 'enabled' => true, 'cost_note' => 'free, no key needed at this volume', 'docs_url' => 'https://api.stackexchange.com/docs', 'class' => StackExchange::class],
