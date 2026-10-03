@@ -74,7 +74,7 @@ class PipelineTest extends TestCase
         $alarm = Alarm::sole();
         $this->assertSame('2026-09-21', $alarm->week);
         $this->assertSame(2, $alarm->corroboration);
-        $this->assertSame(['query', 'week', 'volumes', 'velocities', 'rising', 'corroboration', 'trend_score', 'series', 'items', 'links'], array_keys($alarm->evidence), 'Evidence only: numbers, series, Items and links');
+        $this->assertSame(['query', 'week', 'volumes', 'velocities', 'rising', 'corroboration', 'trend_score', 'series', 'items', 'links', 'keyword_metrics'], array_keys($alarm->evidence), 'Evidence only: numbers, series, Items and links');
         $this->assertSame('https://example.com/1', $alarm->evidence['items'][0]['url']);
         $this->assertSame(120, $alarm->evidence['items'][0]['measured_quantity']);
 

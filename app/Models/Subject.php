@@ -21,6 +21,8 @@ class Subject extends Model
         'first_seen_on' => 'date',
         'mainstream_on' => 'date',
         'lead_time_days' => 'integer',
+        'keyword_metrics' => 'array',
+        'keyword_metrics_on' => 'date',
     ];
 
     /**

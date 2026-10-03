@@ -20,3 +20,8 @@ To re-record, make the same request with `curl --compressed` and save the body v
 `StackExchange/volume-svelte-2026-09-21.json` — `/2.3/search/advanced?q=svelte&filter=!9n30IGbb1J()` (a filter of `.total`, `.backoff`, `.quota_remaining`) over the same week.
 
 `Wikimedia/svelte-2026-09-21.json` — `metrics/pageviews/per-article/en.wikipedia/all-access/user/Svelte/daily/20260921/20260927`.
+
+`GoogleAds/svelte.json` is **constructed**, not recorded: it follows the documented
+`generateKeywordHistoricalMetrics` response (field names as verified live on 2026-09-12,
+values as strings, bids in micros of the account currency). The stored refresh token
+had expired when the collector was written; re-record it once Google Ads access is restored.

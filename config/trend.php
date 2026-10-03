@@ -65,6 +65,24 @@ return [
         'archive_after_days' => 30,     // Watching this long without rising → Archived
     ],
 
+    // A Subject has arrived when one of its own measures holds over a line (ADR-0005).
+    'mainstream' => [
+        'wikipedia_weekly_views' => 70_000, // two consecutive weeks at or above
+        'monthly_searches' => 100_000,      // the last two Google Ads months at or above
+    ],
+
+    // Google Ads keyword metrics, fetched for Rising and Trending Subjects at most once in this many days.
+    'google_ads' => [
+        'client_id' => env('GOOGLE_ADS_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_ADS_CLIENT_SECRET'),
+        'refresh_token' => env('GOOGLE_ADS_REFRESH_TOKEN'),
+        'developer_token' => env('GOOGLE_ADS_DEVELOPER_TOKEN'),
+        'customer_id' => env('GOOGLE_ADS_CUSTOMER_ID'),
+        'login_customer_id' => env('GOOGLE_ADS_LOGIN_CUSTOMER_ID'),
+        'currency' => env('GOOGLE_ADS_CURRENCY', 'TRY'),
+        'refresh_after_days' => 28,
+    ],
+
     'sources' => [
         // Demand: people asking for help, by category.
         ['key' => 'stack_exchange', 'name' => 'Stack Exchange API', 'kind' => 'api', 'geo' => null, 'roles' => 'discovery,measurement', 'enabled' => true, 'cost_note' => 'free, no key needed at this volume', 'docs_url' => 'https://api.stackexchange.com/docs', 'class' => StackExchange::class],
@@ -82,6 +100,9 @@ return [
 
         // Deferred: per-Subject thresholds replaced chart markers (ADR-0005).
         ['key' => 'google_trends', 'name' => 'Google Trends trending searches', 'kind' => 'rss', 'geo' => 'GLOBAL', 'roles' => 'marker', 'enabled' => false, 'cost_note' => 'deferred until after the foundation; free', 'docs_url' => 'https://trends.google.com/trending/rss?geo=GLOBAL'],
+
+        // Validation and a Mainstream marker, read only for Rising and Trending Subjects.
+        ['key' => 'google_ads', 'name' => 'Google Ads keyword metrics', 'kind' => 'api', 'geo' => null, 'roles' => 'validation,marker', 'enabled' => true, 'cost_note' => 'free per call; Basic developer-token access via the owner\'s account; bids in the account currency', 'docs_url' => 'https://developers.google.com/google-ads/api/rest/reference/rest/v25/customers/generateKeywordHistoricalMetrics'],
 
         // Parked or blocked, kept registered so the reason is visible.
         ['key' => 'google_news', 'name' => 'Google News RSS (topic feeds)', 'kind' => 'rss', 'geo' => 'GLOBAL', 'roles' => 'marker', 'enabled' => false, 'cost_note' => 'disabled: attention and news, not demand', 'docs_url' => 'https://news.google.com/rss/headlines/section/topic/TECHNOLOGY?hl=en-US&gl=US&ceid=US:en'],

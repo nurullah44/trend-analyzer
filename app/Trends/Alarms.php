@@ -32,6 +32,7 @@ final class Alarms
                 'series' => $series,
                 'items' => $this->items($subject, $week),
                 'links' => $this->links($subject->query),
+                'keyword_metrics' => $subject->keyword_metrics,
             ],
         ]);
     }
