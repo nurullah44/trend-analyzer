@@ -104,7 +104,12 @@ final class StackExchange implements SourceCollector, SourceMeasurement
         return $payload;
     }
 
-    public function volume(string $query, CarbonImmutable $week): int
+    public function volumes(string $query, array $weeks): array
+    {
+        return array_combine($weeks, array_map(fn (string $week) => $this->volume($query, CarbonImmutable::parse($week, 'UTC')), $weeks));
+    }
+
+    private function volume(string $query, CarbonImmutable $week): int
     {
         $payload = SourceHttp::client($this->http, 'https://api.stackexchange.com')
             ->get('/2.3/search/advanced', $this->withKey([

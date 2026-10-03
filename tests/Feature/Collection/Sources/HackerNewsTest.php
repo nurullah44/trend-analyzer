@@ -50,7 +50,7 @@ class HackerNewsTest extends TestCase
         Http::preventStrayRequests();
         Http::fake(['hn.algolia.com/api/v1/search?*' => Http::response(Fixtures::json('HackerNews/volume-svelte-2026-09-21.json'))]);
 
-        $volume = $this->app->make(HackerNews::class)->volume('svelte', CarbonImmutable::parse('2026-09-21', 'UTC'));
+        $volume = $this->app->make(HackerNews::class)->volumes('svelte', ['2026-09-21'])['2026-09-21'];
 
         $this->assertSame(3, $volume);
         Http::assertSent(fn (Request $request) => $request->data()['query'] === '"svelte"'

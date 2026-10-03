@@ -33,13 +33,16 @@ final class Series
             $known = $subject->weeks()->where('source_id', $source->id)->where('query', $subject->query)->pluck('week')->all();
 
             try {
-                foreach (array_diff($weeks, $known) as $missing) {
+                $missing = array_values(array_diff($weeks, $known));
+                $volumes = $missing === [] ? [] : $this->sources->measurements()[$source->key]->volumes($subject->query, $missing);
+
+                foreach ($missing as $week) {
                     SubjectWeek::create([
                         'subject_id' => $subject->id,
                         'source_id' => $source->id,
                         'query' => $subject->query,
-                        'week' => $missing,
-                        'volume' => $this->sources->measurements()[$source->key]->volume($subject->query, CarbonImmutable::parse($missing, 'UTC')),
+                        'week' => $week,
+                        'volume' => $volumes[$week] ?? null,
                     ]);
                 }
 

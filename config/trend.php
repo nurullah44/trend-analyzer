@@ -83,6 +83,13 @@ return [
         'refresh_after_days' => 28,
     ],
 
+    // Cases for trends:backtest: breakouts the score should catch before their marker,
+    // and names that never broke out. Curate this list; it is the instrument's report card.
+    'backtest' => [
+        'DeepSeek', 'Model Context Protocol', 'Vibe coding', 'Ollama', 'Bluesky',
+        'Rabbit R1', 'Humane Ai Pin', 'Threads',
+    ],
+
     'sources' => [
         // Demand: people asking for help, by category.
         ['key' => 'stack_exchange', 'name' => 'Stack Exchange API', 'kind' => 'api', 'geo' => null, 'roles' => 'discovery,measurement', 'enabled' => true, 'cost_note' => 'free, no key needed at this volume', 'docs_url' => 'https://api.stackexchange.com/docs', 'class' => StackExchange::class],

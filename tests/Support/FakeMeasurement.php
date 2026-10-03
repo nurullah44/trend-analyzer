@@ -3,7 +3,6 @@
 namespace Tests\Support;
 
 use App\Collection\SourceMeasurement;
-use Carbon\CarbonImmutable;
 use RuntimeException;
 
 /** A measurement Source that answers from memory: a Volume per week, or a fixed answer for any week. */
@@ -24,14 +23,19 @@ final class FakeMeasurement implements SourceMeasurement
         return $this->key;
     }
 
-    public function volume(string $query, CarbonImmutable $week): ?int
+    public function volumes(string $query, array $weeks): array
     {
-        $this->asked[] = $query.'@'.$week->toDateString();
-
         if ($this->failing) {
             throw new RuntimeException("{$this->key} is down");
         }
 
-        return is_array($this->volumes) ? ($this->volumes[$week->toDateString()] ?? 0) : $this->volumes;
+        $answers = [];
+
+        foreach ($weeks as $week) {
+            $this->asked[] = "{$query}@{$week}";
+            $answers[$week] = is_array($this->volumes) ? ($this->volumes[$week] ?? 0) : $this->volumes;
+        }
+
+        return $answers;
     }
 }

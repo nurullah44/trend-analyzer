@@ -119,7 +119,7 @@ class StackExchangeTest extends TestCase
         Http::preventStrayRequests();
         Http::fake(['api.stackexchange.com/2.3/search/advanced*' => Http::response(Fixtures::json('StackExchange/volume-svelte-2026-09-21.json'))]);
 
-        $volume = $this->app->make(StackExchange::class)->volume('svelte', CarbonImmutable::parse('2026-09-21', 'UTC'));
+        $volume = $this->app->make(StackExchange::class)->volumes('svelte', ['2026-09-21'])['2026-09-21'];
 
         $this->assertSame(2, $volume);
         Http::assertSent(fn (Request $request) => $request->data()['q'] === 'svelte'
@@ -133,7 +133,7 @@ class StackExchangeTest extends TestCase
         Http::fake(['api.stackexchange.com/*' => Http::response(['total' => 5, 'backoff' => 1])]);
 
         $started = microtime(true);
-        $volume = $this->app->make(StackExchange::class)->volume('svelte', CarbonImmutable::parse('2026-09-21', 'UTC'));
+        $volume = $this->app->make(StackExchange::class)->volumes('svelte', ['2026-09-21'])['2026-09-21'];
 
         $this->assertSame(5, $volume);
         $this->assertGreaterThanOrEqual(1.0, microtime(true) - $started, 'the backoff is waited out');

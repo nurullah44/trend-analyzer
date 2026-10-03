@@ -2,8 +2,6 @@
 
 namespace App\Collection;
 
-use Carbon\CarbonImmutable;
-
 /**
  * The measurement contract (ADR-0004): how many items matching one Subject's
  * query a Source published in one week. Measurement Sources answer for any
@@ -15,8 +13,12 @@ interface SourceMeasurement
     public function key(): string;
 
     /**
-     * The Volume for the query in the ISO week starting on the given Monday (UTC),
-     * or null when the Source has nothing it can measure for this query.
+     * The Volume for the query in each ISO week starting on the given Mondays
+     * (UTC, Y-m-d), or null for a week the Source has nothing it can measure.
+     * A Source may answer all the weeks in one request.
+     *
+     * @param  list<string>  $weeks
+     * @return array<string, ?int>
      */
-    public function volume(string $query, CarbonImmutable $week): ?int;
+    public function volumes(string $query, array $weeks): array;
 }

@@ -17,7 +17,7 @@ final class SourceHttp
             ->acceptJson()
             ->withUserAgent('trend-analyzer/0.1 (github.com/nurullah44/trend-analyzer)')
             ->timeout(30)
-            ->retry(2, 500, when: fn (Throwable $e) => $e instanceof ConnectionException
+            ->retry([500, 2000, 5000], when: fn (Throwable $e) => $e instanceof ConnectionException
                 || ($e instanceof RequestException && ($e->response->serverError() || $e->response->status() === 429)), throw: false);
     }
 }

@@ -67,7 +67,12 @@ final class HackerNews implements SourceCollector, SourceMeasurement
         return new CollectedDay($from, $items);
     }
 
-    public function volume(string $query, CarbonImmutable $week): int
+    public function volumes(string $query, array $weeks): array
+    {
+        return array_combine($weeks, array_map(fn (string $week) => $this->volume($query, CarbonImmutable::parse($week, 'UTC')), $weeks));
+    }
+
+    private function volume(string $query, CarbonImmutable $week): int
     {
         return $this->search('search', [
             'query' => '"'.str_replace('"', '', $query).'"',
