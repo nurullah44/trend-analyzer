@@ -82,7 +82,7 @@ class BacktestTest extends TestCase
             'googleads.googleapis.com/*' => Http::response(Fixtures::json('GoogleAds/svelte.json')),
         ]);
 
-        $this->assertSame('2026-06-01', $this->app->make(Backtest::class)->replay('svelte', $from, $to)['mainstream'], 'April and May (90,500 each) already held over the line');
+        $this->assertSame('2026-06-01', $this->app->make(Backtest::class)->replay('svelte', $from, $to)['mainstream'], 'April and May (110,000 each) already held over the line');
     }
 
     public function test_a_failing_source_is_reported_not_thrown(): void

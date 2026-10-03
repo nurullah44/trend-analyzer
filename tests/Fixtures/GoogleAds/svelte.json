@@ -5,25 +5,72 @@
       "keywordMetrics": {
         "competition": "LOW",
         "monthlySearchVolumes": [
-          {"month": "OCTOBER", "year": "2025", "monthlySearches": "90500"},
-          {"month": "NOVEMBER", "year": "2025", "monthlySearches": "90500"},
-          {"month": "DECEMBER", "year": "2025", "monthlySearches": "74000"},
-          {"month": "JANUARY", "year": "2026", "monthlySearches": "90500"},
-          {"month": "FEBRUARY", "year": "2026", "monthlySearches": "90500"},
-          {"month": "MARCH", "year": "2026", "monthlySearches": "110000"},
-          {"month": "APRIL", "year": "2026", "monthlySearches": "90500"},
-          {"month": "MAY", "year": "2026", "monthlySearches": "90500"},
-          {"month": "JUNE", "year": "2026", "monthlySearches": "90500"},
-          {"month": "JULY", "year": "2026", "monthlySearches": "90500"},
-          {"month": "AUGUST", "year": "2026", "monthlySearches": "110000"},
-          {"month": "SEPTEMBER", "year": "2026", "monthlySearches": "110000"}
+          {
+            "month": "SEPTEMBER",
+            "year": "2025",
+            "monthlySearches": "135000"
+          },
+          {
+            "month": "OCTOBER",
+            "year": "2025",
+            "monthlySearches": "135000"
+          },
+          {
+            "month": "NOVEMBER",
+            "year": "2025",
+            "monthlySearches": "135000"
+          },
+          {
+            "month": "DECEMBER",
+            "year": "2025",
+            "monthlySearches": "110000"
+          },
+          {
+            "month": "JANUARY",
+            "year": "2026",
+            "monthlySearches": "135000"
+          },
+          {
+            "month": "FEBRUARY",
+            "year": "2026",
+            "monthlySearches": "110000"
+          },
+          {
+            "month": "MARCH",
+            "year": "2026",
+            "monthlySearches": "135000"
+          },
+          {
+            "month": "APRIL",
+            "year": "2026",
+            "monthlySearches": "110000"
+          },
+          {
+            "month": "MAY",
+            "year": "2026",
+            "monthlySearches": "110000"
+          },
+          {
+            "month": "JUNE",
+            "year": "2026",
+            "monthlySearches": "90500"
+          },
+          {
+            "month": "JULY",
+            "year": "2026",
+            "monthlySearches": "90500"
+          },
+          {
+            "month": "AUGUST",
+            "year": "2026",
+            "monthlySearches": "110000"
+          }
         ],
-        "avgMonthlySearches": "90500",
-        "competitionIndex": "4",
-        "lowTopOfPageBidMicros": "27966173",
-        "highTopOfPageBidMicros": "167254070"
-      },
-      "closeVariants": []
+        "avgMonthlySearches": "110000",
+        "competitionIndex": "1",
+        "lowTopOfPageBidMicros": "7994215",
+        "highTopOfPageBidMicros": "69955956"
+      }
     }
   ]
 }

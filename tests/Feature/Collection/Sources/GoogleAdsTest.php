@@ -30,12 +30,12 @@ class GoogleAdsTest extends TestCase
 
         $metrics = $this->app->make(GoogleAds::class)->metrics('svelte');
 
-        $this->assertSame(90500, $metrics['avg_monthly_searches']);
+        $this->assertSame(110000, $metrics['avg_monthly_searches']);
         $this->assertCount(12, $metrics['monthly']);
-        $this->assertSame(['2026-08' => 110000, '2026-09' => 110000], array_slice($metrics['monthly'], -2));
-        $this->assertSame(27966173, $metrics['low_bid_micros'], 'micros of the account currency, never converted');
+        $this->assertSame(['2026-07' => 90500, '2026-08' => 110000], array_slice($metrics['monthly'], -2));
+        $this->assertSame(7994215, $metrics['low_bid_micros'], 'micros of the account currency, never converted');
         $this->assertSame('TRY', $metrics['currency']);
-        $this->assertSame(4, $metrics['competition_index']);
+        $this->assertSame(1, $metrics['competition_index']);
 
         Http::assertSent(fn (Request $request) => str_ends_with($request->url(), '/v25/customers/7588048331:generateKeywordHistoricalMetrics')
             && ! $request->hasHeader('developer-token')

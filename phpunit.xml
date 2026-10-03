@@ -28,6 +28,10 @@
         <env name="SESSION_DRIVER" value="array"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
+        <!-- Real keys in .env must never reach a test: the suite runs with no network. -->
+        <env name="JEV_API_KEY" value=""/>
+        <env name="GOOGLE_ADS_REFRESH_TOKEN" value=""/>
+        <env name="STACK_EXCHANGE_KEY" value=""/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
     </php>
 </phpunit>

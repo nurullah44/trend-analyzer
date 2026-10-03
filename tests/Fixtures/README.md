@@ -21,7 +21,7 @@ To re-record, make the same request with `curl --compressed` and save the body v
 
 `Wikimedia/svelte-2026-09-21.json` — `metrics/pageviews/per-article/en.wikipedia/all-access/user/Svelte/daily/20260921/20260927`.
 
-`GoogleAds/svelte.json` is **constructed**, not recorded: it follows the documented
-`generateKeywordHistoricalMetrics` response (field names as verified live on 2026-09-12,
-values as strings, bids in micros of the account currency). The stored refresh token
-had expired when the collector was written; re-record it once Google Ads access is restored.
+`GoogleAds/svelte.json` was recorded on 2026-10-03 from
+`POST /v25/customers/7588048331:generateKeywordHistoricalMetrics` with `keywords=["svelte"]`,
+`language=languageConstants/1000`, `keywordPlanNetwork=GOOGLE_SEARCH` and no geo (worldwide);
+values arrive as strings and bids are micros of the account currency (TRY).
