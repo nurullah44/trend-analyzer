@@ -112,7 +112,7 @@ class TrendsCollectCommand extends Command
 
         $enabled = Source::query()->where('enabled', true)->orderBy('key')->get();
 
-        $waiting = $enabled->reject(fn (Source $source) => $sources->has($source->key));
+        $waiting = $enabled->filter(fn (Source $source) => str_contains($source->roles, 'discovery') && ! $sources->has($source->key));
 
         if ($waiting->isNotEmpty()) {
             $this->warn('Enabled Sources still without a collector: '.$waiting->pluck('key')->join(', '));
@@ -139,7 +139,7 @@ class TrendsCollectCommand extends Command
         }
 
         if (! $sources->has($key)) {
-            $this->error("Source [{$key}] has no collector yet.");
+            $this->error("Source [{$key}] does not collect (roles: {$source->roles}).");
 
             return null;
         }

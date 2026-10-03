@@ -93,13 +93,13 @@ class TrendsCollectCommandTest extends TestCase
         Http::assertNothingSent();
     }
 
-    public function test_it_refuses_an_enabled_source_that_has_no_collector_yet(): void
+    public function test_it_refuses_an_enabled_source_that_only_measures(): void
     {
         $this->seed(SourceSeeder::class);
         Http::fake();
 
-        $this->artisan('trends:collect', ['--source' => 'hacker_news'])
-            ->expectsOutputToContain('no collector yet')
+        $this->artisan('trends:collect', ['--source' => 'wikimedia'])
+            ->expectsOutputToContain('does not collect')
             ->assertFailed();
 
         Http::assertNothingSent();
@@ -142,7 +142,7 @@ class TrendsCollectCommandTest extends TestCase
         $stamp = preg_quote($runAt->setTimezone(config('app.timezone'))->format('Y-m-d H:i'), '/');
 
         $this->assertMatchesRegularExpression(
-            '/stack_exchange\s+\| yes\s+\| discovery\s+\| global\s+\| '.$stamp.'\s+\| '.$stamp.'\s+\| 2\s+\|/',
+            '/stack_exchange\s+\| yes\s+\| discovery,measurement\s+\| global\s+\| '.$stamp.'\s+\| '.$stamp.'\s+\| 2\s+\|/',
             Artisan::output(),
         );
     }

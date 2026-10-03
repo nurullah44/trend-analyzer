@@ -1,15 +1,18 @@
 <?php
 
+use App\Collection\Sources\HackerNews;
 use App\Collection\Sources\StackExchange;
+use App\Collection\Sources\Wikimedia;
 
 /*
 | The approved Sources, mirroring docs/sources.md. Adding a Source means one
-| entry here plus one implementation of the collection contract — nothing else.
+| entry here plus one class implementing the collection or measurement contract.
 |
-| `roles` says what job the Source does:
-|   discovery  — surfaces Subjects we did not know about
-|   marker     — tells us a Subject has reached the mainstream
-|   validation — sizes or shapes a Subject we already track
+| `roles` says what job the Source does (ADR-0004, ADR-0005):
+|   discovery   — proposes Candidates from what was published on a day
+|   measurement — counts one Subject's matches per week, for any past week
+|   marker      — one of the Subject's own measures says it has arrived
+|   validation  — sizes a Subject we already track
 |
 | The analyzer watches subjects globally. A few Sources are only readable one
 | country at a time — those carry a `geo`; Sources that are global by nature
@@ -22,21 +25,21 @@ return [
 
     'sources' => [
         // Demand: people asking for help, by category.
-        ['key' => 'stack_exchange', 'name' => 'Stack Exchange API', 'kind' => 'api', 'geo' => null, 'roles' => 'discovery', 'enabled' => true, 'cost_note' => 'free, no key needed at this volume', 'docs_url' => 'https://api.stackexchange.com/docs', 'collector' => StackExchange::class],
-        ['key' => 'hacker_news', 'name' => 'Hacker News (Algolia + Firebase)', 'kind' => 'api', 'geo' => null, 'roles' => 'discovery', 'enabled' => true, 'cost_note' => 'free', 'docs_url' => 'https://hn.algolia.com/api'],
+        ['key' => 'stack_exchange', 'name' => 'Stack Exchange API', 'kind' => 'api', 'geo' => null, 'roles' => 'discovery,measurement', 'enabled' => true, 'cost_note' => 'free, no key needed at this volume', 'docs_url' => 'https://api.stackexchange.com/docs', 'class' => StackExchange::class],
+        ['key' => 'hacker_news', 'name' => 'Hacker News (Algolia)', 'kind' => 'api', 'geo' => null, 'roles' => 'discovery,measurement', 'enabled' => true, 'cost_note' => 'free', 'docs_url' => 'https://hn.algolia.com/api', 'class' => HackerNews::class],
 
-        // Supply: what is actually launching and being adopted.
-        ['key' => 'product_hunt', 'name' => 'Product Hunt GraphQL API', 'kind' => 'api', 'geo' => null, 'roles' => 'discovery', 'enabled' => true, 'cost_note' => 'free; needs a developer token', 'docs_url' => 'https://api.producthunt.com/v2/docs'],
-        ['key' => 'apple_chart', 'name' => 'Apple Marketing Tools — top free apps by genre', 'kind' => 'rss', 'geo' => 'US', 'roles' => 'discovery,marker', 'enabled' => true, 'cost_note' => 'free; read per genre rather than as one top-100 list', 'docs_url' => 'https://rss.applemarketingtools.com/'],
+        // Supply: what is actually launching and being adopted. Deferred until after the foundation.
+        ['key' => 'product_hunt', 'name' => 'Product Hunt GraphQL API', 'kind' => 'api', 'geo' => null, 'roles' => 'discovery', 'enabled' => false, 'cost_note' => 'deferred until after the foundation; free; needs a developer token', 'docs_url' => 'https://api.producthunt.com/v2/docs'],
+        ['key' => 'apple_chart', 'name' => 'Apple Marketing Tools — top free apps by genre', 'kind' => 'rss', 'geo' => 'US', 'roles' => 'discovery,marker', 'enabled' => false, 'cost_note' => 'deferred until after the foundation; free; read per genre rather than as one top-100 list', 'docs_url' => 'https://rss.applemarketingtools.com/'],
 
-        // Interest, but only ever read through a category filter.
-        ['key' => 'youtube_trending', 'name' => 'YouTube Data API — trending by category (28 Science & Technology, 27 Education)', 'kind' => 'api', 'geo' => 'US', 'roles' => 'discovery', 'enabled' => true, 'cost_note' => 'free, 10k units/day; needs a Google Cloud API key; read with videoCategoryId, never the unfiltered chart', 'docs_url' => 'https://developers.google.com/youtube/v3/docs/videos/list'],
+        // Interest, but only ever read through a category filter. Deferred until after the foundation.
+        ['key' => 'youtube_trending', 'name' => 'YouTube Data API — trending by category (28 Science & Technology, 27 Education)', 'kind' => 'api', 'geo' => 'US', 'roles' => 'discovery', 'enabled' => false, 'cost_note' => 'deferred until after the foundation; free, 10k units/day; needs a Google Cloud API key; read with videoCategoryId, never the unfiltered chart', 'docs_url' => 'https://developers.google.com/youtube/v3/docs/videos/list'],
 
-        // Trajectory only.
-        ['key' => 'wikimedia', 'name' => 'Wikimedia Pageviews API', 'kind' => 'api', 'geo' => null, 'roles' => 'validation', 'enabled' => true, 'cost_note' => 'free', 'docs_url' => 'https://wikimedia.org/api/rest_v1/'],
+        // Measurement, and a Mainstream marker through its weekly views (ADR-0005).
+        ['key' => 'wikimedia', 'name' => 'Wikimedia Pageviews API', 'kind' => 'api', 'geo' => null, 'roles' => 'measurement,marker', 'enabled' => true, 'cost_note' => 'free; CC BY-SA attribution', 'docs_url' => 'https://wikimedia.org/api/rest_v1/', 'class' => Wikimedia::class],
 
-        // Marker only: today's top searches tell us something has arrived, never that something is coming.
-        ['key' => 'google_trends', 'name' => 'Google Trends trending searches', 'kind' => 'rss', 'geo' => 'GLOBAL', 'roles' => 'marker', 'enabled' => true, 'cost_note' => 'free', 'docs_url' => 'https://trends.google.com/trending/rss?geo=GLOBAL'],
+        // Deferred: per-Subject thresholds replaced chart markers (ADR-0005).
+        ['key' => 'google_trends', 'name' => 'Google Trends trending searches', 'kind' => 'rss', 'geo' => 'GLOBAL', 'roles' => 'marker', 'enabled' => false, 'cost_note' => 'deferred until after the foundation; free', 'docs_url' => 'https://trends.google.com/trending/rss?geo=GLOBAL'],
 
         // Parked or blocked, kept registered so the reason is visible.
         ['key' => 'google_news', 'name' => 'Google News RSS (topic feeds)', 'kind' => 'rss', 'geo' => 'GLOBAL', 'roles' => 'marker', 'enabled' => false, 'cost_note' => 'disabled: attention and news, not demand', 'docs_url' => 'https://news.google.com/rss/headlines/section/topic/TECHNOLOGY?hl=en-US&gl=US&ceid=US:en'],

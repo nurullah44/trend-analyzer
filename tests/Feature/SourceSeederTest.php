@@ -20,12 +20,13 @@ class SourceSeederTest extends TestCase
         $stack = Source::where('key', 'stack_exchange')->first();
         $this->assertTrue($stack->enabled);
         $this->assertNull($stack->geo, 'a global source carries no watched geo');
-        $this->assertSame('discovery', $stack->roles);
+        $this->assertSame('discovery,measurement', $stack->roles);
 
         $this->assertFalse(Source::where('key', 'gdelt')->first()->enabled, 'news volume is attention, not demand');
         $this->assertFalse(Source::where('key', 'google_news')->first()->enabled);
-        $this->assertSame('marker', Source::where('key', 'google_trends')->first()->roles);
-        $this->assertSame('discovery,marker', Source::where('key', 'apple_chart')->first()->roles);
+        $this->assertSame('measurement,marker', Source::where('key', 'wikimedia')->first()->roles);
+        $this->assertFalse(Source::where('key', 'google_trends')->first()->enabled, 'chart markers are deferred (ADR-0005)');
+        $this->assertFalse(Source::where('key', 'product_hunt')->first()->enabled, 'deferred until after the foundation');
 
         $youtube = Source::where('key', 'youtube_trending')->first();
         $this->assertSame('US', $youtube->geo, 'a per-country source records its watched geo');

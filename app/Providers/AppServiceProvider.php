@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Collection\SourceCollector;
+use App\Collection\SourceMeasurement;
 use App\Collection\SourceRegistry;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
@@ -15,29 +16,35 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Collectors are built from config/trend.php, which mirrors the approved
-        // list in docs/sources.md. Adding a Source is one docs entry, one config
-        // entry and one implementation of the contract — nothing else.
+        // Sources are built from config/trend.php, which mirrors the approved list
+        // in docs/sources.md. Adding a Source is one docs entry, one config entry
+        // and one class implementing the collection or measurement contract.
         $this->app->singleton(SourceRegistry::class, function (Application $app): SourceRegistry {
-            $collectors = [];
+            $collectors = $measurements = [];
 
             foreach (config('trend.sources', []) as $source) {
-                if (! isset($source['collector'])) {
+                if (! isset($source['class'])) {
                     continue;
                 }
 
-                $collector = $app->make($source['collector']);
+                $implementation = $app->make($source['class']);
 
-                if (! $collector instanceof SourceCollector) {
+                if (! $implementation instanceof SourceCollector && ! $implementation instanceof SourceMeasurement) {
                     throw new InvalidArgumentException(
-                        "The collector for Source [{$source['key']}] does not implement the Source contract."
+                        "The class for Source [{$source['key']}] implements neither the collection nor the measurement contract."
                     );
                 }
 
-                $collectors[$source['key']] = $collector;
+                if ($implementation instanceof SourceCollector) {
+                    $collectors[$source['key']] = $implementation;
+                }
+
+                if ($implementation instanceof SourceMeasurement) {
+                    $measurements[$source['key']] = $implementation;
+                }
             }
 
-            return new SourceRegistry($collectors);
+            return new SourceRegistry($collectors, $measurements);
         });
     }
 

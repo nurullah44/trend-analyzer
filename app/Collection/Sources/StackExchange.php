@@ -5,24 +5,24 @@ namespace App\Collection\Sources;
 use App\Collection\CollectedDay;
 use App\Collection\CollectedItem;
 use App\Collection\SourceCollector;
+use App\Collection\SourceHttp;
+use App\Collection\SourceMeasurement;
 use App\Models\Source;
 use Carbon\CarbonImmutable;
-use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Factory;
-use Illuminate\Http\Client\RequestException;
 use RuntimeException;
-use Throwable;
 use UnexpectedValueException;
 
 /**
  * Stack Exchange questions created on a UTC day — people asking for help, which
  * is as close to pure demand as a public API gets. The question's tags ride
- * along as the excerpt and its score is the measured quantity.
+ * along as the excerpt and its score is the measured quantity. Measurement is
+ * the number of questions matching a query in one week.
  *
  * The anonymous quota is 300 requests a day and a normal day is a handful of
  * pages of 100. A key can be added later; nothing here needs one.
  */
-final class StackExchange implements SourceCollector
+final class StackExchange implements SourceCollector, SourceMeasurement
 {
     private const KEY = 'stack_exchange';
 
@@ -31,6 +31,9 @@ final class StackExchange implements SourceCollector
     private const PAGE_SIZE = 100;
 
     private const MAX_PAGES = 100;
+
+    /** A filter created once through /filters/create: just .total, .backoff and .quota_remaining. Filters never change. */
+    private const TOTAL_FILTER = '!9n30IGbb1J()';
 
     public function __construct(private readonly Factory $http) {}
 
@@ -74,12 +77,7 @@ final class StackExchange implements SourceCollector
      */
     private function fetchPage(CarbonImmutable $from, CarbonImmutable $to, int $page): array
     {
-        $response = $this->http
-            ->baseUrl('https://api.stackexchange.com')
-            ->acceptJson()
-            ->withUserAgent('trend-analyzer/0.1')
-            ->retry(2, 500, when: fn (Throwable $e) => $e instanceof ConnectionException
-                || ($e instanceof RequestException && ($e->response->serverError() || $e->response->status() === 429)))
+        $response = SourceHttp::client($this->http, 'https://api.stackexchange.com')
             ->get('/2.3/questions', [
                 'site' => self::SITE,
                 'fromdate' => $from->getTimestamp(),
@@ -103,6 +101,29 @@ final class StackExchange implements SourceCollector
         }
 
         return $payload;
+    }
+
+    public function volume(string $query, CarbonImmutable $week): int
+    {
+        $payload = SourceHttp::client($this->http, 'https://api.stackexchange.com')
+            ->get('/2.3/search/advanced', [
+                'site' => self::SITE,
+                'q' => $query,
+                'fromdate' => $week->getTimestamp(),
+                'todate' => $week->addWeek()->getTimestamp() - 1,
+                'filter' => self::TOTAL_FILTER,
+            ])
+            ->throw()
+            ->json();
+
+        if (! is_int($payload['total'] ?? null)) {
+            throw new UnexpectedValueException("Stack Exchange answered without a total for [{$query}].");
+        }
+
+        // Measurement runs many searches back to back; the next one must wait if asked to.
+        $this->respectBackoff($payload['backoff'] ?? 0);
+
+        return $payload['total'];
     }
 
     /** @param array<string, mixed> $question */

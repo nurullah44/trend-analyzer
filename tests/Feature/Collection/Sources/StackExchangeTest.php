@@ -114,6 +114,31 @@ class StackExchangeTest extends TestCase
         }
     }
 
+    public function test_it_measures_the_questions_matching_a_query_in_one_week(): void
+    {
+        Http::preventStrayRequests();
+        Http::fake(['api.stackexchange.com/2.3/search/advanced*' => Http::response(Fixtures::json('StackExchange/volume-svelte-2026-09-21.json'))]);
+
+        $volume = $this->app->make(StackExchange::class)->volume('svelte', CarbonImmutable::parse('2026-09-21', 'UTC'));
+
+        $this->assertSame(2, $volume);
+        Http::assertSent(fn (Request $request) => $request->data()['q'] === 'svelte'
+            && (int) $request->data()['fromdate'] === 1789948800
+            && (int) $request->data()['todate'] === 1790553599
+            && $request->data()['filter'] === '!9n30IGbb1J()');
+    }
+
+    public function test_measurement_honours_a_backoff_before_the_next_search(): void
+    {
+        Http::fake(['api.stackexchange.com/*' => Http::response(['total' => 5, 'backoff' => 1])]);
+
+        $started = microtime(true);
+        $volume = $this->app->make(StackExchange::class)->volume('svelte', CarbonImmutable::parse('2026-09-21', 'UTC'));
+
+        $this->assertSame(5, $volume);
+        $this->assertGreaterThanOrEqual(1.0, microtime(true) - $started, 'the backoff is waited out');
+    }
+
     private function source(): Source
     {
         $this->seed(SourceSeeder::class);

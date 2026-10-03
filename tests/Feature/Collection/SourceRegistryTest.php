@@ -20,6 +20,11 @@ class SourceRegistryTest extends TestCase
         $this->assertSame('stack_exchange', $registry->for('stack_exchange')->key());
     }
 
+    public function test_measurement_sources_are_resolved_from_config(): void
+    {
+        $this->assertSame(['stack_exchange', 'hacker_news', 'wikimedia'], array_keys($this->app->make(SourceRegistry::class)->measurements()));
+    }
+
     public function test_nothing_outside_the_approved_list_can_be_collected(): void
     {
         $approved = collect(config('trend.sources'))->pluck('key')->all();

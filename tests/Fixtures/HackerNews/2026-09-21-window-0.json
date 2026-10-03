@@ -1,0 +1,1065 @@
+{
+ "hits": [
+  {
+   "objectID": "49783513",
+   "title": "Postgres 19: What's new in monitoring?",
+   "url": "https://clickhouse.com/blog/postgres-19-monitoring-whats-new",
+   "points": 2,
+   "created_at_i": 1789970377
+  },
+  {
+   "objectID": "49783502",
+   "title": "Find-jevable-code \u2013 audit a repo for Jev-replaceable decisions",
+   "url": "https://altslate-labs.github.io/jevable-code/",
+   "points": 2,
+   "created_at_i": 1789970227
+  },
+  {
+   "objectID": "49783495",
+   "title": "Grim Fandango Puzzle Document (1996) [pdf]",
+   "url": "http://gameshelf.jmac.org/2008/11/13/GrimPuzzleDoc_small.pdf",
+   "points": 377,
+   "created_at_i": 1789970122
+  },
+  {
+   "objectID": "49783477",
+   "title": "OpenAI Degrading Their Models, Also for Paid Users",
+   "url": "https://old.reddit.com/r/codex/comments/1wkwdfl/the_end_of_the_codex_era_ive_completely_lost/",
+   "points": 5,
+   "created_at_i": 1789969956
+  },
+  {
+   "objectID": "49783474",
+   "title": "Bot-free self-hosted analytics with GoatCounter on NixOS",
+   "url": "https://vincent.bernat.ch/en/blog/2026-goatcounter",
+   "points": 5,
+   "created_at_i": 1789969927
+  },
+  {
+   "objectID": "49783473",
+   "title": "Bull Beats Out HPE for Next-Gen Lumi AI Supercomputer",
+   "url": "https://www.nextplatform.com/hpc/2026/09/17/bull-beats-out-hpe-for-next-gen-lumi-ai-supercomputer/5297292",
+   "points": 2,
+   "created_at_i": 1789969925
+  },
+  {
+   "objectID": "49783467",
+   "title": "We reviewed package-manager ambiguity in 10 public repos",
+   "url": "https://www.zfinia.com/research/crosscheck-field-validation",
+   "points": 2,
+   "created_at_i": 1789969759
+  },
+  {
+   "objectID": "49783459",
+   "title": "A folding stepladder from fence timber",
+   "url": "https://blog.oxplot.com/a-folding-stepladder-from-fence-timber/",
+   "points": 2,
+   "created_at_i": 1789969667
+  },
+  {
+   "objectID": "49783456",
+   "title": "You could have built Jev",
+   "url": "https://sgnt.ai/p/jev/",
+   "points": 3,
+   "created_at_i": 1789969640
+  },
+  {
+   "objectID": "49783451",
+   "title": "What Sun Got Wrong",
+   "url": "https://bcantrill.dtrace.org/2026/09/20/what-sun-got-wrong/",
+   "points": 9,
+   "created_at_i": 1789969584
+  },
+  {
+   "objectID": "49783437",
+   "title": "How Notion handles concurrent editing with CRDTs",
+   "url": "https://www.notion.com/blog/how-notion-handles-concurrent-editing-with-crdts",
+   "points": 2,
+   "created_at_i": 1789969337
+  },
+  {
+   "objectID": "49783418",
+   "title": "Faraday Learns to Reason",
+   "url": "https://medium.com/@vektormemory/vektor-v1-9-4-real-tools-for-desk-chat-faraday-learns-to-reason-f94ccb822e65",
+   "points": 2,
+   "created_at_i": 1789969111
+  },
+  {
+   "objectID": "49783406",
+   "title": "Far-left party wins Berlin election, pledging to nationalise housing",
+   "url": "https://www.reuters.com/world/far-left-party-wins-berlin-election-pledging-nationalise-housing-2026-09-20/",
+   "points": 72,
+   "created_at_i": 1789968984
+  },
+  {
+   "objectID": "49783388",
+   "title": "AurionMail: E2EE suite (CryptPad and Mail) with user-friendly single-password UX",
+   "url": "https://aurionmail.github.io/docs/",
+   "points": 2,
+   "created_at_i": 1789968738
+  },
+  {
+   "objectID": "49783375",
+   "title": "Polars 2.0.0rc2",
+   "url": "https://pypi.org/project/polars/2.0.0rc2/",
+   "points": 1,
+   "created_at_i": 1789968605
+  },
+  {
+   "objectID": "49783359",
+   "title": "Show HN: I wrote the code and let an LLM review it",
+   "url": "https://blog.jaysinh.dev/2026/09/20/i-wrote-the-mcp-server-and-let-an-llm-review-it.html",
+   "points": 1,
+   "created_at_i": 1789968417
+  },
+  {
+   "objectID": "49783352",
+   "title": "Where Motion Is Mistaken for Movement",
+   "url": "https://medium.com/@gurvinder372/article-21-where-motion-is-mistaken-for-movement-396f1628874b",
+   "points": 1,
+   "created_at_i": 1789968339
+  },
+  {
+   "objectID": "49783349",
+   "title": "DeltaTensors: Git for model fine-tunes that also saves you storage",
+   "url": null,
+   "points": 1,
+   "created_at_i": 1789968332
+  },
+  {
+   "objectID": "49783339",
+   "title": "Compsci grads facing recession-like job prospects thanks to AI",
+   "url": "https://www.theregister.com/ai-and-ml/2026/09/18/compsci-grads-facing-recession-like-job-prospects-thanks-to-ai/5297537",
+   "points": 5,
+   "created_at_i": 1789968240
+  },
+  {
+   "objectID": "49783318",
+   "title": "A Cute Proof That Makes e Natural",
+   "url": "https://poshenloh.com/e",
+   "points": 2,
+   "created_at_i": 1789968022
+  },
+  {
+   "objectID": "49783312",
+   "title": "Proof That Computers Can't Do Everything (The Halting Problem) [video]",
+   "url": "https://www.youtube.com/watch?v=92WHN-pAFCs",
+   "points": 2,
+   "created_at_i": 1789967984
+  },
+  {
+   "objectID": "49783300",
+   "title": "Lithography Machines (Proposal)",
+   "url": "https://drive.google.com/file/d/1KFCqKrN5tmhv_GLbPZZ1Y44OcP_5UUrG/view?usp=drivesdk",
+   "points": 2,
+   "created_at_i": 1789967809
+  },
+  {
+   "objectID": "49783288",
+   "title": "Turn any Llama-server into a jev system one endpoint",
+   "url": "https://github.com/khimaros/verdict",
+   "points": 3,
+   "created_at_i": 1789967588
+  },
+  {
+   "objectID": "49783277",
+   "title": "GSoC 2026: Port the Enlightenment desktop environment to NetBSD, part 2",
+   "url": "https://blog.netbsd.org/tnf/entry/gsoc2026_enlightenment_2",
+   "points": 2,
+   "created_at_i": 1789967409
+  },
+  {
+   "objectID": "49783274",
+   "title": "TXR: An Original, New Programming Language for Convenient Data Munging",
+   "url": "https://www.nongnu.org/txr/",
+   "points": 37,
+   "created_at_i": 1789967348
+  },
+  {
+   "objectID": "49783263",
+   "title": "Meta's Muse Is Better at Surveilling Than Helping Me",
+   "url": "https://www.wired.com/story/metas-muse-is-better-at-surveilling-than-helping-me/",
+   "points": 5,
+   "created_at_i": 1789967228
+  },
+  {
+   "objectID": "49783224",
+   "title": "OSS, security and Funding: libjpeg-turbo",
+   "url": null,
+   "points": 6,
+   "created_at_i": 1789966809
+  },
+  {
+   "objectID": "49783218",
+   "title": "Grit your teeth and ship it",
+   "url": "https://www.seangoedecke.com/grit-your-teeth-and-ship-it/",
+   "points": 4,
+   "created_at_i": 1789966714
+  },
+  {
+   "objectID": "49783217",
+   "title": "GoldenEye 007 Native PC Port",
+   "url": "https://jkdansereau.github.io/goldeneye-pc-port/",
+   "points": 3,
+   "created_at_i": 1789966709
+  },
+  {
+   "objectID": "49783159",
+   "title": "Covert Caches: When Is a Cache, a Cache?",
+   "url": "https://parallelprogrammer.substack.com/p/covert-caches",
+   "points": 5,
+   "created_at_i": 1789966006
+  },
+  {
+   "objectID": "49783133",
+   "title": "Show HN: Mini-AGI \u2013 Dynamic continual learning model trained on 8GB VRAM",
+   "url": "https://github.com/volotat/mini-AGI/",
+   "points": 277,
+   "created_at_i": 1789965757
+  },
+  {
+   "objectID": "49783121",
+   "title": "A build graph that rolls dice",
+   "url": "https://fzakaria.com/2026/09/20/a-build-graph-that-rolls-dice",
+   "points": 2,
+   "created_at_i": 1789965628
+  },
+  {
+   "objectID": "49783110",
+   "title": "Hawking by Graham Farmelo review \u2013 the dark side of genius",
+   "url": "https://www.theguardian.com/books/2026/sep/07/hawking-by-graham-farmelo-review-the-dark-side-of-genius",
+   "points": 3,
+   "created_at_i": 1789965426
+  },
+  {
+   "objectID": "49783107",
+   "title": "Investment Seer: Agentic AI-Powered Stock and Crypto Analyst",
+   "url": "https://investmentseer.com/",
+   "points": 2,
+   "created_at_i": 1789965407
+  },
+  {
+   "objectID": "49783104",
+   "title": "Ant Mill",
+   "url": "https://simple.wikipedia.org/wiki/Ant_mill",
+   "points": 4,
+   "created_at_i": 1789965360
+  },
+  {
+   "objectID": "49783101",
+   "title": "Heretic removes restrictions from language models",
+   "url": "https://heretic-project.org/",
+   "points": 279,
+   "created_at_i": 1789965322
+  },
+  {
+   "objectID": "49783100",
+   "title": "Meslo-Font: Customized Version of Apple's Menlo Font",
+   "url": "https://github.com/andreberg/Meslo-Font",
+   "points": 2,
+   "created_at_i": 1789965321
+  },
+  {
+   "objectID": "49783080",
+   "title": "The Docker API Ceiling: Why Portainer 3.0's New Capabilities Target Kubernetes",
+   "url": "https://www.portainer.io/blog/the-docker-api-ceiling",
+   "points": 2,
+   "created_at_i": 1789965113
+  },
+  {
+   "objectID": "49783062",
+   "title": "AI chatbots give wrong answers to financial queries 'most of the time'",
+   "url": "https://www.ft.com/content/c0cd359d-df84-4208-a789-ffa864b43666",
+   "points": 157,
+   "created_at_i": 1789964924
+  },
+  {
+   "objectID": "49783040",
+   "title": "Ask HN: Is provider KV caching sufficient for agent swarms and long run agents?",
+   "url": null,
+   "points": 1,
+   "created_at_i": 1789964780
+  },
+  {
+   "objectID": "49783039",
+   "title": "Knowledge Refresh for Production RAG",
+   "url": null,
+   "points": 2,
+   "created_at_i": 1789964768
+  },
+  {
+   "objectID": "49783018",
+   "title": "Why Do We Need Human Mathematicians Anymore?",
+   "url": "https://poshenloh.com/posts/20260919-math-ai",
+   "points": 5,
+   "created_at_i": 1789964473
+  },
+  {
+   "objectID": "49783014",
+   "title": "RBA Faces Key Rate Decision as Inflation Pressure Remains",
+   "url": "https://coinmarketcap.com/community/post/379410260/",
+   "points": 1,
+   "created_at_i": 1789964445
+  },
+  {
+   "objectID": "49783008",
+   "title": "Faked Images of Neurons in Major Journals",
+   "url": "https://www.youtube.com/watch?v=4g_1_AWOVpI",
+   "points": 1,
+   "created_at_i": 1789964391
+  },
+  {
+   "objectID": "49782999",
+   "title": "What do you think of a Java-like language that compiles to native code?",
+   "url": "https://github.com/ironwood-lang/ironwood",
+   "points": 2,
+   "created_at_i": 1789964303
+  },
+  {
+   "objectID": "49782986",
+   "title": "College Is Coming Apart After Successive, Overlapping Crises",
+   "url": "https://www.theatlantic.com/ideas/2026/09/college-education-future-ai/688655/",
+   "points": 26,
+   "created_at_i": 1789964145
+  },
+  {
+   "objectID": "49782958",
+   "title": "The positive effect of walking on creative thinking",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/24749966/",
+   "points": 11,
+   "created_at_i": 1789963809
+  },
+  {
+   "objectID": "49782916",
+   "title": "The president wanted to unleash AI. Then came Anthropic",
+   "url": "https://www.politico.com/news/magazine/2026/09/20/anthropic-white-house-ai-01085212",
+   "points": 13,
+   "created_at_i": 1789963291
+  },
+  {
+   "objectID": "49782912",
+   "title": "Show HN: Mahabharata Characters \u2013 307 figures with gunas and decision primitives",
+   "url": "https://huggingface.co/datasets/gnumanth/mahabharata-characters",
+   "points": 4,
+   "created_at_i": 1789963268
+  },
+  {
+   "objectID": "49782878",
+   "title": "Show HN: Less Prompts, More Guardrails",
+   "url": "https://yasyf.com/writing/less-prompts-more-guardrails/",
+   "points": 3,
+   "created_at_i": 1789962884
+  },
+  {
+   "objectID": "49782874",
+   "title": "Coding Machines",
+   "url": "https://www.teamten.com/lawrence/writings/coding-machines/",
+   "points": 2,
+   "created_at_i": 1789962838
+  },
+  {
+   "objectID": "49782872",
+   "title": "Birdle Explorer",
+   "url": "https://start.birdle.world/",
+   "points": 2,
+   "created_at_i": 1789962824
+  },
+  {
+   "objectID": "49782858",
+   "title": "I Investigated Coinbase a Year Ago For Forbes. The Bigger Story Now Is Its Power",
+   "url": "https://thesignalmemo.substack.com/p/coinbase-wants-the-power-of-a-bank",
+   "points": 3,
+   "created_at_i": 1789962660
+  },
+  {
+   "objectID": "49782849",
+   "title": "EA Safety",
+   "url": "https://contraptions.venkateshrao.com/p/ea-safety",
+   "points": 5,
+   "created_at_i": 1789962561
+  },
+  {
+   "objectID": "49782848",
+   "title": "A Builder's Simple Perspective on the Future of the Job Market",
+   "url": "https://wenbo.site/blog/a-builder-s-simple-perspective-on-how-ai-will-shape-the-job-market",
+   "points": 1,
+   "created_at_i": 1789962560
+  },
+  {
+   "objectID": "49782806",
+   "title": "Lint-HTTP 0.1.0 \u2013 Easy to use, complete HTTP traffic linter",
+   "url": "https://crates.io/crates/lint-http/0.1.0",
+   "points": 1,
+   "created_at_i": 1789962114
+  },
+  {
+   "objectID": "49782797",
+   "title": "While the human's away, do the agents slip into foul play?",
+   "url": "https://dev.yuv.run/writing/while-i-sleep/",
+   "points": 1,
+   "created_at_i": 1789962012
+  },
+  {
+   "objectID": "49782775",
+   "title": "Winning the visa lottery",
+   "url": "https://www.aeaweb.org/research/immigration-restrictions-firms-workers",
+   "points": 112,
+   "created_at_i": 1789961822
+  },
+  {
+   "objectID": "49782768",
+   "title": "The Rise of Niche Consumption",
+   "url": "https://www.aeaweb.org/articles?id=10.1257/mac.20210263",
+   "points": 2,
+   "created_at_i": 1789961793
+  },
+  {
+   "objectID": "49782733",
+   "title": "Talk to Hector Salamanca, powered by Jev and a bell",
+   "url": "https://jev-hector.vercel.app/",
+   "points": 2,
+   "created_at_i": 1789961370
+  },
+  {
+   "objectID": "49782717",
+   "title": "Rally English",
+   "url": "https://en.wikipedia.org/wiki/Rally_English",
+   "points": 1,
+   "created_at_i": 1789961201
+  },
+  {
+   "objectID": "49782702",
+   "title": "The trouble with 'ntile()'",
+   "url": "https://blog.djnavarro.net/posts/2026-09-20_the-trouble-with-ntile/",
+   "points": 26,
+   "created_at_i": 1789961006
+  },
+  {
+   "objectID": "49782694",
+   "title": "The Genesis of Attribute Grammars [pdf]",
+   "url": "https://www.cs.miami.edu/home/odelia/teaching/csc419_spring17/syllabus/Knuth_AttributeHistory.pdf",
+   "points": 1,
+   "created_at_i": 1789960909
+  },
+  {
+   "objectID": "49782650",
+   "title": "New wild cat species is identified for first time in 100 years",
+   "url": "https://www.nbcnews.com/science/environment/new-wild-cat-species-identified-rcna598113",
+   "points": 3,
+   "created_at_i": 1789960445
+  },
+  {
+   "objectID": "49782644",
+   "title": "A Silicon Valley radical: Trump's AI whisperer pushing for limited regulation",
+   "url": "https://www.theguardian.com/us-news/2026/sep/20/david-sacks-trump-ai-czar",
+   "points": 4,
+   "created_at_i": 1789960383
+  },
+  {
+   "objectID": "49782633",
+   "title": "Vibemaxxer",
+   "url": "https://vibemaxxer.cro.sh/",
+   "points": 1,
+   "created_at_i": 1789960283
+  },
+  {
+   "objectID": "49782623",
+   "title": "China is not ready for a post-American world",
+   "url": "https://www.economist.com/international/2026/09/15/china-is-not-ready-for-a-post-american-world",
+   "points": 4,
+   "created_at_i": 1789960176
+  },
+  {
+   "objectID": "49782617",
+   "title": "NYTimes Journalist Regrets Long Ordeal Sending Daughter to Worse NY Schools",
+   "url": "https://www.nytimes.com/2026/09/20/magazine/ny-public-schools-black-students-segregation.html",
+   "points": 2,
+   "created_at_i": 1789960081
+  },
+  {
+   "objectID": "49782601",
+   "title": "Skills to Make the Perfect Website",
+   "url": "https://github.com/NoamanKhalil/WebSkills",
+   "points": 2,
+   "created_at_i": 1789959947
+  },
+  {
+   "objectID": "49782598",
+   "title": "Chemical and Biological Weapons Explained \u2013 Brett Edwards (2024) [video]",
+   "url": "https://www.youtube.com/watch?v=x3J2w7-9XC8",
+   "points": 3,
+   "created_at_i": 1789959918
+  },
+  {
+   "objectID": "49782586",
+   "title": "You Are the Executive Now",
+   "url": "https://sundaylettersfromsam.substack.com/p/youre-the-executive-now",
+   "points": 1,
+   "created_at_i": 1789959798
+  },
+  {
+   "objectID": "49782543",
+   "title": "NASA's Moon Orbiter Spots New, 'Once-in-Century' Moon Crater",
+   "url": "https://science.nasa.gov/solar-system/moon/nasas-moon-orbiter-spots-new-once-in-century-moon-crater/",
+   "points": 2,
+   "created_at_i": 1789959294
+  },
+  {
+   "objectID": "49782529",
+   "title": "Show HN: GrowSpot \u2013 checks if a plant can live in an exact spot, not just a room",
+   "url": "https://growspotapp.com/spot-checker/",
+   "points": 2,
+   "created_at_i": 1789959148
+  },
+  {
+   "objectID": "49782528",
+   "title": "Show HN: Hibi \u2013 An open-source obsidian alternative",
+   "url": "https://github.com/schmayterling/hibi",
+   "points": 6,
+   "created_at_i": 1789959116
+  },
+  {
+   "objectID": "49782505",
+   "title": "Linus demands real users before hazard pointers land",
+   "url": "https://freenode.net/article/linus-demands-real-users-before-hazard-pointers-land",
+   "points": 4,
+   "created_at_i": 1789958887
+  },
+  {
+   "objectID": "49782503",
+   "title": "How we're (actually) all going to die",
+   "url": "https://siliconpalace.substack.com/p/heres-how-were-actually-all-going",
+   "points": 5,
+   "created_at_i": 1789958885
+  },
+  {
+   "objectID": "49782466",
+   "title": "Want to Entice New Residents? Offer Cash, for a Start",
+   "url": "https://www.nytimes.com/2026/09/12/business/economy/rural-america-moving-incentives.html",
+   "points": 2,
+   "created_at_i": 1789958519
+  },
+  {
+   "objectID": "49782452",
+   "title": "Relativistic raytracing",
+   "url": "https://publish.obsidian.md/h1m3/Articles/Relativistic+raytracing",
+   "points": 57,
+   "created_at_i": 1789958399
+  },
+  {
+   "objectID": "49782441",
+   "title": "Memoization application that you have used but might not know",
+   "url": "https://github.com/prashant2400/prashant2400.github.io/blob/master/_posts/2026-08-15-Memoization-that-you-already-know.md",
+   "points": 2,
+   "created_at_i": 1789958261
+  },
+  {
+   "objectID": "49782440",
+   "title": "ZCode, embroiled in a controversy over stealing user code, is now open source",
+   "url": "https://github.com/zai-org/ZCode/blob/main/README.en.md",
+   "points": 5,
+   "created_at_i": 1789958258
+  },
+  {
+   "objectID": "49782439",
+   "title": "Show HN: Ambits \u2013 agentic grep/rg tool will history tracking",
+   "url": "https://github.com/joshLong145/ambits",
+   "points": 5,
+   "created_at_i": 1789958245
+  },
+  {
+   "objectID": "49782430",
+   "title": "Coding Theory: A Playful Introduction",
+   "url": "https://paramrathour.github.io/blog/coding-theory/",
+   "points": 31,
+   "created_at_i": 1789958173
+  },
+  {
+   "objectID": "49782428",
+   "title": "Scammers found a way to make people drain their own wallets",
+   "url": "https://twitter.com/wyckoffweb/status/2101671671727898870",
+   "points": 2,
+   "created_at_i": 1789958159
+  },
+  {
+   "objectID": "49782411",
+   "title": "Kelvin Wave",
+   "url": "https://en.wikipedia.org/wiki/Kelvin_wave",
+   "points": 1,
+   "created_at_i": 1789957895
+  },
+  {
+   "objectID": "49782409",
+   "title": "AI Weekly Warns Firms on Google AI Studio Data Retention Fraud",
+   "url": "https://bitu79.substack.com/p/ai-weekly-issues-warning-on-google",
+   "points": 31,
+   "created_at_i": 1789957879
+  },
+  {
+   "objectID": "49782392",
+   "title": "Art of the Problem Launches $99 AI bot",
+   "url": "https://artoftheproblem.com/pages/growbot-preview",
+   "points": 2,
+   "created_at_i": 1789957719
+  },
+  {
+   "objectID": "49782388",
+   "title": "Have a Question? Ask Jev",
+   "url": "https://askjev.net/",
+   "points": 3,
+   "created_at_i": 1789957709
+  },
+  {
+   "objectID": "49782366",
+   "title": "Ax: Google's Open Agentic Orchestrator",
+   "url": "https://github.com/google/ax",
+   "points": 1,
+   "created_at_i": 1789957551
+  },
+  {
+   "objectID": "49782351",
+   "title": "The Cultural Leadership Fund (2018)",
+   "url": "https://a16z.com/introducing-the-cultural-leadership-fund/",
+   "points": 1,
+   "created_at_i": 1789957317
+  },
+  {
+   "objectID": "49782345",
+   "title": "Farhud memories: Baghdad's 1941 slaughter of the Jews",
+   "url": "https://www.bbc.com/news/world-middle-east-13610702",
+   "points": 5,
+   "created_at_i": 1789957277
+  },
+  {
+   "objectID": "49782340",
+   "title": "Farhud",
+   "url": "https://en.wikipedia.org/wiki/Farhud",
+   "points": 4,
+   "created_at_i": 1789957245
+  },
+  {
+   "objectID": "49782327",
+   "title": "Meta launches fresh legal challenge over UK's Online Safety Act",
+   "url": "https://www.ft.com/content/c1ba743f-7330-4419-bc8d-a8b5ce4420a0",
+   "points": 4,
+   "created_at_i": 1789957171
+  },
+  {
+   "objectID": "49782324",
+   "title": "'Ask for what you want' is a key skill for the 21st century",
+   "url": "https://www.robinsloan.com/lab/ask-for-what-you-want/",
+   "points": 7,
+   "created_at_i": 1789957116
+  },
+  {
+   "objectID": "49782320",
+   "title": "A Brief History of Light",
+   "url": "https://sites.psu.edu/gopalan/curiosity-corner/light/",
+   "points": 3,
+   "created_at_i": 1789957024
+  },
+  {
+   "objectID": "49782310",
+   "title": "What Is Coastline Index and Why Focus Only on Confirmed GTA VI Facts?",
+   "url": null,
+   "points": 3,
+   "created_at_i": 1789956959
+  },
+  {
+   "objectID": "49782271",
+   "title": "World model companies are keeping a lot of secrets",
+   "url": "https://techcrunch.com/2026/09/20/world-model-companies-are-keeping-a-lot-of-secrets/",
+   "points": 3,
+   "created_at_i": 1789956577
+  },
+  {
+   "objectID": "49782268",
+   "title": "AI is breaking the academic sorting machine",
+   "url": "https://lemire.me/blog/2026/09/20/ai-is-breaking-the-academic-sorting-machine/",
+   "points": 3,
+   "created_at_i": 1789956553
+  },
+  {
+   "objectID": "49782267",
+   "title": "A Fresh Start: My Minimalist Blog Redesign After 14 Years",
+   "url": "https://bcastell.com/posts/a-fresh-start/",
+   "points": 2,
+   "created_at_i": 1789956543
+  },
+  {
+   "objectID": "49782264",
+   "title": "Reviving Deserts with Syntropic Agroforestry",
+   "url": "https://wikifarmer.com/library/en/article/reviving-deserts-with-syntropic-agroforestry",
+   "points": 3,
+   "created_at_i": 1789956505
+  },
+  {
+   "objectID": "49782250",
+   "title": "Delta (zed.dev) \u2013 Help understanding ToS",
+   "url": "https://zed.dev/terms#41-zeds-use-of-customer-data",
+   "points": 2,
+   "created_at_i": 1789956408
+  },
+  {
+   "objectID": "49782242",
+   "title": "Can I Let My AI Agent Run on Shabbat?",
+   "url": "https://www.chabad.org/library/article_cdo/aid/7288064/jewish/Can-I-Let-My-AI-Agent-Run-on-Shabbat.htm",
+   "points": 36,
+   "created_at_i": 1789956345
+  },
+  {
+   "objectID": "49782232",
+   "title": "Deterministic grounding checks for LLM agents, no LLM in the hot path",
+   "url": "https://github.com/polarisbuiltinc-wq/ora-grounding",
+   "points": 1,
+   "created_at_i": 1789956261
+  },
+  {
+   "objectID": "49782229",
+   "title": "When Intelligence Becomes Abundant, Architecture Becomes the Constraint",
+   "url": "https://henrymurphy832344.substack.com/p/when-intelligence-becomes-abundant",
+   "points": 2,
+   "created_at_i": 1789956223
+  },
+  {
+   "objectID": "49782220",
+   "title": "Deterministic Core, Non-Deterministic Shell",
+   "url": "https://outdata.net/blog/260803",
+   "points": 60,
+   "created_at_i": 1789956165
+  },
+  {
+   "objectID": "49782219",
+   "title": "Fluid Simulation in One Tweet",
+   "url": "https://davidar.io/post/fluid",
+   "points": 1,
+   "created_at_i": 1789956155
+  },
+  {
+   "objectID": "49782185",
+   "title": "Why Bother with Lint Rules If AI Writes the Code?",
+   "url": "https://allstead.dev/blog/why-lint-when-ai-writes-the-code",
+   "points": 2,
+   "created_at_i": 1789955819
+  },
+  {
+   "objectID": "49782168",
+   "title": "The Great Gatsby",
+   "url": "https://calmscroll.com/the-great-gatsby-f-scott-fitzgerald",
+   "points": 2,
+   "created_at_i": 1789955636
+  },
+  {
+   "objectID": "49782148",
+   "title": "Canada and France to Develop Space Systems",
+   "url": "https://www.bloomberg.com/news/articles/2026-09-20/canada-france-to-develop-shared-space-launch-infrastructure",
+   "points": 3,
+   "created_at_i": 1789955399
+  },
+  {
+   "objectID": "49782096",
+   "title": "Open Radar Code Architecture",
+   "url": "https://orca.radioglaciology.com/",
+   "points": 2,
+   "created_at_i": 1789954877
+  },
+  {
+   "objectID": "49782064",
+   "title": "Applesauce: Transparent Compression for Apple File System Compression (AFSC)",
+   "url": "https://github.com/Dr-Emann/applesauce",
+   "points": 1,
+   "created_at_i": 1789954616
+  },
+  {
+   "objectID": "49782061",
+   "title": "Jev \u2013 System-1 Agent Architecture Radar (open-source)",
+   "url": "https://github.com/logicrw/awesome-jev-projects",
+   "points": 3,
+   "created_at_i": 1789954588
+  },
+  {
+   "objectID": "49782056",
+   "title": "Nobel economists throw support behind California billionaire tax",
+   "url": "https://www.ft.com/content/94ec0fee-53ab-4d7e-9b17-6b05608ad974",
+   "points": 16,
+   "created_at_i": 1789954567
+  },
+  {
+   "objectID": "49782051",
+   "title": "UK productivity grew twice as fast as thought after 2008 financial crisis",
+   "url": "https://www.ft.com/content/560fc2ad-5c7e-4878-ae9b-a3183004c394",
+   "points": 2,
+   "created_at_i": 1789954549
+  },
+  {
+   "objectID": "49782050",
+   "title": "Jevcache",
+   "url": "https://jevcache.sh/",
+   "points": 2,
+   "created_at_i": 1789954521
+  },
+  {
+   "objectID": "49782046",
+   "title": "Victor Hugo Helped Save the Notre-Dame",
+   "url": "https://news.artnet.com/art-world/art-bites-victor-hugo-notre-dame-2802365",
+   "points": 3,
+   "created_at_i": 1789954503
+  },
+  {
+   "objectID": "49782006",
+   "title": "ZCode: Z.ai's coding agent harness. Powerful, intelligent, extensible",
+   "url": "https://github.com/zai-org/ZCode",
+   "points": 4,
+   "created_at_i": 1789954138
+  },
+  {
+   "objectID": "49781977",
+   "title": "Flock Partnered with Nonprofit That Uses AI to Rally Public Support",
+   "url": "https://theintercept.com/2026/09/17/flock-cameras-ai-astroturf-support/",
+   "points": 16,
+   "created_at_i": 1789953833
+  },
+  {
+   "objectID": "49781947",
+   "title": "How to Post Train",
+   "url": "https://howtoposttrain.com/",
+   "points": 1,
+   "created_at_i": 1789953572
+  },
+  {
+   "objectID": "49781943",
+   "title": "A study of sequence weighting at scale",
+   "url": "https://blog.janestreet.com/a-study-of-sequence-weighting-at-scale/",
+   "points": 2,
+   "created_at_i": 1789953542
+  },
+  {
+   "objectID": "49781907",
+   "title": "How Google is drafting AI chatbot laws around the country",
+   "url": "https://www.npr.org/2026/09/18/nx-s1-5968878/ai-chatbots-safety-regulation-google",
+   "points": 4,
+   "created_at_i": 1789953124
+  },
+  {
+   "objectID": "49781896",
+   "title": "Giveaway Bot Services",
+   "url": "https://discord.com/oauth2/authorize?client_id=1547251904277651578&permissions=4503599627783232&integration_type=0&scope=bot+applications.commands",
+   "points": 1,
+   "created_at_i": 1789953089
+  },
+  {
+   "objectID": "49781876",
+   "title": "Nvidia's Jensen Huang rejects AI extinction warnings as \"doomsday narratives\"",
+   "url": "https://www.cbsnews.com/news/jensen-huang-nvidia-rejects-ai-extinction-warnings/",
+   "points": 5,
+   "created_at_i": 1789952934
+  },
+  {
+   "objectID": "49781862",
+   "title": "ReBarUEFI: Resizable BAR for almost any UEFI system",
+   "url": "https://github.com/xCuri0/ReBarUEFI",
+   "points": 243,
+   "created_at_i": 1789952866
+  },
+  {
+   "objectID": "49781855",
+   "title": "OpenAI Sees Burning Through $278B by 2030: FT",
+   "url": "https://www.bloomberg.com/news/articles/2026-09-18/openai-projects-burning-through-278-billion-by-2030-ft-says",
+   "points": 5,
+   "created_at_i": 1789952828
+  },
+  {
+   "objectID": "49781831",
+   "title": "The Roman Space Telescope, explained and up to date",
+   "url": "https://romantelescope.info/",
+   "points": 1,
+   "created_at_i": 1789952637
+  },
+  {
+   "objectID": "49781829",
+   "title": "The Pain Axis: LLMs Represent Self-Directed Harm and Act to Relieve It",
+   "url": "https://arxiv.org/abs/2609.16247",
+   "points": 1,
+   "created_at_i": 1789952627
+  },
+  {
+   "objectID": "49781823",
+   "title": "Show HN: Pollresults.org \u2013 free US election opinion poll API",
+   "url": "https://pollresults.org",
+   "points": 1,
+   "created_at_i": 1789952533
+  },
+  {
+   "objectID": "49781819",
+   "title": "Chasing Speed of Light on TPU v6e",
+   "url": "https://www.sailresearch.com/blog/tpu-v6e-gemma",
+   "points": 2,
+   "created_at_i": 1789952446
+  },
+  {
+   "objectID": "49781785",
+   "title": "1k careers. One universe. Sign up not necessary",
+   "url": "https://epie.life/",
+   "points": 1,
+   "created_at_i": 1789952127
+  },
+  {
+   "objectID": "49781756",
+   "title": "Ask HN: Anyone Played with Jetson Orin Nano Super?",
+   "url": null,
+   "points": 1,
+   "created_at_i": 1789951897
+  },
+  {
+   "objectID": "49781727",
+   "title": "Show HN: Gdocs-me-up: a high-fidelity Google Docs exporter",
+   "url": "https://github.com/behdad/gdocs-me-up",
+   "points": 23,
+   "created_at_i": 1789951602
+  },
+  {
+   "objectID": "49781720",
+   "title": "OpenPrompt \u2013 one workspace for developers using multiple AI coding tools",
+   "url": "https://openprompt.tech",
+   "points": 2,
+   "created_at_i": 1789951514
+  },
+  {
+   "objectID": "49781709",
+   "title": "Masked LFW (MLFW) Database",
+   "url": "http://whdeng.cn/MLFW/index.html",
+   "points": 1,
+   "created_at_i": 1789951422
+  },
+  {
+   "objectID": "49781704",
+   "title": "CostRift",
+   "url": "https://costrift.com",
+   "points": 1,
+   "created_at_i": 1789951397
+  },
+  {
+   "objectID": "49781694",
+   "title": "Jev, Prolog, Pi, and the dream of probabilistic logic programming",
+   "url": "https://deepclause.substack.com/p/jev-prolog-pi-and-the-dream-of-probabilistic",
+   "points": 25,
+   "created_at_i": 1789951340
+  },
+  {
+   "objectID": "49781693",
+   "title": "Why Backprop Goes Backward (2018)",
+   "url": "https://gregorygundersen.com/blog/2018/04/15/backprop/",
+   "points": 70,
+   "created_at_i": 1789951334
+  },
+  {
+   "objectID": "49781672",
+   "title": "Recursive Cognitive Optimization (RCO)",
+   "url": "https://github.com/sealvlon/Recursive-Cognitive-Optimization-RCO-",
+   "points": 1,
+   "created_at_i": 1789951001
+  },
+  {
+   "objectID": "49781664",
+   "title": "Trump says it's time to rebrand AI with a new name",
+   "url": "https://techcrunch.com/2026/09/19/trump-suggests-rebranding-ai-with-a-new-name-says-hes-also-creating-an-ai-force/",
+   "points": 7,
+   "created_at_i": 1789950946
+  },
+  {
+   "objectID": "49781623",
+   "title": "Can You Beat Jev?",
+   "url": "https://antics.gg/can-you-beat-jev",
+   "points": 2,
+   "created_at_i": 1789950574
+  },
+  {
+   "objectID": "49781612",
+   "title": "Sub-15ms, non-autoregressive, local drop-in alternative to TypeSafe Jev",
+   "url": "https://github.com/wfzyx/von",
+   "points": 5,
+   "created_at_i": 1789950411
+  },
+  {
+   "objectID": "49781606",
+   "title": "Models know when they're reward hacking \u2013 and we can catch them at scale",
+   "url": "https://www.goodfire.com/research/reward-hacking-activation-monitors",
+   "points": 1,
+   "created_at_i": 1789950352
+  },
+  {
+   "objectID": "49781597",
+   "title": "Fundamental Theorem of Calculus [Slop]",
+   "url": "https://www.proofatlas.ai/library-theorems/fundamental-theorem-calculus/",
+   "points": 1,
+   "created_at_i": 1789950220
+  },
+  {
+   "objectID": "49781580",
+   "title": "Show HN: Vsqrd \u2013 AWS for Biology Experiments",
+   "url": "https://vsqrd.com/",
+   "points": 1,
+   "created_at_i": 1789950062
+  },
+  {
+   "objectID": "49781573",
+   "title": "The First Ten Years",
+   "url": "https://gregorygundersen.com/blog/2025/01/30/first-ten-years/",
+   "points": 2,
+   "created_at_i": 1789950008
+  },
+  {
+   "objectID": "49781566",
+   "title": "Succinct Sounds-Like Starting Vowels",
+   "url": "https://wiredream.com/vowels/",
+   "points": 1,
+   "created_at_i": 1789949951
+  },
+  {
+   "objectID": "49781554",
+   "title": "Show HN: Lain, a structural code graph and agent coordinator for coding agents",
+   "url": "https://github.com/spuentesp/lain",
+   "points": 2,
+   "created_at_i": 1789949755
+  },
+  {
+   "objectID": "49781537",
+   "title": "Two similar AI judges fail together 7.7x more often than independence predicts",
+   "url": "https://github.com/LAWLESS1987/covenant",
+   "points": 2,
+   "created_at_i": 1789949553
+  },
+  {
+   "objectID": "49781492",
+   "title": "A refined phylochronology of the second plague pandemic in Western Eurasia",
+   "url": "https://www.pnas.org/doi/10.1073/pnas.2534899123",
+   "points": 25,
+   "created_at_i": 1789949181
+  },
+  {
+   "objectID": "49781476",
+   "title": "How I view LLMs as Sept 2026",
+   "url": "https://bhardwajrish.blogspot.com/2026/09/how-i-view-llms-as-sept-2026.html",
+   "points": 2,
+   "created_at_i": 1789949049
+  },
+  {
+   "objectID": "49781458",
+   "title": "ZCode: silently uploading your Git history to the cloud",
+   "url": "https://news.routley.io/posts/inside-zcode-silently-uploading-your-git-history-to-the-cloud.html",
+   "points": 5,
+   "created_at_i": 1789948863
+  },
+  {
+   "objectID": "49781453",
+   "title": "A CERN for AI-assisted science",
+   "url": "https://terrytao.wordpress.com/2026/09/17/a-cern-for-ai-assisted-science/",
+   "points": 1,
+   "created_at_i": 1789948839
+  }
+ ],
+ "nbHits": 151,
+ "nbPages": 1,
+ "hitsPerPage": 1000,
+ "page": 0
+}

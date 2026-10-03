@@ -11,3 +11,12 @@ covering the day in the file name:
   contract test can prove pagination follows `has_more`.
 
 To re-record, make the same request with `curl --compressed` and save the body verbatim.
+
+`HackerNews/` was recorded from `https://hn.algolia.com/api/v1/`:
+
+- `2026-09-21-window-{0..3}.json` — `search_by_date?tags=story` for each six-hour window of the day, `hitsPerPage=1000`; hits trimmed to the fields the collector reads.
+- `volume-svelte-2026-09-21.json` — `search?query="svelte"&tags=story&hitsPerPage=0` over the week starting 2026-09-21.
+
+`StackExchange/volume-svelte-2026-09-21.json` — `/2.3/search/advanced?q=svelte&filter=!9n30IGbb1J()` (a filter of `.total`, `.backoff`, `.quota_remaining`) over the same week.
+
+`Wikimedia/svelte-2026-09-21.json` — `metrics/pageviews/per-article/en.wikipedia/all-access/user/Svelte/daily/20260921/20260927`.
