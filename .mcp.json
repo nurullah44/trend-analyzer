@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "trend-analyzer": {
+      "command": "bash",
+      "args": ["-lc", ". ~/.config/php-env.sh && cd /home/agent/development/trend-analyzer && php artisan mcp:start trends"]
+    }
+  }
+}

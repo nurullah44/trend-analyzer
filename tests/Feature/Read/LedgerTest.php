@@ -78,6 +78,9 @@ class LedgerTest extends TestCase
         $this->assertSame('a real gap', $alarm->verdict_note);
         $this->assertSame('big', $alarm->subject->magnitude->value);
         $this->assertSame('worth_considering', $this->app->make(Ledger::class)->alarms()[0]['verdict']);
+
+        $this->app->make(OwnerWrites::class)->verdict($this->alarm->id, 'worth_considering', 'a real gap', 'big');
+        $this->assertSame(1, $alarm->subject->events()->where('type', 'verdict')->count(), 'the same ruling twice is recorded once');
     }
 
     public function test_writes_refuse_what_does_not_exist_or_is_not_allowed(): void

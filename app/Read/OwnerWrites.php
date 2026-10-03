@@ -28,6 +28,11 @@ final class OwnerWrites
         $ruling = Verdict::tryFrom($verdict) ?? throw new InvalidArgumentException('A Verdict is one of: '.implode(', ', array_column(Verdict::cases(), 'value')).'.');
         $size = $magnitude === null ? null : (Magnitude::tryFrom($magnitude) ?? throw new InvalidArgumentException('A Magnitude is one of: '.implode(', ', array_column(Magnitude::cases(), 'value')).'.'));
 
+        // Recording the same ruling again is a no-op, so a retried call never doubles the history.
+        if ($alarm->verdict === $ruling && $alarm->verdict_note === $note && ($size === null || $alarm->subject->magnitude === $size)) {
+            return $alarm;
+        }
+
         DB::transaction(function () use ($alarm, $ruling, $note, $size) {
             $alarm->update(['verdict' => $ruling, 'verdict_note' => $note]);
 
