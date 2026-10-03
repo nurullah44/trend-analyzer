@@ -76,7 +76,6 @@ return [
         'client_id' => env('GOOGLE_ADS_CLIENT_ID'),
         'client_secret' => env('GOOGLE_ADS_CLIENT_SECRET'),
         'refresh_token' => env('GOOGLE_ADS_REFRESH_TOKEN'),
-        'developer_token' => env('GOOGLE_ADS_DEVELOPER_TOKEN'),
         'customer_id' => env('GOOGLE_ADS_CUSTOMER_ID'),
         'login_customer_id' => env('GOOGLE_ADS_LOGIN_CUSTOMER_ID'),
         'currency' => env('GOOGLE_ADS_CURRENCY', 'TRY'),
@@ -109,7 +108,7 @@ return [
         ['key' => 'google_trends', 'name' => 'Google Trends trending searches', 'kind' => 'rss', 'geo' => 'GLOBAL', 'roles' => 'marker', 'enabled' => false, 'cost_note' => 'deferred until after the foundation; free', 'docs_url' => 'https://trends.google.com/trending/rss?geo=GLOBAL'],
 
         // Validation and a Mainstream marker, read only for Rising and Trending Subjects.
-        ['key' => 'google_ads', 'name' => 'Google Ads keyword metrics', 'kind' => 'api', 'geo' => null, 'roles' => 'validation,marker', 'enabled' => true, 'cost_note' => 'free per call; Basic developer-token access via the owner\'s account; bids in the account currency', 'docs_url' => 'https://developers.google.com/google-ads/api/rest/reference/rest/v25/customers/generateKeywordHistoricalMetrics'],
+        ['key' => 'google_ads', 'name' => 'Google Ads keyword metrics', 'kind' => 'api', 'geo' => null, 'roles' => 'validation,marker', 'enabled' => true, 'cost_note' => 'free per call; Basic access granted to the owner\'s Cloud project; bids in the account currency', 'docs_url' => 'https://developers.google.com/google-ads/api/rest/reference/rest/v25/customers/generateKeywordHistoricalMetrics'],
 
         // Parked or blocked, kept registered so the reason is visible.
         ['key' => 'google_news', 'name' => 'Google News RSS (topic feeds)', 'kind' => 'rss', 'geo' => 'GLOBAL', 'roles' => 'marker', 'enabled' => false, 'cost_note' => 'disabled: attention and news, not demand', 'docs_url' => 'https://news.google.com/rss/headlines/section/topic/TECHNOLOGY?hl=en-US&gl=US&ceid=US:en'],

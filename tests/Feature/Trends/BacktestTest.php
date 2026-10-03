@@ -24,7 +24,7 @@ class BacktestTest extends TestCase
         parent::setUp();
 
         $this->seed(SourceSeeder::class);
-        config(['trend.google_ads.developer_token' => null]);
+        config(['trend.google_ads.refresh_token' => null]);
     }
 
     public function test_a_known_rise_is_flagged_before_its_marker_and_a_dud_never_is(): void
@@ -75,7 +75,7 @@ class BacktestTest extends TestCase
 
         $this->assertNull($this->app->make(Backtest::class)->replay('Tidewave', $from, $to)['trending'], 'one enabled Source cannot corroborate');
 
-        config(['trend.google_ads' => ['client_id' => 'c', 'client_secret' => 's', 'refresh_token' => 'r', 'developer_token' => 'd', 'customer_id' => '1', 'login_customer_id' => null, 'currency' => 'TRY', 'refresh_after_days' => 28]]);
+        config(['trend.google_ads' => ['client_id' => 'c', 'client_secret' => 's', 'refresh_token' => 'r', 'customer_id' => '1', 'login_customer_id' => null, 'currency' => 'TRY', 'refresh_after_days' => 28]]);
         config(['trend.mainstream.monthly_searches' => 90_000]);
         Http::fake([
             'oauth2.googleapis.com/token' => Http::response(['access_token' => 'a']),

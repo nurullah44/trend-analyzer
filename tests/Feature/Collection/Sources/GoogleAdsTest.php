@@ -15,7 +15,7 @@ class GoogleAdsTest extends TestCase
         parent::setUp();
 
         config(['trend.google_ads' => [
-            'client_id' => 'client', 'client_secret' => 'secret', 'refresh_token' => 'refresh', 'developer_token' => 'dev',
+            'client_id' => 'client', 'client_secret' => 'secret', 'refresh_token' => 'refresh',
             'customer_id' => '7588048331', 'login_customer_id' => null, 'currency' => 'TRY', 'refresh_after_days' => 28,
         ]]);
     }
@@ -38,7 +38,7 @@ class GoogleAdsTest extends TestCase
         $this->assertSame(4, $metrics['competition_index']);
 
         Http::assertSent(fn (Request $request) => str_ends_with($request->url(), '/v25/customers/7588048331:generateKeywordHistoricalMetrics')
-            && $request->hasHeader('developer-token', 'dev')
+            && ! $request->hasHeader('developer-token')
             && $request->hasHeader('Authorization', 'Bearer access')
             && $request['keywords'] === ['svelte']
             && ! isset($request['geoTargetConstants']));
@@ -58,7 +58,7 @@ class GoogleAdsTest extends TestCase
     {
         $this->assertTrue($this->app->make(GoogleAds::class)->configured());
 
-        config(['trend.google_ads.developer_token' => null]);
+        config(['trend.google_ads.refresh_token' => null]);
 
         $this->assertFalse($this->app->make(GoogleAds::class)->configured());
     }

@@ -11,7 +11,8 @@ use UnexpectedValueException;
  * Google Ads keyword metrics (GenerateKeywordHistoricalMetrics): validation and
  * a Mainstream marker (ADR-0005). Read worldwide in English — omitting the geo
  * returns worldwide figures. Bid figures are micros of the account's currency,
- * never assumed to be USD, so the currency is stored with them.
+ * never assumed to be USD, so the currency is stored with them. Since 2026-09-10
+ * access comes from the Cloud project behind the OAuth client; no developer token.
  */
 final class GoogleAds
 {
@@ -23,7 +24,7 @@ final class GoogleAds
 
     public function configured(): bool
     {
-        return collect(['client_id', 'client_secret', 'refresh_token', 'developer_token', 'customer_id'])
+        return collect(['client_id', 'client_secret', 'refresh_token', 'customer_id'])
             ->every(fn (string $key) => filled(config("trend.google_ads.{$key}")));
     }
 
@@ -38,7 +39,7 @@ final class GoogleAds
 
         $request = SourceHttp::client($this->http, self::API)
             ->withToken($this->accessToken())
-            ->withHeaders(array_filter(['developer-token' => $config['developer_token'], 'login-customer-id' => $config['login_customer_id']]));
+            ->withHeaders(array_filter(['login-customer-id' => $config['login_customer_id']]));
 
         $result = $request->post("/customers/{$config['customer_id']}:generateKeywordHistoricalMetrics", [
             'keywords' => [$keyword],

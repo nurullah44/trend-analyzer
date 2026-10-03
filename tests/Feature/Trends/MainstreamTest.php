@@ -29,7 +29,7 @@ class MainstreamTest extends TestCase
         $this->seed(SourceSeeder::class);
         $this->week = CarbonImmutable::parse('2026-09-21', 'UTC');
         $this->travelTo($this->week->addWeek()->addDay());
-        config(['trend.google_ads.developer_token' => null]);
+        config(['trend.google_ads.refresh_token' => null]);
     }
 
     public function test_a_subject_already_over_the_line_goes_straight_to_mainstream_and_never_alarms(): void
@@ -72,7 +72,7 @@ class MainstreamTest extends TestCase
 
     public function test_google_searches_holding_over_the_line_are_arrival_and_rising_subjects_are_sized(): void
     {
-        config(['trend.google_ads' => ['client_id' => 'c', 'client_secret' => 's', 'refresh_token' => 'r', 'developer_token' => 'd', 'customer_id' => '1', 'login_customer_id' => null, 'currency' => 'TRY', 'refresh_after_days' => 28]]);
+        config(['trend.google_ads' => ['client_id' => 'c', 'client_secret' => 's', 'refresh_token' => 'r', 'customer_id' => '1', 'login_customer_id' => null, 'currency' => 'TRY', 'refresh_after_days' => 28]]);
         config(['trend.mainstream.monthly_searches' => 90_000]);
         Http::fake([
             'oauth2.googleapis.com/token' => Http::response(['access_token' => 'a']),
@@ -114,7 +114,7 @@ class MainstreamTest extends TestCase
 
     public function test_a_disabled_google_ads_source_is_never_asked(): void
     {
-        config(['trend.google_ads' => ['client_id' => 'c', 'client_secret' => 's', 'refresh_token' => 'r', 'developer_token' => 'd', 'customer_id' => '1', 'login_customer_id' => null, 'currency' => 'TRY', 'refresh_after_days' => 28]]);
+        config(['trend.google_ads' => ['client_id' => 'c', 'client_secret' => 's', 'refresh_token' => 'r', 'customer_id' => '1', 'login_customer_id' => null, 'currency' => 'TRY', 'refresh_after_days' => 28]]);
         Source::where('key', 'google_ads')->update(['enabled' => false]);
         Http::fake();
         $this->views([]);
