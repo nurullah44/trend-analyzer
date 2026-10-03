@@ -65,15 +65,29 @@ At this project's volume — a handful of keywords a week — the $50 credit wou
 
 ## Roles
 
-A Source is collected for one or more jobs, recorded on the Source itself:
+A Source is collected for one or more jobs, recorded on the Source itself (ADR-0004, ADR-0005):
 
-| Role | Job | Who does it now |
-|---|---|---|
-| **discovery** | Surfaces Subjects nobody named | Stack Exchange, Hacker News, Product Hunt, Apple charts by genre, YouTube trending **by category** |
-| **marker** | Confirms a Subject has arrived | Google Trends trending, Apple charts |
-| **validation** | Sizes or shapes a Subject already tracked | Wikimedia pageviews, Google Ads keyword metrics |
+| Role | Job |
+|---|---|
+| **discovery** | Reads what a Source published on a day and proposes Candidates |
+| **measurement** | Counts the items matching one Subject's query in one week, for any past week |
+| **marker** | Says a Subject has arrived: one of its own measures holds over a threshold |
+| **validation** | Sizes a Subject already tracked |
 
-The rule that decides this: **demand and supply are signal; attention and news are dirt.** A Source that only reports what people are reading about — news volume, generic trending lists — is disabled no matter how free it is, because it cannot tell us that somebody wants something.
+The rule that decides inclusion: **demand and supply are signal; attention and news are dirt.** A Source that only reports what people are reading about — news volume, generic trending lists — is disabled no matter how free it is, because it cannot tell us that somebody wants something.
+
+## The foundation set
+
+The first version collects from four Sources only, chosen because each answers for past ranges and needs no approval:
+
+| Source | Roles |
+|---|---|
+| Stack Exchange | discovery, measurement |
+| Hacker News (Algolia) | discovery, measurement |
+| Wikimedia Pageviews | measurement, marker |
+| Google Ads keyword metrics | validation, marker |
+
+Product Hunt, YouTube trending, the Apple charts, Google Trends and the Apple Ads search-term API stay approved but **deferred**: each is added when real output shows a gap it would fill.
 
 ## Geo rule
 

@@ -33,15 +33,15 @@ An official API, RSS feed, public dataset, or licensed third-party provider the 
 _Avoid_: page, website, scrape, feed
 
 **Mainstream marker**:
-One of the three signals that a Subject has arrived where the analyzer was trying to beat it: the Google Trends top ten, the top-free app chart, or the top news stories — each read for the watched geo. A marker has to hold rather than flash once — a single chart appearance is a Spike, not arrival.
+A line on one of the Subject's own measures that says it has arrived where the analyzer was trying to beat it: its Wikipedia article's weekly pageviews, or its Google Ads average monthly searches, at or above a configured threshold. A marker has to hold — two consecutive weeks or months over the line — rather than flash once.
 _Avoid_: viral, popular
 
 **Watched geo**:
-The country a per-country Source is read for, such as YouTube's trending chart, Google Trends, the app chart or a news edition. The analyzer watches subjects globally: Sources that are global by nature — GDELT, Wikimedia, Hacker News, Stack Exchange, Product Hunt — have no watched geo at all.
+The country a per-country Source is read for, such as YouTube's trending chart or the app chart. The analyzer watches subjects globally: Sources that are global by nature — Wikimedia, Hacker News, Stack Exchange, Product Hunt, Google Ads read without a geo — have no watched geo at all.
 _Avoid_: region, locale, country filter
 
 **Spike**:
-A short burst of Volume that does not persist. It is worth recording, but it does not move a Subject into Mainstream and it is not a trend on its own.
+A short burst of Volume that does not persist. It is not a trend on its own. Not recorded yet: it waits until the series is long enough to tell a burst from a rise.
 _Avoid_: trend, breakout
 
 **Magnitude**:
@@ -49,15 +49,33 @@ How large the opportunity behind a rising Subject could become — small, medium
 _Avoid_: score, size, importance
 
 **Seasonal**:
-A Subject that already rose in the same period a year earlier, so its rise is expected rather than new.
+A Subject that already rose in the same period a year earlier, so its rise is expected rather than new. Not computed until a year of series exists.
+
+**Discovery**:
+Reading what a Source published on one day only to propose candidates. Discovery never measures anything.
+
+**Measurement**:
+Asking a Source how many items matched one Subject's query in one week. Measurement Sources answer for any past range, so a newly tracked Subject is backfilled at once.
+
+**Candidate**:
+A tag or phrase discovery proposed that is not yet a Subject. The Classifier decides whether it is tracked, waits in Backlog, or is dropped.
+
+**Classifier**:
+Jev, TypeSafe's System One model. It answers typed questions about a candidate — is it a specific, nameable thing, and which Label fits — with probabilities. It never measures, never scores, and never decides that something is emerging.
+
+**Seed**:
+A Subject the owner names by hand, with its query. It skips the Classifier and starts in Watching.
+
+**Lead time**:
+The days from a Subject's first Alarm to its Mainstream moment — the head start the analyzer earned.
 
 ### Subject states
 
 **Backlog**:
-Discovered but not yet tracked; waiting to be promoted or discarded.
+Discovered but not yet tracked — the Classifier was unsure or not configured; waiting for the owner to promote it with a seed.
 
 **Watching**:
-Tracked daily and quiet, below the rising bar.
+Measured weekly and quiet, below the rising bar.
 
 **Rising**:
 Accelerating, but not yet worth an Alarm.
@@ -72,18 +90,18 @@ Reached a Mainstream marker; the Alarm is closed and the lead time is fixed.
 Falling after having trended, or after a rise that failed; retained and silent.
 
 **Archived**:
-Discarded without ever having risen.
+Left Watching after thirty days without ever having risen. No longer measured; its rows are kept.
 
 ### Measures
 
 **Volume**:
-How many items mentioning the Subject a Source published on a given day.
+How many items matching the Subject's query a Source published in a given week.
 
 **Velocity**:
-Today's Volume measured against the Subject's own baseline — the same weekday, recent weeks, and the same period last year once a year of history exists.
+This week's Volume against the Subject's own trailing eight weeks on the same Source: how many spreads above the baseline's median it sits. A year-ago comparison joins once a year of history exists.
 
 **Corroboration**:
-How many independent Sources are rising at the same time.
+How many independent Sources show the Subject rising in the same week.
 
 **Trend Score**:
 The explainable number built from Velocity, Corroboration and Volume that moves a Subject between states. It is never a probability.
