@@ -15,9 +15,14 @@ php artisan migrate && php artisan db:seed
 php artisan trends:daily        # collect the missing days of the last week, discover Candidates
 php artisan trends:weekly       # measure, score and move every tracked Subject; publish Alarms
 php artisan trends:report       # the week's Alarms, Source health and gaps (--json for agents)
+php artisan trends:show subject <slug>   # any read as JSON: report, alarms, subjects, subject, sources, gaps
+php artisan trends:seed "Name" --query="search words"   # the owner's three writes: seed, label, verdict
+php artisan trends:backtest     # replay the score over two years for the cases in config/trend.php
 php artisan trends:status
-php artisan test
+php artisan test && vendor/bin/pint --test && vendor/bin/phpstan analyse
 ```
+
+Agents: Claude Code picks up the MCP server from `.mcp.json` (`php artisan mcp:start trends`); pi uses `.pi/skills/trend-analyzer`. The pages run with `php -S 127.0.0.1:8000 -t public` (or `php artisan serve`): `/` this week's Alarms, `/subjects/{slug}`, `/sources`.
 
 Both runs heal what they missed, so the schedule only has to fire eventually. Windows owns the clock (ADR-0002): register both runs once with `scripts/windows-schedule.ps1 -Distro <distro>` from PowerShell.
 
