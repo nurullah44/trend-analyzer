@@ -44,11 +44,9 @@ final class Alarms
      */
     private function items(Subject $subject, CarbonImmutable $week): array
     {
-        $like = '%'.str_replace(['%', '_'], ['\%', '\_'], $subject->query).'%';
-
         return Item::with('source')
             ->whereBetween('observed_on', [$week->toDateString(), $week->addDays(6)->toDateString()])
-            ->where(fn ($query) => $query->whereRaw("title like ? escape '\\'", [$like])->orWhereRaw("excerpt like ? escape '\\'", [$like]))
+            ->mentioning($subject->query)
             ->orderByDesc('measured_quantity')
             ->limit(10)
             ->get()

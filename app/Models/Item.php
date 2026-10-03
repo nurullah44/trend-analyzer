@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Carbon\CarbonImmutable;
 use DateTimeInterface;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -24,7 +25,25 @@ class Item extends Model
         return $this->belongsTo(Source::class);
     }
 
-    /** The collection day is a date, never a moment: the contract upserts per Source per day. */
+    /**
+     * Items whose title or text mentions the given words, case-insensitively.
+     *
+     * @param  Builder<Item>  $query
+     */
+    public function scopeMentioning(Builder $query, string $words): void
+    {
+        $like = '%'.str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $words).'%';
+
+        $query->where(fn (Builder $query) => $query
+            ->whereRaw("title like ? escape '\\'", [$like])
+            ->orWhereRaw("excerpt like ? escape '\\'", [$like]));
+    }
+
+    /**
+     * The collection day is a date, never a moment: the contract upserts per Source per day.
+     *
+     * @return Attribute<CarbonImmutable|null, mixed>
+     */
     protected function observedOn(): Attribute
     {
         return Attribute::make(

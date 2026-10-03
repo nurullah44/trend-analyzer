@@ -60,8 +60,8 @@ final class Intake
     {
         $name = trim($name);
 
-        if (Subject::slugFor($name) === '') {
-            throw new InvalidArgumentException("A Seed needs a name with letters or digits, got [{$name}].");
+        if (Subject::slugFor($name) === '' || count(preg_split('/\s+/', $name)) > 5) {
+            throw new InvalidArgumentException("A Seed is named in five words or fewer, with letters or digits; got [{$name}].");
         }
 
         $subject = Subject::where('slug', Subject::slugFor($name))->first();
