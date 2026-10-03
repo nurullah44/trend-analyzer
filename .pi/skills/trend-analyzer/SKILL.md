@@ -32,8 +32,17 @@ php artisan trends:label <slug> <label> [--remove]
 php artisan trends:seed "<name, five words or fewer>" [--query="search words"] [--label=ai]
 ```
 
+## Run (only when the owner asks)
+
+```sh
+php artisan trends:daily      # collect the missing days of the last week, route the Candidates
+php artisan trends:weekly     # measure, score, move Subjects, publish Alarms for the last finished week
+```
+
+Then read `php artisan trends:report` and tell the owner what changed: new Alarms, moves, gaps.
+
 ## Never
 
-- Never run `trends:daily`, `trends:weekly`, `trends:collect` or `trends:discover`: collection is the app's own scheduled job.
+- Never run `trends:collect`, `trends:discover` or `trends:backtest` on your own: the two runs above cover collection.
 - Never edit the database, an Alarm, Evidence or a series, and never fetch web pages on the analyzer's behalf.
 - Never decide on the owner's behalf that something is worth building: present the Evidence, the owner rules.

@@ -2,10 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Collection\SourceRegistry;
 use App\Mcp\Tools\AddSeed;
 use App\Mcp\Tools\ListAlarms;
 use App\Mcp\Tools\ListSubjects;
 use App\Mcp\Tools\RecordVerdict;
+use App\Mcp\Tools\RunDaily;
+use App\Mcp\Tools\RunWeekly;
 use App\Mcp\Tools\SetLabel;
 use App\Mcp\Tools\ShowSubject;
 use App\Mcp\Tools\SourceHealth;
@@ -31,9 +34,9 @@ class McpServerTest extends TestCase
         $this->app->make(OwnerWrites::class)->seed('Tidewave', null, ['dev-tool']);
     }
 
-    public function test_the_server_offers_the_reads_and_the_three_writes(): void
+    public function test_the_server_offers_the_reads_the_three_writes_and_the_two_runs(): void
     {
-        TrendServer::tools()->assertRegistered([WeeklyReport::class, ListAlarms::class, ListSubjects::class, ShowSubject::class, SourceHealth::class, RecordVerdict::class, SetLabel::class, AddSeed::class]);
+        TrendServer::tools()->assertRegistered([WeeklyReport::class, ListAlarms::class, ListSubjects::class, ShowSubject::class, SourceHealth::class, RecordVerdict::class, SetLabel::class, AddSeed::class, RunDaily::class, RunWeekly::class]);
     }
 
     public function test_reads_return_what_the_ledger_returns(): void
@@ -59,5 +62,14 @@ class McpServerTest extends TestCase
 
         $this->assertSame('noise', $alarm->fresh()->verdict->value);
         $this->assertTrue(Subject::where('slug', 'model-context-protocol')->exists());
+    }
+
+    public function test_the_owner_can_have_an_agent_start_the_two_runs(): void
+    {
+        $this->app->instance(SourceRegistry::class, new SourceRegistry);
+
+        TrendServer::tool(RunDaily::class, ['days' => 1])->assertOk();
+        TrendServer::tool(RunWeekly::class)->assertOk()->assertSee('Subjects scored');
+        TrendServer::tool(RunWeekly::class, ['week' => '2026-13-45'])->assertHasErrors();
     }
 }

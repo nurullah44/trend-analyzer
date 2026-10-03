@@ -9,7 +9,7 @@ Read these first, in order: `CONTEXT.md` (the domain glossary and the only sourc
 - **SQLite only, on the Linux filesystem.** WAL mode, never `/mnt/c`.
 - **No scraping, ever.** Collection uses the Sources in `docs/sources.md` and nothing else, and no agent fetches or reads external pages on the analyzer's behalf.
 - **Statistics detect, agents explain.** No model decides whether something is emerging and no model writes an Alarm. The Classifier (Jev) only answers typed questions about a Candidate — is it a specific thing, which Label — and names come from the Source's own identifiers (ADR-0006).
-- **Agents read and discuss, plus three writes on the owner's word.** The MCP server and the CLI give an agent the collected data: it reads and talks the results over with the owner. When the owner says so it may record a Verdict, set a Label, or add a Seed — nothing else (ADR-0007). It never runs the app, never collects, never edits an Alarm, Evidence or a series. Collection is the app's own scheduled job.
+- **Agents read and discuss, plus three writes on the owner's word.** The MCP server and the CLI give an agent the collected data: it reads and talks the results over with the owner. When the owner says so it may record a Verdict, set a Label, or add a Seed (ADR-0007), and start the two scheduled runs, `trends:daily` and `trends:weekly`, then report what came out (ADR-0010). Nothing else: it never collects a single Source on its own, never edits an Alarm, Evidence or a series.
 - **Frontend uses the Clay design system** (`~/.claude/opendesign/design-systems/clay`), its tokens copied into `public/css`.
 
 ## Environment
