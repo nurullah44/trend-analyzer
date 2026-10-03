@@ -7,7 +7,6 @@ use App\Models\Alarm;
 use App\Models\Item;
 use App\Models\Source;
 use App\Models\Subject;
-use App\Models\Subject;
 use App\Models\SubjectWeek;
 use App\Read\Ledger;
 use App\Read\OwnerWrites;
