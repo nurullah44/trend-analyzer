@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Apple Ads Platform API — client secret + access token.
  *
@@ -11,30 +12,43 @@
  * Needs in .env: APPLE_ADS_CLIENT_ID, APPLE_ADS_TEAM_ID, APPLE_ADS_KEY_ID
  * and the private key at storage/app/apple-ads-private.pem
  */
-
 const APPLE_TOKEN_URL = 'https://appleid.apple.com/auth/oauth2/token';
 const APPLE_API = 'https://api.ads.apple.com/v1';
 
 $root = dirname(__DIR__);
 $keyFile = $root.'/storage/app/apple-ads-private.pem';
 
-function env(string $k): ?string {
+function env(string $k): ?string
+{
     foreach (file(dirname(__DIR__).'/.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
-        if (str_starts_with(trim($line), '#') || ! str_contains($line, '=')) continue;
+        if (str_starts_with(trim($line), '#') || ! str_contains($line, '=')) {
+            continue;
+        }
         [$key, $val] = explode('=', $line, 2);
-        if (trim($key) === $k) return trim($val, " \t\"'") ?: null;
+        if (trim($key) === $k) {
+            return trim($val, " \t\"'") ?: null;
+        }
     }
+
     return null;
 }
 
-function b64url(string $raw): string { return rtrim(strtr(base64_encode($raw), '+/', '-_'), '='); }
+function b64url(string $raw): string
+{
+    return rtrim(strtr(base64_encode($raw), '+/', '-_'), '=');
+}
 
 /** JWT ES256 wants the raw R||S pair, openssl gives DER. */
-function derToJose(string $der): string {
+function derToJose(string $der): string
+{
     $offset = 0;
-    if (ord($der[0]) !== 0x30) return $der;
+    if (ord($der[0]) !== 0x30) {
+        return $der;
+    }
     $offset = 2;
-    if (ord($der[1]) > 0x80) $offset = 3;
+    if (ord($der[1]) > 0x80) {
+        $offset = 3;
+    }
     $out = '';
     for ($i = 0; $i < 2; $i++) {
         $offset++; // skip 0x02
@@ -44,6 +58,7 @@ function derToJose(string $der): string {
         $part = ltrim($part, "\x00");
         $out .= str_pad($part, 32, "\x00", STR_PAD_LEFT);
     }
+
     return $out;
 }
 
@@ -73,7 +88,7 @@ $signingInput = $header.'.'.$claims;
 $key = openssl_pkey_get_private(file_get_contents($keyFile));
 openssl_sign($signingInput, $derSig, $key, OPENSSL_ALGO_SHA256);
 $clientSecret = $signingInput.'.'.b64url(derToJose($derSig));
-echo "client secret JWT minted (".strlen($clientSecret)." chars)\n";
+echo 'client secret JWT minted ('.strlen($clientSecret)." chars)\n";
 
 $ch = curl_init(APPLE_TOKEN_URL);
 curl_setopt_array($ch, [
@@ -125,7 +140,9 @@ foreach (['PRODUCTIVITY_UTILITIES', 'HEALTH_FITNESS'] as $genre) {
         'pagination' => ['offset' => 0, 'pageSize' => 10],
     ]);
     $headers = ['Authorization: Bearer '.$token['access_token'], 'Content-Type: application/json', 'Accept: application/json'];
-    if ($adAccountId) $headers[] = 'X-AP-Context: adAccountId='.$adAccountId;
+    if ($adAccountId) {
+        $headers[] = 'X-AP-Context: adAccountId='.$adAccountId;
+    }
 
     $ch = curl_init(APPLE_API.'/insights/apps/search-term-popularity/query');
     curl_setopt_array($ch, [CURLOPT_POST => true, CURLOPT_POSTFIELDS => $payload, CURLOPT_HTTPHEADER => $headers, CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 40]);
@@ -140,8 +157,8 @@ foreach (['PRODUCTIVITY_UTILITIES', 'HEALTH_FITNESS'] as $genre) {
                 $row['searchTerm'] ?? '?', $row['rankInGenre'] ?? '-', $row['searchPopularity1to100'] ?? '-', $row['searchPopularityInGenre'] ?? '-');
         }
     } else {
-        echo "  raw response keys: ".implode(', ', array_keys($json ?? []))."\n";
-        echo "  ".substr(json_encode($json), 0, 1200)."\n";
+        echo '  raw response keys: '.implode(', ', array_keys($json ?? []))."\n";
+        echo '  '.substr(json_encode($json), 0, 1200)."\n";
     }
     echo "\n";
 }

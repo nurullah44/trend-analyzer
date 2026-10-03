@@ -1,4 +1,5 @@
 <?php
+
 /**
  * One-time Google Ads OAuth flow, run locally so no Playground or redirect-URI
  * registration is needed. Desktop clients may use loopback redirects.
@@ -9,7 +10,6 @@
  * On success it writes GOOGLE_ADS_REFRESH_TOKEN into .env and lists the Ads
  * accounts the authorised user can reach.
  */
-
 const AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 const TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const SCOPE = 'https://www.googleapis.com/auth/adwords';
@@ -87,19 +87,22 @@ $env = env_values($root.'/.env');
 $query = $_GET;
 
 if (isset($query['error'])) {
-    echo "<h2>Google refused the request</h2><p>".htmlspecialchars($query['error']).": ".htmlspecialchars($query['error_description'] ?? '')."</p>";
-    echo "<p>Most likely your Google account is not listed under Test users on the consent screen.</p>";
+    echo '<h2>Google refused the request</h2><p>'.htmlspecialchars($query['error']).': '.htmlspecialchars($query['error_description'] ?? '').'</p>';
+    echo '<p>Most likely your Google account is not listed under Test users on the consent screen.</p>';
+
     return true;
 }
 
 if (! isset($query['code'])) {
     echo '<h2>Waiting for the callback…</h2><p>This page is the redirect target. Start the flow with the URL from <code>php scripts/google-ads-oauth.php url</code>.</p>';
+
     return true;
 }
 
 $pending = file_exists($pendingFile) ? json_decode(file_get_contents($pendingFile), true) : [];
 if ($pending && ($query['state'] ?? '') !== $pending['state']) {
     echo '<h2>State mismatch</h2><p>Restart the flow from the beginning.</p>';
+
     return true;
 }
 
@@ -114,6 +117,7 @@ if ($pending && ($query['state'] ?? '') !== $pending['state']) {
 if ($status !== 200 || empty($tok['refresh_token'])) {
     echo '<h2>Token exchange failed</h2><pre>'.htmlspecialchars(json_encode($tok, JSON_PRETTY_PRINT)).'</pre>';
     file_put_contents('/tmp/google-ads-oauth.log', "FAILED $status ".json_encode($tok)."\n", FILE_APPEND);
+
     return true;
 }
 
