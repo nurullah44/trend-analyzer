@@ -47,6 +47,11 @@ return [
         ],
     ],
 
+    // Optional Source keys that only raise quotas.
+    'keys' => [
+        'stack_exchange' => env('STACK_EXCHANGE_KEY'),
+    ],
+
     // The weekly score (ADR-0004). A crude placeholder until Verdicts and the backtest tune it.
     'scoring' => [
         'baseline_weeks' => 8,          // the trailing weeks a Velocity is measured against

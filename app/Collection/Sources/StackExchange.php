@@ -19,8 +19,9 @@ use UnexpectedValueException;
  * along as the excerpt and its score is the measured quantity. Measurement is
  * the number of questions matching a query in one week.
  *
- * The anonymous quota is 300 requests a day and a normal day is a handful of
- * pages of 100. A key can be added later; nothing here needs one.
+ * The anonymous quota is 300 requests a day; measurement backfills nine weeks
+ * per new Subject, so set STACK_EXCHANGE_KEY (a free Stack Apps key) to raise
+ * it to 10,000.
  */
 final class StackExchange implements SourceCollector, SourceMeasurement
 {
@@ -78,7 +79,7 @@ final class StackExchange implements SourceCollector, SourceMeasurement
     private function fetchPage(CarbonImmutable $from, CarbonImmutable $to, int $page): array
     {
         $response = SourceHttp::client($this->http, 'https://api.stackexchange.com')
-            ->get('/2.3/questions', [
+            ->get('/2.3/questions', $this->withKey([
                 'site' => self::SITE,
                 'fromdate' => $from->getTimestamp(),
                 'todate' => $to->getTimestamp(),
@@ -86,7 +87,7 @@ final class StackExchange implements SourceCollector, SourceMeasurement
                 'sort' => 'creation',
                 'pagesize' => self::PAGE_SIZE,
                 'page' => $page,
-            ]);
+            ]));
 
         $response->throw();
 
@@ -106,13 +107,13 @@ final class StackExchange implements SourceCollector, SourceMeasurement
     public function volume(string $query, CarbonImmutable $week): int
     {
         $payload = SourceHttp::client($this->http, 'https://api.stackexchange.com')
-            ->get('/2.3/search/advanced', [
+            ->get('/2.3/search/advanced', $this->withKey([
                 'site' => self::SITE,
                 'q' => $query,
                 'fromdate' => $week->getTimestamp(),
                 'todate' => $week->addWeek()->getTimestamp() - 1,
                 'filter' => self::TOTAL_FILTER,
-            ])
+            ]))
             ->throw()
             ->json();
 
@@ -124,6 +125,15 @@ final class StackExchange implements SourceCollector, SourceMeasurement
         $this->respectBackoff($payload['backoff'] ?? 0);
 
         return $payload['total'];
+    }
+
+    /**
+     * @param  array<string, mixed>  $query
+     * @return array<string, mixed>
+     */
+    private function withKey(array $query): array
+    {
+        return array_filter(['key' => config('trend.keys.stack_exchange')]) + $query;
     }
 
     /** @param array<string, mixed> $question */

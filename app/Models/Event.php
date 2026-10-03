@@ -15,11 +15,13 @@ class Event extends Model
         'payload' => 'array',
     ];
 
+    /** @return BelongsTo<Subject, $this> */
     public function subject(): BelongsTo
     {
         return $this->belongsTo(Subject::class);
     }
 
+    /** @return BelongsTo<Alarm, $this> */
     public function alarm(): BelongsTo
     {
         return $this->belongsTo(Alarm::class);

@@ -38,16 +38,19 @@ class Subject extends Model
         return $this->hasMany(SubjectWeek::class);
     }
 
+    /** @return HasMany<Alarm, $this> */
     public function alarms(): HasMany
     {
         return $this->hasMany(Alarm::class);
     }
 
+    /** @return HasMany<Event, $this> */
     public function events(): HasMany
     {
         return $this->hasMany(Event::class);
     }
 
+    /** @return BelongsToMany<Label, $this> */
     public function labels(): BelongsToMany
     {
         return $this->belongsToMany(Label::class);

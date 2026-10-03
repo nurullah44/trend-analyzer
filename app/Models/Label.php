@@ -10,6 +10,7 @@ class Label extends Model
 {
     protected $guarded = [];
 
+    /** @return BelongsToMany<Subject, $this> */
     public function subjects(): BelongsToMany
     {
         return $this->belongsToMany(Subject::class);

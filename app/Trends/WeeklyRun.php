@@ -5,10 +5,12 @@ namespace App\Trends;
 use App\Enums\SubjectState;
 use App\Models\Subject;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\DB;
 
 /**
  * The weekly run: measure every tracked Subject's missing weeks, score the
- * week, and move each Subject the stored numbers say it should move.
+ * week, move each Subject the stored numbers say it should move, and publish
+ * an Alarm for each one that enters Trending.
  */
 final class WeeklyRun
 {
@@ -19,6 +21,7 @@ final class WeeklyRun
         private readonly Series $series,
         private readonly Scorer $scorer,
         private readonly States $states,
+        private readonly Alarms $alarms,
     ) {}
 
     /**
@@ -41,14 +44,23 @@ final class WeeklyRun
                 continue;
             }
 
-            $score = $this->scorer->score($this->series->of($subject), $day);
+            $series = $this->series->of($subject);
+            $score = $this->scorer->score($series, $day);
             $next = $this->states->next($subject->state, $score, $this->daysWatching($subject, $week));
             $subject->update(['scored_week' => $day]);
             $result['scored']++;
 
             if ($next !== null) {
                 [$state, $reason] = $next;
-                $subject->moveTo($state, $reason, ['week' => $day, ...$score->toArray()]);
+
+                DB::transaction(function () use ($subject, $state, $reason, $day, $score, $series, $week) {
+                    $subject->moveTo($state, $reason, ['week' => $day, ...$score->toArray()]);
+
+                    if ($state === SubjectState::Trending) {
+                        $this->alarms->publish($subject, $score, $series, $week);
+                    }
+                });
+
                 $result['moved'][$subject->slug] = $state->value;
             }
         }

@@ -24,6 +24,7 @@ class Alarm extends Model
         'magnitude' => Magnitude::class,
     ];
 
+    /** @return BelongsTo<Subject, $this> */
     public function subject(): BelongsTo
     {
         return $this->belongsTo(Subject::class);

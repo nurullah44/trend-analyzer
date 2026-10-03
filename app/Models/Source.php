@@ -16,6 +16,7 @@ class Source extends Model
         'last_success_at' => 'datetime',
     ];
 
+    /** @return HasMany<Item, $this> */
     public function items(): HasMany
     {
         return $this->hasMany(Item::class);

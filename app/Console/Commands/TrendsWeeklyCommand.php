@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Console\Commands\Concerns\RunsAlone;
 use App\Trends\WeeklyRun;
 use Carbon\CarbonImmutable;
 use Carbon\Exceptions\InvalidFormatException;
@@ -10,6 +11,8 @@ use Illuminate\Console\Command;
 /** The weekly run: measure, score and move every tracked Subject for one finished week. */
 class TrendsWeeklyCommand extends Command
 {
+    use RunsAlone;
+
     protected $signature = 'trends:weekly
         {--week= : The Monday of the ISO week to score, as YYYY-MM-DD (default: the last finished week)}';
 
@@ -23,7 +26,12 @@ class TrendsWeeklyCommand extends Command
             return self::FAILURE;
         }
 
-        $result = $run->run($week);
+        return $this->alone(fn () => $this->report($run->run($week), $week));
+    }
+
+    /** @param array{scored: int, moved: array<string, string>, failures: array<string, string>} $result */
+    private function report(array $result, CarbonImmutable $week): int
+    {
 
         $this->info("Week of {$week->toDateString()}: {$result['scored']} Subjects scored, ".count($result['moved']).' moved.');
 
