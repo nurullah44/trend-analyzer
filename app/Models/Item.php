@@ -18,6 +18,7 @@ class Item extends Model
         'measured_quantity' => 'integer',
     ];
 
+    /** @return BelongsTo<Source, $this> */
     public function source(): BelongsTo
     {
         return $this->belongsTo(Source::class);

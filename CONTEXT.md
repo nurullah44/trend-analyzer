@@ -58,7 +58,7 @@ Reading what a Source published on one day only to propose candidates. Discovery
 Asking a Source how many items matched one Subject's query in one week. Measurement Sources answer for any past range, so a newly tracked Subject is backfilled at once.
 
 **Candidate**:
-A tag or phrase discovery proposed that is not yet a Subject. The Classifier decides whether it is tracked, waits in Backlog, or is dropped.
+A tag or phrase discovery proposed that is not yet a Subject. The Classifier decides whether it is tracked, waits in Backlog, or is Archived.
 
 **Classifier**:
 Jev, TypeSafe's System One model. It answers typed questions about a candidate — is it a specific, nameable thing, and which Label fits — with probabilities. It never measures, never scores, and never decides that something is emerging.
@@ -90,7 +90,7 @@ Reached a Mainstream marker; the Alarm is closed and the lead time is fixed.
 Falling after having trended, or after a rise that failed; retained and silent.
 
 **Archived**:
-Left Watching after thirty days without ever having risen. No longer measured; its rows are kept.
+Discarded without ever having risen: the Classifier ruled the Candidate out, or it stayed in Watching thirty days. No longer measured, never proposed again; its rows are kept.
 
 ### Measures
 

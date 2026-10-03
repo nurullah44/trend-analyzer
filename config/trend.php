@@ -23,6 +23,30 @@ return [
     // Global or the United States only — Türkiye is never used as a geo.
     'default_geo' => env('TREND_GEO', 'US'),
 
+    // Candidates from a day's Items (ADR-0006): a name needs this many mentions,
+    // and at most this many are classified a day.
+    'discovery' => [
+        'min_mentions' => 3,
+        'max_candidates' => 30,
+    ],
+
+    // The Classifier: TypeSafe's Jev. Without a key every Candidate waits in Backlog.
+    'classifier' => [
+        'key' => env('JEV_API_KEY'),
+        'url' => env('JEV_URL', 'https://api.typesafe.ai'),
+        'model' => env('JEV_MODEL', 'jev-latest'),
+        'track_at' => 0.8,   // at or above: Watching
+        'backlog_at' => 0.5, // at or above: Backlog; below: dropped
+        'labels' => [
+            'ai' => 'An AI model, AI product or AI technique',
+            'dev-tool' => 'A tool, library, framework or service for software developers',
+            'mobile-app' => 'A mobile app or something people do on their phones',
+            'web-app' => 'A web product or online service for end users',
+            'utility-need' => 'A practical everyday problem or need people want solved',
+            'other' => 'None of the above',
+        ],
+    ],
+
     'sources' => [
         // Demand: people asking for help, by category.
         ['key' => 'stack_exchange', 'name' => 'Stack Exchange API', 'kind' => 'api', 'geo' => null, 'roles' => 'discovery,measurement', 'enabled' => true, 'cost_note' => 'free, no key needed at this volume', 'docs_url' => 'https://api.stackexchange.com/docs', 'class' => StackExchange::class],

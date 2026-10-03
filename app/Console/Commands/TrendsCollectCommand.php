@@ -5,15 +5,16 @@ namespace App\Console\Commands;
 use App\Collection\CollectionOutcome;
 use App\Collection\CollectionRunner;
 use App\Collection\SourceRegistry;
+use App\Console\Commands\Concerns\ReadsDay;
 use App\Models\Source;
-use Carbon\CarbonImmutable;
-use Carbon\Exceptions\InvalidFormatException;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 
 /** Collects a day of Items from the Sources that implement the collection contract. */
 class TrendsCollectCommand extends Command
 {
+    use ReadsDay;
+
     protected $signature = 'trends:collect
         {--source= : Collect one Source by key}
         {--day= : The UTC day to collect, as YYYY-MM-DD (default: yesterday)}';
@@ -71,30 +72,6 @@ class TrendsCollectCommand extends Command
         ));
 
         return self::SUCCESS;
-    }
-
-    /** The day to collect, or null when the option is not a date. */
-    private function day(): ?CarbonImmutable
-    {
-        $value = $this->option('day');
-
-        if ($value === null || $value === '') {
-            return CarbonImmutable::now('UTC')->subDay()->startOfDay();
-        }
-
-        try {
-            $day = CarbonImmutable::createFromFormat('!Y-m-d', $value, 'UTC');
-        } catch (InvalidFormatException) {
-            $day = false;
-        }
-
-        if ($day === false || $day->format('Y-m-d') !== $value) {
-            $this->error("The day must be a UTC date as YYYY-MM-DD, got [{$value}].");
-
-            return null;
-        }
-
-        return $day;
     }
 
     /**
