@@ -34,11 +34,16 @@ class MainstreamTest extends TestCase
 
     public function test_a_subject_already_over_the_line_goes_straight_to_mainstream_and_never_alarms(): void
     {
-        $this->views(['2026-09-14' => 80_000, '2026-09-21' => 90_000]);
+        $hn = new FakeMeasurement('hacker_news', 5);
+        $this->app->instance(SourceRegistry::class, new SourceRegistry([], [
+            'wikimedia' => new FakeMeasurement('wikimedia', ['2026-09-14' => 80_000, '2026-09-21' => 90_000]),
+            'hacker_news' => $hn,
+        ]));
         $subject = $this->app->make(Intake::class)->seed('ChatGPT');
 
         $this->app->make(WeeklyRun::class)->run($this->week);
 
+        $this->assertSame([], $hn->asked, 'Wikipedia alone told it apart; nothing else was asked');
         $this->assertSame(SubjectState::Mainstream, $subject->fresh()->state);
         $this->assertSame(0, Alarm::count());
         $this->assertNull($subject->fresh()->lead_time_days, 'no Alarm, no lead time');

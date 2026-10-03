@@ -30,11 +30,13 @@ class PipelineTest extends TestCase
         config(['trend.classifier.key' => null]);
         $this->travelTo(CarbonImmutable::parse('2026-09-28 06:00', 'UTC'));
         $this->app->instance(SourceRegistry::class, new SourceRegistry(['hacker_news' => FakeCollector::returning('hacker_news')]));
-        Item::create(['source_id' => Source::where('key', 'hacker_news')->value('id'), 'external_id' => '9', 'title' => 'Show HN: Tidewave – agents', 'observed_on' => '2026-09-27']);
+        foreach (['Show HN: Tide Wave – agents', 'Why Tide Wave matters', 'Tide Wave in production'] as $index => $title) {
+            Item::create(['source_id' => Source::where('key', 'hacker_news')->value('id'), 'external_id' => "9{$index}", 'title' => $title, 'observed_on' => '2026-09-27']);
+        }
 
         $this->artisan('trends:daily')->assertSuccessful();
 
-        $this->assertTrue(Subject::where('slug', 'tidewave')->exists());
+        $this->assertTrue(Subject::where('slug', 'tide-wave')->exists());
     }
 
     public function test_a_run_already_in_progress_is_not_started_twice(): void
@@ -55,21 +57,21 @@ class PipelineTest extends TestCase
 
         $week = CarbonImmutable::parse('2026-09-21', 'UTC');
         $rise = ['2026-09-21' => 30] + array_fill_keys(array_map(fn (int $back) => $week->subWeeks($back)->toDateString(), range(1, 8)), 5);
-        $launch = fn (string $id) => new CollectedItem($id, 'Show HN: Tidewave – a coding agent', url: "https://example.com/{$id}", publishedAt: CarbonImmutable::parse('2026-09-27 10:00', 'UTC'), measuredQuantity: 120);
+        $launch = fn (string $id) => new CollectedItem($id, 'Show HN: Tide Wave – a coding agent', url: "https://example.com/{$id}", publishedAt: CarbonImmutable::parse('2026-09-27 10:00', 'UTC'), measuredQuantity: 120);
         $this->app->instance(SourceRegistry::class, new SourceRegistry(
-            ['hacker_news' => FakeCollector::returning('hacker_news', $launch('1'))],
+            ['hacker_news' => FakeCollector::returning('hacker_news', $launch('1'), $launch('2'), $launch('3'))],
             ['hacker_news' => new FakeMeasurement('hacker_news', $rise), 'stack_exchange' => new FakeMeasurement('stack_exchange', $rise)],
         ));
 
         $this->artisan('trends:daily')->assertSuccessful();
-        $this->assertSame(7, Item::count(), 'every missing day of the last week collected');
-        $this->assertSame(SubjectState::Backlog, Subject::where('slug', 'tidewave')->sole()->state);
+        $this->assertSame(21, Item::count(), 'every missing day of the last week collected');
+        $this->assertSame(SubjectState::Backlog, Subject::where('slug', 'tide-wave')->sole()->state);
 
         $this->artisan('trends:daily')->assertSuccessful();
-        $this->assertSame(7, Item::count(), 'nothing missing, nothing collected twice');
+        $this->assertSame(21, Item::count(), 'nothing missing, nothing collected twice');
 
-        $this->app->make(Intake::class)->seed('Tidewave');
-        $this->artisan('trends:weekly')->expectsOutputToContain('tidewave → trending')->assertSuccessful();
+        $this->app->make(Intake::class)->seed('Tide Wave');
+        $this->artisan('trends:weekly')->expectsOutputToContain('tide-wave → trending')->assertSuccessful();
 
         $alarm = Alarm::sole();
         $this->assertSame('2026-09-21', $alarm->week);
@@ -80,10 +82,10 @@ class PipelineTest extends TestCase
 
         $report = $this->app->make(Ledger::class)->report();
         $this->assertSame('2026-09-21', $report['week']);
-        $this->assertSame(['Tidewave'], array_column($report['alarms'], 'subject'));
+        $this->assertSame(['Tide Wave'], array_column($report['alarms'], 'subject'));
         $this->assertContains('the Classifier has no key: every Candidate waits in Backlog', $report['gaps']);
 
-        $this->artisan('trends:report')->expectsOutputToContain('**Tidewave**')->expectsOutputToContain('## Sources')->assertSuccessful();
+        $this->artisan('trends:report')->expectsOutputToContain('**Tide Wave**')->expectsOutputToContain('## Sources')->assertSuccessful();
 
         $this->artisan('trends:weekly')->assertSuccessful();
         $this->assertSame(1, Alarm::count(), 'a doubled weekly run publishes nothing twice');

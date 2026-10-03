@@ -9,8 +9,13 @@ use Illuminate\Support\Str;
 
 /**
  * Proposes Candidates from a day's Items (ADR-0006). Names come from what the
- * Sources themselves publish — a Stack Exchange tag, a "Show HN" product name,
- * a capitalised phrase repeated across Hacker News titles — never from a model.
+ * Sources themselves publish — a Stack Exchange tag, a capitalised phrase
+ * repeated across Hacker News titles — never from a model.
+ *
+ * A Candidate is a topic that recurs — mentioned by at least the configured
+ * number of Items in one day — and is two to five words long. A bare word
+ * ("Apple", "python") is too broad to measure cleanly, so it is never proposed;
+ * the owner can still seed one.
  */
 final class Discovery
 {
@@ -47,20 +52,28 @@ final class Discovery
     }
 
     /**
-     * What one Item mentions, each name weighted: a repeated mention counts once
-     * per Item, and a "Show HN" launch names a product outright, so it counts as
-     * enough on its own.
+     * What one Item mentions; a name counts once per Item.
      *
      * @return array<string, int>
      */
     private function mentions(Item $item): array
     {
         return match ($item->source->key) {
-            'stack_exchange' => array_fill_keys($this->tags($item), 1),
-            'hacker_news' => array_fill_keys($this->launched($item->title), config('trend.discovery.min_mentions'))
-                + array_fill_keys($this->phrases($item->title), 1),
+            'stack_exchange' => array_fill_keys($this->topics($this->tags($item)), 1),
+            'hacker_news' => array_fill_keys($this->topics($this->phrases($item->title)), 1),
             default => [],
         };
+    }
+
+    /**
+     * Only names of two to five words are topics; a bare word is too broad.
+     *
+     * @param  list<string>  $names
+     * @return list<string>
+     */
+    private function topics(array $names): array
+    {
+        return array_values(array_filter($names, fn (string $name) => in_array(count(explode(' ', $name)), [2, 3, 4, 5], true)));
     }
 
     /** @return list<string> */
@@ -70,18 +83,6 @@ final class Discovery
             fn (string $tag) => str_replace('-', ' ', trim($tag)),
             explode(',', (string) $item->excerpt),
         )));
-    }
-
-    /** @return list<string> */
-    private function launched(string $title): array
-    {
-        if (! preg_match('/^(?:Show|Launch) HN:\s*(.+?)(?:\s+[–—-]\s+|[:,(]|$)/u', $title, $match)) {
-            return [];
-        }
-
-        $name = trim($match[1]);
-
-        return $name !== '' && count(explode(' ', $name)) <= 5 ? [$name] : [];
     }
 
     /** Capitalised runs of up to five words, trimmed of leading filler. @return list<string> */

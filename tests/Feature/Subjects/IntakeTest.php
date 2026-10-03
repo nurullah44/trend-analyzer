@@ -25,7 +25,13 @@ class IntakeTest extends TestCase
         $this->seed(SourceSeeder::class);
         $sourceId = Source::where('key', 'hacker_news')->value('id');
 
-        foreach (['Show HN: Tidewave – agents', 'Show HN: Blobby – a thing', 'Show HN: Programming – essays'] as $index => $title) {
+        $titles = [];
+
+        foreach (['Tide Wave', 'Blob Store', 'Programming Languages'] as $topic) {
+            array_push($titles, "Show HN: {$topic} – agents", "Why {$topic} matters", "{$topic} in production");
+        }
+
+        foreach ($titles as $index => $title) {
             Item::create(['source_id' => $sourceId, 'external_id' => "hn-{$index}", 'title' => $title, 'observed_on' => '2026-09-21']);
         }
     }
@@ -35,7 +41,7 @@ class IntakeTest extends TestCase
         config(['trend.classifier.key' => 'jv_test']);
         Http::preventStrayRequests();
         Http::fake(['api.typesafe.ai/v1/systemone' => function (Request $request) {
-            $specific = ['Tidewave' => 0.95, 'Blobby' => 0.6, 'Programming' => 0.1][$request['state']['candidate']];
+            $specific = ['Tide Wave' => 0.95, 'Blob Store' => 0.6, 'Programming Languages' => 0.1][$request['state']['candidate']];
 
             return Http::response(['answers' => [
                 'specific' => ['type' => 'noul', 'noul' => $specific],
@@ -46,11 +52,11 @@ class IntakeTest extends TestCase
         $outcomes = $this->discover();
 
         $this->assertSame(['known' => 0, 'watching' => 1, 'backlog' => 1, 'archived' => 1], $outcomes);
-        $this->assertSame(SubjectState::Watching, Subject::where('slug', 'tidewave')->first()->state);
-        $this->assertSame(SubjectState::Backlog, Subject::where('slug', 'blobby')->first()->state);
-        $this->assertSame(SubjectState::Archived, Subject::where('slug', 'programming')->first()->state, 'a broad field is ruled out and remembered');
-        $this->assertSame(['dev-tool'], Subject::where('slug', 'tidewave')->first()->labels->pluck('name')->all());
-        $this->assertSame(0.95, Subject::where('slug', 'tidewave')->first()->events->first()->payload['specific']);
+        $this->assertSame(SubjectState::Watching, Subject::where('slug', 'tide-wave')->first()->state);
+        $this->assertSame(SubjectState::Backlog, Subject::where('slug', 'blob-store')->first()->state);
+        $this->assertSame(SubjectState::Archived, Subject::where('slug', 'programming-languages')->first()->state, 'a broad field is ruled out and remembered');
+        $this->assertSame(['dev-tool'], Subject::where('slug', 'tide-wave')->first()->labels->pluck('name')->all());
+        $this->assertSame(0.95, Subject::where('slug', 'tide-wave')->first()->events->first()->payload['specific']);
 
         Http::assertSent(fn (Request $request) => $request->hasHeader('Authorization', 'Bearer jv_test')
             && $request['questions']['specific']['type'] === 'noul'
@@ -93,7 +99,7 @@ class IntakeTest extends TestCase
 
         config(['trend.classifier.key' => null]);
         $this->discover();
-        $promoted = $this->app->make(Intake::class)->seed('Blobby');
+        $promoted = $this->app->make(Intake::class)->seed('Blob Store');
 
         $this->assertSame(SubjectState::Watching, $promoted->fresh()->state);
         $this->assertSame('backlog', $promoted->events()->latest('id')->first()->from_state);
@@ -102,7 +108,7 @@ class IntakeTest extends TestCase
     public function test_known_names_do_not_use_up_the_daily_cap(): void
     {
         config(['trend.classifier.key' => null, 'trend.discovery.max_candidates' => 1]);
-        $this->app->make(Intake::class)->seed('Tidewave');
+        $this->app->make(Intake::class)->seed('Tide Wave');
 
         $outcomes = $this->discover();
 

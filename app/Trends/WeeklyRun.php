@@ -2,6 +2,7 @@
 
 namespace App\Trends;
 
+use App\Collection\SourceRegistry;
 use App\Collection\Sources\GoogleAds;
 use App\Enums\SubjectState;
 use App\Models\Source;
@@ -29,6 +30,7 @@ final class WeeklyRun
         private readonly Alarms $alarms,
         private readonly Mainstream $mainstream,
         private readonly GoogleAds $googleAds,
+        private readonly SourceRegistry $sources,
     ) {}
 
     /**
@@ -44,10 +46,23 @@ final class WeeklyRun
         $day = $week->toDateString();
 
         foreach (Subject::whereIn('state', self::TRACKED)->orderBy('id')->get() as $subject) {
-            $failures = $this->series->measure($subject, $week);
+            $current = $subject->scored_week === null || $day >= $subject->scored_week;
+
+            // Wikipedia first: one request tells a household name apart, and it is never asked the rest.
+            $failures = $this->series->measure($subject, $week, ['wikimedia']);
+
+            if ($current && $failures === [] && ($why = $this->mainstream->arrived($subject, $this->series->of($subject), $week)) !== null) {
+                $subject->update(['scored_week' => $day]);
+                $this->arrive($subject, $why, ['week' => $day]);
+                $result['moved'][$subject->slug] = SubjectState::Mainstream->value;
+
+                continue;
+            }
+
+            $failures += $this->series->measure($subject, $week, $this->otherThan('wikimedia'));
             $result['failures'] += $failures;
 
-            if ($failures !== [] || ($subject->scored_week !== null && $day < $subject->scored_week)) {
+            if ($failures !== [] || ! $current) {
                 continue;
             }
 
@@ -86,6 +101,12 @@ final class WeeklyRun
         }
 
         return $result;
+    }
+
+    /** @return list<string> every measurement Source except the given one */
+    private function otherThan(string $key): array
+    {
+        return array_values(array_diff(array_keys($this->sources->measurements()), [$key]));
     }
 
     /**

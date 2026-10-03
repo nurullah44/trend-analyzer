@@ -24,26 +24,38 @@ class DiscoveryTest extends TestCase
 
         $candidates = $this->candidates();
 
-        $this->assertSame(['svelte'], array_keys($candidates), 'only tags on three questions or more');
-        $this->assertSame(['How do I bind in svelte?', 'Svelte stores reset', 'Routing in svelte-kit'], $candidates['svelte']);
+        $this->assertSame([], array_keys($candidates), 'svelte-kit is on two questions only, and a bare tag like svelte is too broad');
+
+        $this->items('stack_exchange', [['SSR in svelte-kit', 'svelte-kit']], offset: 10);
+
+        $this->assertSame(['svelte kit'], array_keys($this->candidates()), 'a two-word tag on three questions');
     }
 
-    public function test_one_question_is_one_mention_and_c_plus_plus_is_not_c(): void
+    public function test_one_question_is_one_mention(): void
     {
         $this->items('stack_exchange', [
-            ['Pointers', 'c, c++, c#'],
-            ['More pointers', 'c++'],
-            ['Templates', 'c++'],
+            ['Pointers', 'react-native, react-native-web, react-native'],
+            ['More pointers', 'react-native-web'],
+            ['Templates', 'react-native-web'],
         ]);
 
-        $this->assertSame(['c++'], array_keys($this->candidates()));
+        $this->assertSame(['react native web'], array_keys($this->candidates()));
+
+        $this->items('stack_exchange', array_fill(0, 3, ['Routing', 'asp-net-core-web-api-routing']), offset: 10);
+
+        $this->assertSame(['react native web'], array_keys($this->candidates()), 'six words is more than a topic');
     }
 
-    public function test_a_show_hn_launch_is_a_candidate_on_its_own(): void
+    public function test_a_single_launch_is_not_a_trend_and_bare_words_are_too_broad(): void
     {
-        $this->items('hacker_news', [['Show HN: Tidewave – a coding agent for full-stack apps', null]]);
+        $this->items('hacker_news', [
+            ['Show HN: Tidewave – a coding agent for Full Stack apps', null],
+            ['Apple ships a phone', null],
+            ['Apple sues Google', null],
+            ['Apple and Full Stack hiring', null],
+        ]);
 
-        $this->assertSame(['Tidewave'], array_keys($this->candidates()));
+        $this->assertSame([], array_keys($this->candidates()));
     }
 
     public function test_capitalised_phrases_repeated_across_titles_become_candidates(): void
@@ -59,13 +71,13 @@ class DiscoveryTest extends TestCase
     }
 
     /** @param list<array{0: string, 1: ?string}> $rows */
-    private function items(string $source, array $rows): void
+    private function items(string $source, array $rows, int $offset = 0): void
     {
         $this->seed(SourceSeeder::class);
         $sourceId = Source::where('key', $source)->value('id');
 
         foreach ($rows as $index => [$title, $excerpt]) {
-            Item::create(['source_id' => $sourceId, 'external_id' => "{$source}-{$index}", 'title' => $title, 'excerpt' => $excerpt, 'observed_on' => '2026-09-21']);
+            Item::create(['source_id' => $sourceId, 'external_id' => "{$source}-".($index + $offset), 'title' => $title, 'excerpt' => $excerpt, 'observed_on' => '2026-09-21']);
         }
     }
 

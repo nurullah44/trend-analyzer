@@ -58,7 +58,7 @@ Reading what a Source published on one day only to propose candidates. Discovery
 Asking a Source how many items matched one Subject's query in one week. Measurement Sources answer for any past range, so a newly tracked Subject is backfilled at once.
 
 **Candidate**:
-A tag or phrase discovery proposed that is not yet a Subject. The Classifier decides whether it is tracked, waits in Backlog, or is Archived.
+A topic of two to five words — a Stack Exchange tag or a phrase in titles — mentioned by several Items on one day, that discovery proposed and that is not yet a Subject. A bare word is too broad to be one. The Classifier decides whether it is tracked, waits in Backlog, or is Archived.
 
 **Classifier**:
 Jev, TypeSafe's System One model. It answers typed questions about a candidate — is it a specific, nameable thing, and which Label fits — with probabilities. It never measures, never scores, and never decides that something is emerging.

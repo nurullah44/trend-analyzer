@@ -20,16 +20,18 @@ final class Series
     public function __construct(private readonly SourceRegistry $sources) {}
 
     /**
-     * Measure the missing weeks up to and including the given one.
+     * Measure the missing weeks up to and including the given one, on every
+     * measurement Source or only the ones named.
      *
+     * @param  list<string>|null  $only
      * @return array<string, string> Source key => error, for the Sources that failed
      */
-    public function measure(Subject $subject, CarbonImmutable $week): array
+    public function measure(Subject $subject, CarbonImmutable $week, ?array $only = null): array
     {
         $failures = [];
         $weeks = $this->horizon($week);
 
-        foreach ($this->measurementSources() as $source) {
+        foreach ($this->measurementSources($only) as $source) {
             $known = $subject->weeks()->where('source_id', $source->id)->where('query', $subject->query)->pluck('week')->all();
 
             try {
@@ -81,12 +83,16 @@ final class Series
         );
     }
 
-    /** @return iterable<Source> */
-    private function measurementSources(): iterable
+    /**
+     * @param  list<string>|null  $only
+     * @return iterable<Source>
+     */
+    private function measurementSources(?array $only): iterable
     {
         return Source::query()
             ->where('enabled', true)
             ->whereIn('key', array_keys($this->sources->measurements()))
+            ->when($only !== null, fn ($query) => $query->whereIn('key', $only))
             ->orderBy('key')
             ->get();
     }
