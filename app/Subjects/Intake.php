@@ -38,17 +38,32 @@ final class Intake
         $known = Subject::whereIn('slug', $candidates->keys()->map(fn ($name) => Subject::slugFor((string) $name)))->pluck('slug');
         $outcomes = ['known' => 0, 'watching' => 0, 'backlog' => 0, 'archived' => 0];
 
-        $fresh = $candidates->reject(fn ($seenIn, $name) => $known->contains(Subject::slugFor((string) $name)));
+        $fresh = $candidates->reject(fn ($candidate, $name) => $known->contains(Subject::slugFor((string) $name)));
         $outcomes['known'] = $candidates->count() - $fresh->count();
 
-        // The cap is per day, not per run: a re-run of the same day only fills what is left of it.
+        // The caps are per day, not per run: a re-run of the same day only fills what is left of them.
         $room = config('trend.discovery.max_candidates')
             - Subject::whereDate('first_seen_on', $day->toDateString())->whereRelation('events', 'type', 'discovered')->count();
 
-        foreach ($fresh->take(max(0, $room)) as $name => $seenIn) {
-            [$state, $payload, $label] = $this->route((string) $name, $seenIn);
+        // App Store climbers have their own cap, counted after known names are skipped (ADR-0011).
+        $climbers = config('trend.apple_ads.max_candidates')
+            - Subject::whereDate('first_seen_on', $day->toDateString())
+                ->whereHas('events', fn ($query) => $query->where('type', 'discovered')->whereNotNull('payload->climb'))
+                ->count();
+        $admitted = $fresh->filter(fn (array $candidate) => $candidate['climb'] !== null)
+            ->sortByDesc('climb')
+            ->take(max(0, $climbers))
+            ->keys();
+        $fresh = $fresh->filter(fn (array $candidate, $name) => $candidate['climb'] === null || $admitted->contains($name));
 
-            $this->create((string) $name, $state, $day, 'discovered', $payload, $label);
+        foreach ($fresh->take(max(0, $room)) as $name => $candidate) {
+            [$state, $payload, $label] = $this->route((string) $name, $candidate['seen_in']);
+
+            if ($candidate['climb'] !== null) {
+                $payload['climb'] = $candidate['climb'];
+            }
+
+            $this->create((string) $name, $state, $day, 'discovered', $payload, [$label, ...$candidate['labels']]);
             $outcomes[$state->value]++;
         }
 
@@ -67,7 +82,7 @@ final class Intake
         $subject = Subject::where('slug', Subject::slugFor($name))->first();
 
         if ($subject === null) {
-            return $this->create($name, SubjectState::Watching, CarbonImmutable::now('UTC')->startOfDay(), 'seeded', [], null, $query);
+            return $this->create($name, SubjectState::Watching, CarbonImmutable::now('UTC')->startOfDay(), 'seeded', [], [], $query);
         }
 
         // A new query measures something else, so it starts a new series (rows are keyed by query).
@@ -108,10 +123,13 @@ final class Intake
         return [$state, ['seen_in' => $seenIn, 'specific' => $answer->specific, 'label' => $answer->label], $answer->label];
     }
 
-    /** @param array<string, mixed> $payload */
-    private function create(string $name, SubjectState $state, CarbonImmutable $day, string $event, array $payload, ?string $label, ?string $query = null): Subject
+    /**
+     * @param  array<string, mixed>  $payload
+     * @param  list<?string>  $labels  the Classifier's Label and any its Source gave, nulls skipped
+     */
+    private function create(string $name, SubjectState $state, CarbonImmutable $day, string $event, array $payload, array $labels, ?string $query = null): Subject
     {
-        return DB::transaction(function () use ($name, $state, $day, $event, $payload, $label, $query) {
+        return DB::transaction(function () use ($name, $state, $day, $event, $payload, $labels, $query) {
             $subject = Subject::create([
                 'name' => $name,
                 'slug' => Subject::slugFor($name),
@@ -120,7 +138,7 @@ final class Intake
                 'first_seen_on' => $day->toDateString(),
             ]);
 
-            if ($label !== null) {
+            foreach (array_unique(array_filter($labels)) as $label) {
                 $subject->labels()->attach(Label::firstOrCreate(['name' => $label]));
             }
 

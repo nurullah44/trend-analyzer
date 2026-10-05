@@ -2,6 +2,8 @@
 
 namespace App\Read;
 
+use App\Collection\PublishesWeekly;
+use App\Collection\SourceRegistry;
 use App\Models\Alarm;
 use App\Models\Event;
 use App\Models\Item;
@@ -21,6 +23,7 @@ final class Ledger
     public function __construct(
         private readonly Series $series,
         private readonly Scorer $scorer,
+        private readonly SourceRegistry $registry,
     ) {}
 
     /** The last finished week's Monday, the week a report is about by default. */
@@ -147,7 +150,27 @@ final class Ledger
             $gaps[] = "{$source->key} is failing: {$source->last_error}";
         }
 
-        foreach (Source::where('enabled', true)->where('roles', 'like', '%discovery%')->orderBy('key')->get() as $source) {
+        $waiting = $this->registry->unconfigured();
+
+        foreach (Source::where('enabled', true)->whereIn('key', $waiting)->orderBy('key')->get() as $source) {
+            $gaps[] = "{$source->key} has no credentials yet: it is left out of every run";
+        }
+
+        foreach (Source::where('enabled', true)->where('roles', 'like', '%discovery%')->whereNotIn('key', $waiting)->orderBy('key')->get() as $source) {
+            $collector = $this->registry->has($source->key) ? $this->registry->for($source->key) : null;
+
+            if ($collector instanceof PublishesWeekly) {
+                // A weekly Source owes its latest publication that is already out.
+                $due = collect(range(0, 7))->map(fn (int $back) => CarbonImmutable::now('UTC')->subDays($back)->startOfDay())
+                    ->first(fn (CarbonImmutable $day) => $collector->publishes($day));
+
+                if ($due !== null && ! Item::where('source_id', $source->id)->where('observed_on', $due->toDateString())->exists()) {
+                    $gaps[] = "{$source->key} has not collected its publication of {$due->toDateString()}";
+                }
+
+                continue;
+            }
+
             if (! Item::where('source_id', $source->id)->where('observed_on', '>=', now('UTC')->subDays(2)->toDateString())->exists()) {
                 $gaps[] = "{$source->key} has collected nothing in the last two days";
             }

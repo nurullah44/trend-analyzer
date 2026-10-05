@@ -73,6 +73,56 @@ class IntakeTest extends TestCase
         Http::assertNothingSent();
     }
 
+    public function test_an_app_store_candidate_carries_its_genre_beside_the_classifiers_label(): void
+    {
+        config(['trend.classifier.key' => 'jv_test']);
+        Item::create(['source_id' => Source::where('key', 'apple_ads')->value('id'), 'external_id' => 'HEALTH_FITNESS:step counter', 'title' => 'step counter', 'excerpt' => 'HEALTH_FITNESS, rank 3, last week 250', 'observed_on' => '2026-09-21']);
+        Http::fake(['api.typesafe.ai/v1/systemone' => Http::response(['answers' => [
+            'specific' => ['type' => 'noul', 'noul' => 0.9],
+            'label' => ['type' => 'choice', 'choice' => 'mobile-app'],
+        ]])]);
+
+        $this->discover();
+
+        $this->assertSame(['mobile-app', 'health-fitness'], Subject::where('slug', 'step-counter')->first()->labels->pluck('name')->all());
+        Http::assertSent(fn (Request $request) => $request['state']['candidate'] === 'step counter'
+            && $request['state']['seen_in'] === ['App Store search in health-fitness: rank 3, last week 250']
+            && str_contains($request['questions']['specific']['instructions'], 'specific kind of app'));
+    }
+
+    public function test_known_names_never_use_up_the_weekly_app_store_cap_and_a_rerun_never_goes_past_it(): void
+    {
+        config(['trend.classifier.key' => null, 'trend.apple_ads.max_candidates' => 1]);
+        $apple = Source::where('key', 'apple_ads')->value('id');
+        foreach ([['step counter', 'rank 3, last week 250'], ['sleep tracker', 'rank 5, last week 600'], ['water reminder', 'rank 9, last week 400']] as [$term, $ranks]) {
+            Item::create(['source_id' => $apple, 'external_id' => "HEALTH_FITNESS:{$term}", 'title' => $term, 'excerpt' => "HEALTH_FITNESS, {$ranks}", 'observed_on' => '2026-09-21']);
+        }
+        $this->app->make(Intake::class)->seed('Sleep Tracker');
+
+        $this->discover();
+        $this->discover();
+
+        $this->assertTrue(Subject::where('slug', 'water-reminder')->exists(), 'the biggest fresh climb, past the known one');
+        $this->assertFalse(Subject::where('slug', 'step-counter')->exists(), 'one a week, however often the day is discovered');
+        $this->assertSame(391, Subject::where('slug', 'water-reminder')->first()->events->first()->payload['climb']);
+    }
+
+    public function test_the_app_store_cap_takes_the_biggest_climb_even_when_another_site_mentions_a_smaller_one(): void
+    {
+        config(['trend.classifier.key' => null, 'trend.apple_ads.max_candidates' => 1]);
+        $apple = Source::where('key', 'apple_ads')->value('id');
+        Item::create(['source_id' => $apple, 'external_id' => 'HEALTH_FITNESS:step counter', 'title' => 'step counter', 'excerpt' => 'HEALTH_FITNESS, rank 3, last week 104', 'observed_on' => '2026-09-21']);
+        Item::create(['source_id' => $apple, 'external_id' => 'HEALTH_FITNESS:water reminder', 'title' => 'water reminder', 'excerpt' => 'HEALTH_FITNESS, rank 9, last week 900', 'observed_on' => '2026-09-21']);
+        foreach (['Step Counter apps', 'Why Step Counter'] as $index => $title) {
+            Item::create(['source_id' => Source::where('key', 'hacker_news')->value('id'), 'external_id' => "sc-{$index}", 'title' => $title, 'observed_on' => '2026-09-21']);
+        }
+
+        $this->discover();
+
+        $this->assertTrue(Subject::where('slug', 'water-reminder')->exists());
+        $this->assertFalse(Subject::where('slug', 'step-counter')->exists());
+    }
+
     public function test_a_failing_classifier_leaves_candidates_in_backlog(): void
     {
         config(['trend.classifier.key' => 'jv_test']);

@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Collection\SourceRegistry;
 use App\Models\Alarm;
 use App\Models\Item;
 use App\Models\Source;
@@ -15,11 +16,12 @@ class TrendsStatusCommand extends Command
 
     protected $description = 'Show registered Sources, stored counts and collection health';
 
-    public function handle(): int
+    public function handle(SourceRegistry $registry): int
     {
         $this->info('trend-analyzer');
 
         $sources = Source::orderBy('key')->get();
+        $waiting = $registry->unconfigured();
 
         if ($sources->isEmpty()) {
             $this->warn('No Sources registered. Run: php artisan db:seed --class=SourceSeeder');
@@ -33,7 +35,11 @@ class TrendsStatusCommand extends Command
             ['key', 'on', 'roles', 'geo', 'last run', 'last success', 'items', 'last error'],
             $sources->map(fn (Source $source) => [
                 $source->key,
-                $source->enabled ? 'yes' : 'no',
+                match (true) {
+                    ! $source->enabled => 'no',
+                    in_array($source->key, $waiting, true) => 'no credentials',
+                    default => 'yes',
+                },
                 $source->roles,
                 $source->geo ?? 'global',
                 $source->last_run_at?->format('Y-m-d H:i') ?? 'never',

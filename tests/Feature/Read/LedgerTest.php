@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Read;
 
+use App\Collection\SourceRegistry;
 use App\Enums\SubjectState;
 use App\Models\Alarm;
 use App\Models\Item;
@@ -14,6 +15,7 @@ use Carbon\CarbonImmutable;
 use Database\Seeders\SourceSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use InvalidArgumentException;
+use Tests\Support\FakeWeeklyCollector;
 use Tests\TestCase;
 
 /** The read layer and the three writes, tested once at the boundary the CLI, MCP server and pages share. */
@@ -68,6 +70,20 @@ class LedgerTest extends TestCase
         $this->assertSame([$this->alarm->id], array_column($ledger->alarms(), 'id'), 'open Alarms by default');
         $this->assertSame([$this->alarm->id], array_column($ledger->report()['alarms'], 'id'));
         $this->assertContains('hacker_news', array_column($ledger->sources(), 'key'));
+    }
+
+    public function test_the_gaps_name_a_source_without_credentials_and_a_weekly_publication_not_collected(): void
+    {
+        $this->assertContains('apple_ads has no credentials yet: it is left out of every run', $this->app->make(Ledger::class)->gaps());
+
+        $this->travelTo(CarbonImmutable::parse('2026-10-12 10:00', 'UTC'));
+        $this->app->instance(SourceRegistry::class, new SourceRegistry(['apple_ads' => new FakeWeeklyCollector('apple_ads')]));
+        Item::create(['source_id' => Source::where('key', 'apple_ads')->value('id'), 'external_id' => 'HEALTH_FITNESS:step counter', 'title' => 'step counter', 'observed_on' => '2026-10-05']);
+
+        $gaps = $this->app->make(Ledger::class)->gaps();
+
+        $this->assertContains('apple_ads has not collected its publication of 2026-10-12', $gaps, "last week's Items do not hide this Monday's");
+        $this->assertNotContains('apple_ads has no credentials yet: it is left out of every run', $gaps);
     }
 
     public function test_the_owner_records_a_verdict_and_a_magnitude(): void

@@ -1,5 +1,6 @@
 <?php
 
+use App\Collection\Sources\AppleAds;
 use App\Collection\Sources\HackerNews;
 use App\Collection\Sources\StackExchange;
 use App\Collection\Sources\Wikimedia;
@@ -82,6 +83,22 @@ return [
         'refresh_after_days' => 28,
     ],
 
+    // Apple Ads search-term popularity (ADR-0011): App Store demand, read for one storefront.
+    // Each publication Monday the top terms of every genre are read; a term new to them
+    // (absent from twice the depth the week before) or climbing at least `min_climb`
+    // places is a Candidate, the biggest climbs first, at most `max_candidates` a week.
+    'apple_ads' => [
+        'client_id' => env('APPLE_ADS_CLIENT_ID'),
+        'team_id' => env('APPLE_ADS_TEAM_ID'),
+        'key_id' => env('APPLE_ADS_KEY_ID'),
+        'ad_account_id' => env('APPLE_ADS_AD_ACCOUNT_ID'),
+        'private_key_path' => env('APPLE_ADS_PRIVATE_KEY_PATH'),
+        'storefront' => 'US',
+        'top_terms' => 500,
+        'min_climb' => 100,
+        'max_candidates' => 20,
+    ],
+
     // Cases for trends:backtest: breakouts the score should catch before their marker,
     // and names that never broke out. Curate this list; it is the instrument's report card.
     'backtest' => [
@@ -93,6 +110,9 @@ return [
         // Demand: people asking for help, by category.
         ['key' => 'stack_exchange', 'name' => 'Stack Exchange API', 'kind' => 'api', 'geo' => null, 'roles' => 'discovery,measurement', 'enabled' => true, 'cost_note' => 'free, no key needed at this volume', 'docs_url' => 'https://api.stackexchange.com/docs', 'class' => StackExchange::class],
         ['key' => 'hacker_news', 'name' => 'Hacker News (Algolia)', 'kind' => 'api', 'geo' => null, 'roles' => 'discovery,measurement', 'enabled' => true, 'cost_note' => 'free', 'docs_url' => 'https://hn.algolia.com/api', 'class' => HackerNews::class],
+
+        // App Store demand (ADR-0011): what people type into App Store search, per genre, weekly.
+        ['key' => 'apple_ads', 'name' => 'Apple Ads search-term popularity', 'kind' => 'api', 'geo' => 'US', 'roles' => 'discovery,measurement', 'enabled' => true, 'cost_note' => 'free; needs the Apple Ads API user\'s credentials and private key; weekly, 65 weeks kept', 'docs_url' => 'https://developer.apple.com/documentation/apple-ads-platform-api/query-app-search-term-popularity-data', 'class' => AppleAds::class],
 
         // Supply: what is actually launching and being adopted. Deferred until after the foundation.
         ['key' => 'product_hunt', 'name' => 'Product Hunt GraphQL API', 'kind' => 'api', 'geo' => null, 'roles' => 'discovery', 'enabled' => false, 'cost_note' => 'deferred until after the foundation; free; needs a developer token', 'docs_url' => 'https://api.producthunt.com/v2/docs'],

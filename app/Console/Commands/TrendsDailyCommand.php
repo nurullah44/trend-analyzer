@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Collection\CollectionRunner;
+use App\Collection\PublishesWeekly;
 use App\Collection\SourceRegistry;
 use App\Console\Commands\Concerns\RunsAlone;
 use App\Models\Item;
@@ -14,7 +15,9 @@ use Illuminate\Console\Command;
 /**
  * The daily run: collect every day of the last week a discovery Source has no
  * Items for, then propose each collected day's Candidates. A missed or
- * interrupted day heals itself.
+ * interrupted day heals itself. A Source that publishes weekly is only asked
+ * for the day it publishes on — today included, once it has published, so the
+ * weekly run that follows already measures what it proposed.
  */
 class TrendsDailyCommand extends Command
 {
@@ -34,9 +37,11 @@ class TrendsDailyCommand extends Command
         $sources = Source::where('enabled', true)->orderBy('key')->get()->filter(fn (Source $source) => $registry->has($source->key));
         $failed = false;
 
-        foreach (range(max(1, (int) $this->option('days')), 1) as $back) {
+        foreach (range(max(1, (int) $this->option('days')), 0) as $back) {
             $day = CarbonImmutable::now('UTC')->subDays($back)->startOfDay();
-            $missing = $sources->reject(fn (Source $source) => Item::where('source_id', $source->id)->where('observed_on', $day->toDateString())->exists());
+            $missing = $sources
+                ->filter(fn (Source $source) => ($collector = $registry->for($source->key)) instanceof PublishesWeekly ? $collector->publishes($day) : $back > 0)
+                ->reject(fn (Source $source) => Item::where('source_id', $source->id)->where('observed_on', $day->toDateString())->exists());
 
             foreach ($runner->collectAll($missing, $day) as $outcome) {
                 $failed = $failed || ! $outcome->ok();

@@ -32,6 +32,7 @@
         <env name="JEV_API_KEY" value=""/>
         <env name="GOOGLE_ADS_REFRESH_TOKEN" value=""/>
         <env name="STACK_EXCHANGE_KEY" value=""/>
+        <env name="APPLE_ADS_PRIVATE_KEY_PATH" value=""/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
     </php>
 </phpunit>

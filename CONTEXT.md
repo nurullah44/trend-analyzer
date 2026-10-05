@@ -37,7 +37,7 @@ A line on one of the Subject's own measures that says it has arrived where the a
 _Avoid_: viral, popular
 
 **Watched geo**:
-The country a per-country Source is read for, such as YouTube's trending chart or the app chart. The analyzer watches subjects globally: Sources that are global by nature — Wikimedia, Hacker News, Stack Exchange, Product Hunt, Google Ads read without a geo — have no watched geo at all.
+The country a per-country Source is read for, such as YouTube's trending chart, the app chart or App Store search. The analyzer watches subjects globally: Sources that are global by nature — Wikimedia, Hacker News, Stack Exchange, Product Hunt, Google Ads read without a geo — have no watched geo at all.
 _Avoid_: region, locale, country filter
 
 **Spike**:
@@ -58,13 +58,21 @@ Reading what a Source published on one day only to propose candidates. Discovery
 Asking a Source how many items matched one Subject's query in one week. Measurement Sources answer for any past range, so a newly tracked Subject is backfilled at once.
 
 **Candidate**:
-A topic of two to five words — a Stack Exchange tag or a phrase in titles — mentioned by several Items on one day, that discovery proposed and that is not yet a Subject. A bare word is too broad to be one. The Classifier decides whether it is tracked, waits in Backlog, or is Archived.
+A topic of two to five words that discovery proposed and that is not yet a Subject: a Stack Exchange tag or a phrase in titles mentioned by several Items on one day, or an App Store search term that entered or climbed its genre's top list that week. A bare word is too broad to be one. The Classifier decides whether it is tracked, waits in Backlog, or is Archived.
 
 **Classifier**:
 Jev, TypeSafe's System One model. It answers typed questions about a candidate — is it a specific, nameable thing, and which Label fits — with probabilities. It never measures, never scores, and never decides that something is emerging.
 
 **Seed**:
 A Subject the owner names by hand, with its query. It skips the Classifier and starts in Watching.
+
+**Genre**:
+One of the App Store's fifteen genres (Productivity & Utilities, Health & Fitness…) that Apple ranks search terms within. A Subject discovered from App Store search carries its genre as a Label.
+_Avoid_: category, vertical
+
+**Competition**:
+The apps App Store search already returns for a Subject's query — names, sellers, rating counts and update dates, as the iTunes Search API reports them. Evidence for the reviewer; the analyzer never scores it.
+_Avoid_: difficulty, saturation
 
 **Lead time**:
 The days from a Subject's first Alarm to its Mainstream moment — the head start the analyzer earned.
@@ -95,7 +103,7 @@ Discarded without ever having risen: the Classifier ruled the Candidate out, or 
 ### Measures
 
 **Volume**:
-How many items matching the Subject's query a Source published in a given week.
+How many items matching the Subject's query a Source published in a given week. On App Store search it is the popularity (1–100) Apple reports for the Subject's query that week: Apple counts the searches, the analyzer never does.
 
 **Velocity**:
 This week's Volume against the Subject's own trailing eight weeks on the same Source: how many spreads above the baseline's median it sits. A year-ago comparison joins once a year of history exists.

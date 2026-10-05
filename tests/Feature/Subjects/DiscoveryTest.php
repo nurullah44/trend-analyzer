@@ -70,6 +70,23 @@ class DiscoveryTest extends TestCase
         $this->assertSame(['Model Context Protocol'], array_keys($this->candidates()));
     }
 
+    public function test_app_store_terms_that_enter_or_climb_their_genres_top_list_are_candidates_with_their_genre(): void
+    {
+        $this->items('apple_ads', [
+            ['pdf scanner', 'PRODUCTIVITY_UTILITIES, rank 2, last week 3'],
+            ['step counter', 'HEALTH_FITNESS, rank 3, last week 250'],
+            ['ai note taker', 'PRODUCTIVITY_UTILITIES, rank 40, last week below 1000'],
+            ['ai note taker', 'BUSINESS, rank 90, last week below 1000'],
+            ['chatgpt', 'PRODUCTIVITY_UTILITIES, rank 1, last week below 1000'],
+        ]);
+
+        $candidates = $this->candidates();
+
+        $this->assertSame(['ai note taker', 'step counter'], array_keys($candidates), 'new to the list counts from twice its depth, biggest climb first; a bare word is too broad and a small climb is not one');
+        $this->assertSame(['productivity-utilities', 'business'], $candidates['ai note taker']['labels'], 'the genre rides along as a Label');
+        $this->assertSame(['App Store search in productivity-utilities: rank 40, last week below 1000', 'App Store search in business: rank 90, last week below 1000'], $candidates['ai note taker']['seen_in']);
+    }
+
     /** @param list<array{0: string, 1: ?string}> $rows */
     private function items(string $source, array $rows, int $offset = 0): void
     {
@@ -81,7 +98,7 @@ class DiscoveryTest extends TestCase
         }
     }
 
-    /** @return array<string, list<string>> */
+    /** @return array<string, array{seen_in: list<string>, labels: list<string>, climb: ?int}> */
     private function candidates(): array
     {
         return $this->app->make(Discovery::class)->candidates(Item::with('source')->get());

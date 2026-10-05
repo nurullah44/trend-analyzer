@@ -13,8 +13,8 @@ class ScheduleTest extends TestCase
         $events = collect($this->app->make(Schedule::class)->events())
             ->mapWithKeys(fn (Event $event) => [trim(str($event->command)->after('artisan')->replace(["'", '"'], '')) => $event]);
 
-        $this->assertSame('0 6 * * *', $events['trends:daily']->expression);
-        $this->assertSame('0 7 * * 1', $events['trends:weekly']->expression);
+        $this->assertSame('0 9 * * *', $events['trends:daily']->expression);
+        $this->assertSame('0 10 * * 1', $events['trends:weekly']->expression);
         $this->assertTrue($events['trends:daily']->withoutOverlapping && $events['trends:weekly']->withoutOverlapping);
     }
 }

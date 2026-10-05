@@ -17,6 +17,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Tests\Support\FakeCollector;
 use Tests\Support\FakeMeasurement;
+use Tests\Support\FakeWeeklyCollector;
 use Tests\TestCase;
 
 /** Discovery → Subject → series → Alarm → report, driven through the commands with fake Sources and no network. */
@@ -37,6 +38,21 @@ class PipelineTest extends TestCase
         $this->artisan('trends:daily')->assertSuccessful();
 
         $this->assertTrue(Subject::where('slug', 'tide-wave')->exists());
+    }
+
+    public function test_a_weekly_source_is_only_collected_for_the_day_it_publishes_on(): void
+    {
+        $this->seed(SourceSeeder::class);
+        config(['trend.classifier.key' => null]);
+        $this->travelTo(CarbonImmutable::parse('2026-10-12 09:00', 'UTC'));
+        $weekly = new FakeWeeklyCollector('apple_ads');
+        $daily = FakeCollector::returning('hacker_news');
+        $this->app->instance(SourceRegistry::class, new SourceRegistry(['apple_ads' => $weekly, 'hacker_news' => $daily]));
+
+        $this->artisan('trends:daily')->assertSuccessful();
+
+        $this->assertSame(['2026-10-05', '2026-10-12'], array_map(fn (CarbonImmutable $day) => $day->toDateString(), $weekly->requestedDays), 'its Mondays, today included once published');
+        $this->assertNotContains('2026-10-12', array_map(fn (CarbonImmutable $day) => $day->toDateString(), $daily->requestedDays), 'a daily Source never collects a day still running');
     }
 
     public function test_a_run_already_in_progress_is_not_started_twice(): void

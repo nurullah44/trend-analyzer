@@ -25,3 +25,12 @@ To re-record, make the same request with `curl --compressed` and save the body v
 `POST /v25/customers/7588048331:generateKeywordHistoricalMetrics` with `keywords=["svelte"]`,
 `language=languageConstants/1000`, `keywordPlanNetwork=GOOGLE_SEARCH` and no geo (worldwide);
 values arrive as strings and bids are micros of the account currency (TRY).
+
+`AppleAds/` is **not recorded live yet**: the analyzer has no Apple Ads private key on this machine. The files follow the
+response shape in Apple's reference for `POST /v1/insights/apps/search-term-popularity/query`
+(`result.rows`, each with `week`, `countryOrRegion`, `genre`, `searchTerm` and the requested fields), with invented values:
+
+- `top-2026-09-27.json`, `top-2026-09-20.json` — every genre's top terms for two consecutive Sunday–Saturday weeks.
+- `volume-pdf-scanner.json` — `searchTerm EQUALS "pdf scanner"` over three weeks, ranked in two genres one week.
+
+Replace them with recorded bodies once the first live call succeeds.

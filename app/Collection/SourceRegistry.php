@@ -4,7 +4,10 @@ namespace App\Collection;
 
 use InvalidArgumentException;
 
-/** The collectors and measurements this app can run, keyed by the Source each one answers for. */
+/**
+ * The collectors and measurements this app can run, keyed by the Source each one
+ * answers for. A Source still waiting for its credentials is not runnable.
+ */
 final class SourceRegistry
 {
     /**
@@ -29,22 +32,35 @@ final class SourceRegistry
     /** @return array<string, SourceMeasurement> */
     public function measurements(): array
     {
-        return $this->measurements;
+        return array_filter($this->measurements, fn (SourceMeasurement $measurement) => $this->runnable($measurement));
     }
 
     public function has(string $key): bool
     {
-        return isset($this->collectors[$key]);
+        return isset($this->collectors[$key]) && $this->runnable($this->collectors[$key]);
     }
 
     public function for(string $key): SourceCollector
     {
-        return $this->collectors[$key] ?? throw new UnknownSourceException($key);
+        return $this->has($key) ? $this->collectors[$key] : throw new UnknownSourceException($key);
     }
 
     /** @return list<string> */
     public function keys(): array
     {
-        return array_keys($this->collectors);
+        return array_keys(array_filter($this->collectors, fn (SourceCollector $collector) => $this->runnable($collector)));
+    }
+
+    /** @return list<string> the registered Sources still waiting for their credentials */
+    public function unconfigured(): array
+    {
+        $waiting = array_filter([...$this->collectors, ...$this->measurements], fn (object $source) => ! $this->runnable($source));
+
+        return array_values(array_unique(array_keys($waiting)));
+    }
+
+    private function runnable(object $source): bool
+    {
+        return ! $source instanceof NeedsCredentials || $source->configured();
     }
 }

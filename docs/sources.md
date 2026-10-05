@@ -21,7 +21,8 @@ Everything the analyzer is allowed to collect from, with the facts that decided 
 
 Working request: `filters` on `countryOrRegion` and `genre`, a `timeRange` (`WEEKLY_SUN_SAT` or `MONTHLY`), `sorting` and `pagination`. The response nests rows at **`result.rows`**, each with `searchTerm`, `rankInGenre`, `searchPopularityInGenre`, `searchPopularity1to100` and `searchPopularity1to5`.
 
-What it actually contains: **brand-heavy search terms** — `chatgpt`, `vpn`, `google`, `strava`, `mychart` — because it is what people type into App Store search, not what they want in the abstract. Its value is **week-over-week movement of a term** (rank and popularity), which gives App Store demand a velocity, and genre scoping to find a category where the top terms are not all giant brands. `POST /v1/suggestions/keywords/query` adds keyword suggestions with a `popularity` score but needs an app being promoted. |
+What it actually contains: **brand-heavy search terms** — `chatgpt`, `vpn`, `google`, `strava`, `mychart` — because it is what people type into App Store search, not what they want in the abstract. Its value is **week-over-week movement of a term** (rank and popularity), which gives App Store demand a velocity, and genre scoping to find a category where the top terms are not all giant brands. `POST /v1/suggestions/keywords/query` adds keyword suggestions with a `popularity` score but needs an app being promoted. From the reference docs (read 2026-10-05, not yet called live): `searchTerm` is filterable (`EQUALS`, `IN`, `CONTAINS`, `STARTS_WITH`, with `ignoreCase`), so a Subject's own query can be measured without promoting an app; `WEEKLY_SUN_SAT` weeks are published Mondays 07:00 UTC and kept **65 weeks**, months 15; `pageSize` goes up to 5,000; every response carries `RateLimit-Limit/Remaining/Reset`, and a `429` adds `Retry-After`. Authentication is a client secret — an ES256 JWT (`iss` teamId, `sub` clientId, `aud` `https://appleid.apple.com`, `kid` keyId) signed with the private key whose public half is uploaded — exchanged at `appleid.apple.com/auth/oauth2/token` with `scope=searchadsorg` for a one-hour token, sent with `X-AP-Context: adAccountId=…`. |
+| **iTunes Search API** — `GET itunes.apple.com/search?term=…&country=US&media=software&entity=software` *(verified live 2026-10-05)* | The apps App Store search returns for a term, in store order, up to 200: name, seller, store link, genre, `userRatingCount`, `averageUserRating`, release and current-version dates, price | Free, no key; about **20 calls a minute** | **Competition** for a Rising or Trending Subject (ADR-0011): who already answers the search, how established they are, how recently they shipped. What every ASO rank tracker reads. Apple's terms restrict artwork and previews to promoting the store, so only metadata and the store link are kept. No search volume of its own. |
 | **Google Ads API — `GenerateKeywordHistoricalMetrics`** | Average monthly searches (past 12 months), approximate monthly volume, competition level and index, for named keywords, with geo and language targets | Free per call; needs a Google Ads **manager account**, a **developer token with Basic access** (Test-level tokens return no real data) and OAuth credentials — no ad spend required | The Keyword Planner numbers, read programmatically, and the sizing half of validation. **Verified live 2026-09-12.** The path took: correct customer id → account reactivated → Cloud project raised from Test to **Explorer** → Explorer refused keyword planning (`DEVELOPER_TOKEN_NOT_APPROVED`) → **Basic access granted after brand verification** (published OAuth app, `cogniaagent.com` verified in Search Console, verified branding). Customer id `7588048331`, currency TRY, time zone Europe/Istanbul.
 
 Working request — `POST /v25/customers/{id}:generateKeywordHistoricalMetrics` with `keywords`, `geo_target_constants` (2840 = US, 2792 = Türkiye), `language` (`languageConstants/1000` = English) and `keyword_plan_network: GOOGLE_SEARCH`. Each result carries **`keywordMetrics`** (note the field name, not `metrics`): `avgMonthlySearches`, `competition`, `competitionIndex`, `lowTopOfPageBidMicros`, `highTopOfPageBidMicros` and **`monthlySearchVolumes`** — twelve points, one per month. All values arrive as strings.
@@ -87,7 +88,18 @@ The first version collects from four Sources only, chosen because each answers f
 | Wikimedia Pageviews | measurement, marker |
 | Google Ads keyword metrics | validation, marker |
 
-Product Hunt, YouTube trending, the Apple charts, Google Trends and the Apple Ads search-term API stay approved but **deferred**: each is added when real output shows a gap it would fill.
+Product Hunt, YouTube trending, the Apple charts and Google Trends stay approved but **deferred**: each is added when real output shows a gap it would fill.
+
+## App Store demand (ADR-0011)
+
+The first real week alarmed only on tech news, so App Store demand joined on 2026-10-05, read for the United States:
+
+| Source | Roles |
+|---|---|
+| Apple Ads search-term popularity | discovery, measurement |
+| iTunes Search API | validation (Competition) |
+
+The Apple charts stay deferred: they name single apps, and a single launch is not a trend.
 
 ## Geo rule
 
@@ -95,7 +107,7 @@ Product Hunt, YouTube trending, the Apple charts, Google Trends and the Apple Ad
 
 For Google Ads keyword metrics, **omitting `geo_target_constants` returns worldwide figures** (verified: one keyword reads **110,000/month** with no geo, 18,100 in the US alone, 5,400 in Germany). Passing geo constants restricts to those markets, and **multiple geos sum** (US + Germany = 22,200). So global costs no extra call: leave the field out. `geoTargetConstants/2840` is the United States when a national view is wanted.
 
-Per-country Sources that have no worldwide mode — YouTube's trending chart, Apple's chart, Pinterest — fall back to `US`.
+Per-country Sources that have no worldwide mode — YouTube's trending chart, Apple's chart, App Store search and its popularity, Pinterest — fall back to `US`.
 
 ## Rules
 

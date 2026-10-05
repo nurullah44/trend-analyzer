@@ -31,7 +31,7 @@ final class Jev
                 'questions' => [
                     'specific' => [
                         'type' => 'noul',
-                        'instructions' => 'Is the candidate a specific, nameable thing — a product, tool, library, technology, company or named practice — rather than a broad field (like "AI" or "programming"), a generic word, or a fragment of a sentence?',
+                        'instructions' => 'Is the candidate a specific, nameable thing — a product, tool, library, technology, company or named practice — rather than a broad field (like "AI" or "programming"), a generic word, or a fragment of a sentence? A search for a specific kind of app (like "pdf scanner" or "plant identifier") counts as specific.',
                     ],
                     'label' => [
                         'type' => 'choice',
