@@ -75,16 +75,16 @@ class DiscoveryTest extends TestCase
         $this->items('apple_ads', [
             ['pdf scanner', 'PRODUCTIVITY_UTILITIES, rank 2, last week 3'],
             ['step counter', 'HEALTH_FITNESS, rank 3, last week 250'],
-            ['ai note taker', 'PRODUCTIVITY_UTILITIES, rank 40, last week below 1000'],
-            ['ai note taker', 'BUSINESS, rank 90, last week below 1000'],
-            ['chatgpt', 'PRODUCTIVITY_UTILITIES, rank 1, last week below 1000'],
+            ['ai note taker', 'PRODUCTIVITY_UTILITIES, rank 40, last week below 500'],
+            ['ai note taker', 'BUSINESS, rank 90, last week below 500'],
+            ['chatgpt', 'PRODUCTIVITY_UTILITIES, rank 1, last week below 500'],
         ]);
 
         $candidates = $this->candidates();
 
         $this->assertSame(['ai note taker', 'step counter'], array_keys($candidates), 'new to the list counts from twice its depth, biggest climb first; a bare word is too broad and a small climb is not one');
         $this->assertSame(['productivity-utilities', 'business'], $candidates['ai note taker']['labels'], 'the genre rides along as a Label');
-        $this->assertSame(['App Store search in productivity-utilities: rank 40, last week below 1000', 'App Store search in business: rank 90, last week below 1000'], $candidates['ai note taker']['seen_in']);
+        $this->assertSame(['App Store search in productivity-utilities: rank 40, last week below 500', 'App Store search in business: rank 90, last week below 500'], $candidates['ai note taker']['seen_in']);
     }
 
     /** @param list<array{0: string, 1: ?string}> $rows */

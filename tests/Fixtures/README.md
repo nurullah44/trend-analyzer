@@ -26,14 +26,12 @@ To re-record, make the same request with `curl --compressed` and save the body v
 `language=languageConstants/1000`, `keywordPlanNetwork=GOOGLE_SEARCH` and no geo (worldwide);
 values arrive as strings and bids are micros of the account currency (TRY).
 
-`AppleAds/` is **not recorded live yet**: the analyzer has no Apple Ads private key on this machine. The files follow the
-response shape in Apple's reference for `POST /v1/insights/apps/search-term-popularity/query`
-(`result.rows`, each with `week`, `countryOrRegion`, `genre`, `searchTerm` and the requested fields), with invented values:
+`AppleAds/` — `POST https://api.ads.apple.com/v1/insights/apps/search-term-popularity/query` for the US storefront:
 
-- `top-2026-09-27.json`, `top-2026-09-20.json` — every genre's top terms for two consecutive Sunday–Saturday weeks.
-- `volume-pdf-scanner.json` — `searchTerm EQUALS "pdf scanner"` over three weeks, ranked in two genres one week.
-
-Replace them with recorded bodies once the first live call succeeds.
+- `volume-pdf-scanner.json` was recorded on 2026-10-05 with `searchTerm EQUALS "pdf scanner"`, `fields=["searchPopularity1to100"]`
+  and the weeks starting 13 September to 27 September (`WEEKLY_SUN_SAT`).
+- `top-2026-09-27.json`, `top-2026-09-20.json` are **invented** small lists in the recorded shape (`result.rows`, each with `week`,
+  `countryOrRegion`, `genre`, `searchTerm` and the requested fields): a real top 500 of every genre is 7,500 rows of mostly brand names.
 
 `AppStoreSearch/pdf-scanner.json` was recorded on 2026-10-05 from
 `https://itunes.apple.com/search?term=pdf%20scanner&country=US&media=software&entity=software&limit=10`;

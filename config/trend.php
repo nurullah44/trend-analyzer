@@ -84,9 +84,9 @@ return [
     ],
 
     // Apple Ads search-term popularity (ADR-0011): App Store demand, read for one storefront.
-    // Each publication Monday the top terms of every genre are read; a term new to them
-    // (absent from twice the depth the week before) or climbing at least `min_climb`
-    // places is a Candidate, the biggest climbs first, at most `max_candidates` a week.
+    // Each publication Monday the top terms of every genre are read (Apple ranks at most 500
+    // deep); a term that climbed at least `min_climb` places — a newcomer counted from just
+    // below the list — is a Candidate, the biggest climbs first, at most `max_candidates` a week.
     'apple_ads' => [
         'client_id' => env('APPLE_ADS_CLIENT_ID'),
         'team_id' => env('APPLE_ADS_TEAM_ID'),

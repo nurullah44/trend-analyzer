@@ -58,7 +58,8 @@ final class Discovery
 
     /**
      * App Store search terms that entered their genre's top list or climbed it by
-     * at least the configured places, the biggest climbs first. Each counts as
+     * at least the configured places — a newcomer counted from just below the
+     * list — the biggest climbs first. Each counts as
      * recurring and carries its genre; Intake caps how many a week become Subjects.
      *
      * @param  Collection<int, Item>  $items
@@ -75,11 +76,12 @@ final class Discovery
                 continue;
             }
 
+            // A term new to the list climbed at least from just below it.
             $ranked = ($match[3] ?? '') !== '';
-            $before = (int) ($ranked ? $match[3] : $match[4]);
+            $before = $ranked ? (int) $match[3] : (int) $match[4] + 1;
             $climb = $before - (int) $match[2];
 
-            if ($ranked && $climb < $config['min_climb']) {
+            if ($climb < $config['min_climb']) {
                 continue;
             }
 
@@ -87,7 +89,7 @@ final class Discovery
             $genre = Str::slug(Str::lower($match[1]));
             $names[$slug] = $item->title;
             $climbs[$slug] = max($climbs[$slug] ?? PHP_INT_MIN, $climb);
-            $titles[$slug]["App Store search in {$genre}: rank {$match[2]}, last week ".($ranked ? $before : "below {$before}")] = true;
+            $titles[$slug]["App Store search in {$genre}: rank {$match[2]}, last week ".($ranked ? $before : "below {$match[4]}")] = true;
             $labels[$slug][$genre] = true;
         }
 

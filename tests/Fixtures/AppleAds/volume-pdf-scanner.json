@@ -1,31 +1,31 @@
 {
-  "result": {
-    "rows": [
-      {
-        "week": "2026-09-20",
-        "countryOrRegion": "US",
-        "genre": "BUSINESS",
-        "searchTerm": "pdf scanner",
-        "searchPopularity1to100": 72
-      },
-      {
-        "week": "2026-09-20",
-        "countryOrRegion": "US",
-        "genre": "PRODUCTIVITY_UTILITIES",
-        "searchTerm": "pdf scanner",
-        "searchPopularity1to100": 70
-      },
-      {
-        "week": "2026-09-27",
-        "countryOrRegion": "US",
-        "genre": "PRODUCTIVITY_UTILITIES",
-        "searchTerm": "pdf scanner",
-        "searchPopularity1to100": 75
-      }
-    ]
-  },
-  "pagination": {
-    "offset": 0,
-    "pageSize": 3
-  }
+    "result": {
+        "rows": [
+            {
+                "week": "2026-09-13",
+                "countryOrRegion": "US",
+                "genre": "PRODUCTIVITY_UTILITIES",
+                "searchTerm": "pdf scanner",
+                "searchPopularity1to100": 62
+            },
+            {
+                "week": "2026-09-20",
+                "countryOrRegion": "US",
+                "genre": "PRODUCTIVITY_UTILITIES",
+                "searchTerm": "pdf scanner",
+                "searchPopularity1to100": 59
+            },
+            {
+                "week": "2026-09-27",
+                "countryOrRegion": "US",
+                "genre": "PRODUCTIVITY_UTILITIES",
+                "searchTerm": "pdf scanner",
+                "searchPopularity1to100": 59
+            }
+        ]
+    },
+    "pagination": {
+        "offset": 0,
+        "pageSize": 3
+    }
 }

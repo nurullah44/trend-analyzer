@@ -43,6 +43,9 @@ final class AppleAds implements NeedsCredentials, PublishesWeekly, SourceCollect
 
     private const MAX_PAGES = 20;
 
+    /** Apple ranks at most this deep per query: `rankInGenre` filters accept 1–500. */
+    private const MAX_DEPTH = 500;
+
     private const RETAINED_WEEKS = 65;
 
     private const MAX_ATTEMPTS = 5;
@@ -81,14 +84,14 @@ final class AppleAds implements NeedsCredentials, PublishesWeekly, SourceCollect
         }
 
         $week = $day->subDays(8); // the Sunday that started the week published today
-        $depth = config('trend.apple_ads.top_terms');
+        $depth = min((int) config('trend.apple_ads.top_terms'), self::MAX_DEPTH);
         $current = $this->ranked($week, $depth);
 
         if ($current === []) {
             throw new UnexpectedValueException("Apple has not published the week of {$week->toDateString()} yet.");
         }
 
-        $previous = $this->ranked($week->subWeek(), 2 * $depth);
+        $previous = $this->ranked($week->subWeek(), $depth);
 
         // Without last week's list every term would look new; that must fail, not propose them all.
         if ($previous === []) {
@@ -103,7 +106,7 @@ final class AppleAds implements NeedsCredentials, PublishesWeekly, SourceCollect
 
         $items = array_map(function (array $row) use ($before, $week, $depth) {
             $id = $row['genre'].':'.$row['searchTerm'];
-            $lastWeek = isset($before[$id]) ? 'last week '.$before[$id] : 'last week below '.(2 * $depth);
+            $lastWeek = isset($before[$id]) ? 'last week '.$before[$id] : "last week below {$depth}";
 
             return new CollectedItem(
                 externalId: $id,
@@ -144,7 +147,8 @@ final class AppleAds implements NeedsCredentials, PublishesWeekly, SourceCollect
             'fields' => ['searchPopularity1to100'],
             'filters' => [
                 ['field' => 'countryOrRegion', 'operator' => 'EQUALS', 'value' => $this->storefront()],
-                ['field' => 'searchTerm', 'operator' => 'EQUALS', 'value' => trim($query), 'ignoreCase' => true],
+                // EQUALS already ignores case; the API refuses an `ignoreCase` property here.
+                ['field' => 'searchTerm', 'operator' => 'EQUALS', 'value' => trim($query)],
             ],
             'timeRange' => $this->weeks($first, $last),
         ]);

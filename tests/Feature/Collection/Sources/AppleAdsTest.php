@@ -89,7 +89,7 @@ class AppleAdsTest extends TestCase
         $this->assertSame(['HEALTH_FITNESS:step counter', 'PRODUCTIVITY_UTILITIES:chatgpt', 'PRODUCTIVITY_UTILITIES:pdf scanner', 'PRODUCTIVITY_UTILITIES:ai note taker'], array_map(fn ($item) => $item->externalId, $day->items));
         $this->assertSame('step counter', $day->items[0]->title);
         $this->assertSame('HEALTH_FITNESS, rank 3, last week 250', $day->items[0]->excerpt);
-        $this->assertSame('PRODUCTIVITY_UTILITIES, rank 40, last week below 1000', $day->items[3]->excerpt, 'absent from twice the depth the week before');
+        $this->assertSame('PRODUCTIVITY_UTILITIES, rank 40, last week below 500', $day->items[3]->excerpt, 'absent from the list the week before');
         $this->assertSame(60, $day->items[0]->measuredQuantity, "Apple's popularity, never computed");
         $this->assertSame('2026-09-27', $day->items[0]->publishedAt->toDateString(), 'the Sunday that started the week');
 
@@ -99,7 +99,7 @@ class AppleAdsTest extends TestCase
             && in_array(['field' => 'countryOrRegion', 'operator' => 'EQUALS', 'value' => 'US'], $request['filters'], true));
         Http::assertSent(fn (Request $request) => str_contains($request->url(), self::QUERY)
             && $request['timeRange']['start'] === '2026-09-20'
-            && in_array(['field' => 'rankInGenre', 'operator' => 'LESS_THAN_OR_EQUAL_TO', 'value' => 1000], $request['filters'], true));
+            && in_array(['field' => 'rankInGenre', 'operator' => 'LESS_THAN_OR_EQUAL_TO', 'value' => 500], $request['filters'], true));
     }
 
     public function test_apple_publishes_on_monday_at_seven_and_on_no_other_day(): void
@@ -144,10 +144,21 @@ class AppleAdsTest extends TestCase
 
         $volumes = $this->apple()->volumes('PDF Scanner', ['2026-09-28', '2026-09-14', '2026-09-21']);
 
-        $this->assertSame(['2026-09-14' => null, '2026-09-21' => 72, '2026-09-28' => 75], $volumes, 'the highest genre wins; a week Apple does not rank has no Volume');
+        $this->assertSame(['2026-09-14' => 62, '2026-09-21' => 59, '2026-09-28' => 59], $volumes, 'recorded live on 2026-10-05');
         Http::assertSent(fn (Request $request) => str_contains($request->url(), self::QUERY)
             && $request['timeRange'] === ['start' => '2026-09-13', 'end' => '2026-10-03', 'granularity' => 'WEEKLY_SUN_SAT']
-            && in_array(['field' => 'searchTerm', 'operator' => 'EQUALS', 'value' => 'PDF Scanner', 'ignoreCase' => true], $request['filters'], true));
+            && in_array(['field' => 'searchTerm', 'operator' => 'EQUALS', 'value' => 'PDF Scanner'], $request['filters'], true));
+    }
+
+    public function test_a_term_ranked_in_two_genres_takes_its_higher_popularity_and_an_unranked_week_has_no_volume(): void
+    {
+        $this->travelTo(CarbonImmutable::parse('2026-10-05 08:00', 'UTC'));
+        $this->fakeApple(fn () => Http::response(['result' => ['rows' => [
+            ['week' => '2026-09-20', 'genre' => 'BUSINESS', 'searchTerm' => 'pdf scanner', 'searchPopularity1to100' => 61],
+            ['week' => '2026-09-20', 'genre' => 'PRODUCTIVITY_UTILITIES', 'searchTerm' => 'pdf scanner', 'searchPopularity1to100' => 59],
+        ]]]));
+
+        $this->assertSame(['2026-09-21' => 61, '2026-09-28' => null], $this->apple()->volumes('pdf scanner', ['2026-09-21', '2026-09-28']));
     }
 
     public function test_a_week_apple_has_not_published_fails_the_measurement(): void
@@ -201,7 +212,7 @@ class AppleAdsTest extends TestCase
                 ->push(Fixtures::json('AppleAds/volume-pdf-scanner.json'), 200, ['RateLimit-Remaining' => '39', 'RateLimit-Reset' => '30']),
         ]);
 
-        $this->assertSame(75, $this->apple()->volumes('pdf scanner', ['2026-09-28'])['2026-09-28']);
+        $this->assertSame(59, $this->apple()->volumes('pdf scanner', ['2026-09-28'])['2026-09-28']);
         Sleep::assertSequence([Sleep::for(7)->seconds(), Sleep::for(20)->seconds()]);
     }
 
