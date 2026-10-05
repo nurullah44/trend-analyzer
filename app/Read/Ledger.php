@@ -76,8 +76,8 @@ final class Ledger
 
     /**
      * One Subject with everything behind it: its weekly series, its latest score
-     * worked out from that series, every Event, its Alarms, keyword metrics and
-     * the recent Items that mention it. Null when no Subject has that slug.
+     * worked out from that series, every Event, its Alarms, keyword metrics, its
+     * App Store Competition and the recent Items that mention it. Null when no Subject has that slug.
      *
      * @return array<string, mixed>|null
      */
@@ -97,6 +97,7 @@ final class Ledger
             'series' => $series,
             'score' => $subject->scored_week === null ? null : $this->scorer->score($series, $subject->scored_week)->toArray(),
             'keyword_metrics' => $subject->keyword_metrics,
+            'app_competition' => $subject->app_competition,
             'events' => $subject->events->sortBy('id')->values()->map(fn (Event $event) => [
                 'type' => $event->type,
                 'from' => $event->from_state,

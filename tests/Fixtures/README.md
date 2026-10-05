@@ -34,3 +34,7 @@ response shape in Apple's reference for `POST /v1/insights/apps/search-term-popu
 - `volume-pdf-scanner.json` — `searchTerm EQUALS "pdf scanner"` over three weeks, ranked in two genres one week.
 
 Replace them with recorded bodies once the first live call succeeds.
+
+`AppStoreSearch/pdf-scanner.json` was recorded on 2026-10-05 from
+`https://itunes.apple.com/search?term=pdf%20scanner&country=US&media=software&entity=software&limit=10`;
+results trimmed to the fields the analyzer keeps.

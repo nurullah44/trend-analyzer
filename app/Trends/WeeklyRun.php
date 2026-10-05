@@ -3,6 +3,7 @@
 namespace App\Trends;
 
 use App\Collection\SourceRegistry;
+use App\Collection\Sources\AppStoreSearch;
 use App\Collection\Sources\GoogleAds;
 use App\Enums\SubjectState;
 use App\Models\Source;
@@ -14,7 +15,8 @@ use Throwable;
 
 /**
  * The weekly run: measure every tracked Subject's missing weeks, score the
- * week, size the rising ones with Google Ads, close the ones a Mainstream
+ * week, size the rising ones with Google Ads and show the apps already
+ * answering their App Store search, close the ones a Mainstream
  * marker says have arrived, move the rest as the stored numbers say, and
  * publish an Alarm for each one that enters Trending.
  */
@@ -30,6 +32,7 @@ final class WeeklyRun
         private readonly Alarms $alarms,
         private readonly Mainstream $mainstream,
         private readonly GoogleAds $googleAds,
+        private readonly AppStoreSearch $appStore,
         private readonly SourceRegistry $sources,
     ) {}
 
@@ -76,6 +79,7 @@ final class WeeklyRun
 
             if (in_array($subject->state, $sized, true) || in_array($next[0] ?? null, $sized, true)) {
                 $this->validate($subject);
+                $this->compete($subject);
             }
 
             if (($why = $this->mainstream->arrived($subject, $series, $week)) !== null) {
@@ -146,6 +150,28 @@ final class WeeklyRun
         try {
             $metrics = $this->googleAds->metrics($subject->query);
             $subject->update(['keyword_metrics' => $metrics === null ? null : ['query' => $subject->query, ...$metrics], 'keyword_metrics_on' => now()->toDateString()]);
+            $source->update(['last_success_at' => now(), 'last_error' => null]);
+        } catch (Throwable $e) {
+            $source->update(['last_error' => Str::limit($e->getMessage(), 500)]);
+        }
+    }
+
+    /**
+     * Show the Competition for a Rising or Trending Subject, at most once per
+     * refresh period and query; a failure never blocks the run.
+     */
+    private function compete(Subject $subject): void
+    {
+        $fresh = ($subject->app_competition['query'] ?? null) === $subject->query
+            && $subject->app_competition_on?->gt(now()->subDays(config('trend.app_store_search.refresh_after_days')));
+        $source = Source::where('key', 'app_store_search')->where('enabled', true)->first();
+
+        if ($fresh || $source === null) {
+            return;
+        }
+
+        try {
+            $subject->update(['app_competition' => ['query' => $subject->query, ...$this->appStore->competition($subject->query)], 'app_competition_on' => now()->toDateString()]);
             $source->update(['last_success_at' => now(), 'last_error' => null]);
         } catch (Throwable $e) {
             $source->update(['last_error' => Str::limit($e->getMessage(), 500)]);

@@ -99,6 +99,14 @@ return [
         'max_candidates' => 20,
     ],
 
+    // Competition from the iTunes Search API (ADR-0011): the top apps App Store search returns
+    // for a Rising or Trending Subject's query, fetched at most once in this many days.
+    'app_store_search' => [
+        'storefront' => 'US',
+        'top_apps' => 10,
+        'refresh_after_days' => 28,
+    ],
+
     // Cases for trends:backtest: breakouts the score should catch before their marker,
     // and names that never broke out. Curate this list; it is the instrument's report card.
     'backtest' => [
@@ -113,6 +121,8 @@ return [
 
         // App Store demand (ADR-0011): what people type into App Store search, per genre, weekly.
         ['key' => 'apple_ads', 'name' => 'Apple Ads search-term popularity', 'kind' => 'api', 'geo' => 'US', 'roles' => 'discovery,measurement', 'enabled' => true, 'cost_note' => 'free; needs the Apple Ads API user\'s credentials and private key; weekly, 65 weeks kept', 'docs_url' => 'https://developer.apple.com/documentation/apple-ads-platform-api/query-app-search-term-popularity-data', 'class' => AppleAds::class],
+
+        ['key' => 'app_store_search', 'name' => 'iTunes Search API — App Store search results', 'kind' => 'api', 'geo' => 'US', 'roles' => 'validation', 'enabled' => true, 'cost_note' => 'free, no key; about 20 calls a minute; Competition for Rising and Trending Subjects, metadata only', 'docs_url' => 'https://performance-partners.apple.com/search-api'],
 
         // Supply: what is actually launching and being adopted. Deferred until after the foundation.
         ['key' => 'product_hunt', 'name' => 'Product Hunt GraphQL API', 'kind' => 'api', 'geo' => null, 'roles' => 'discovery', 'enabled' => false, 'cost_note' => 'deferred until after the foundation; free; needs a developer token', 'docs_url' => 'https://api.producthunt.com/v2/docs'],

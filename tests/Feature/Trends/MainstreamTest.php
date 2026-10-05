@@ -127,7 +127,7 @@ class MainstreamTest extends TestCase
 
         $this->app->make(WeeklyRun::class)->run($this->week);
 
-        Http::assertNothingSent();
+        Http::assertNotSent(fn ($request) => str_contains($request->url(), 'google'));
     }
 
     /** @param array<string, int> $views */

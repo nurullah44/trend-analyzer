@@ -23,6 +23,8 @@ class Subject extends Model
         'lead_time_days' => 'integer',
         'keyword_metrics' => 'array',
         'keyword_metrics_on' => 'date',
+        'app_competition' => 'array',
+        'app_competition_on' => 'date',
     ];
 
     /**
