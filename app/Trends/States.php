@@ -14,18 +14,22 @@ final class States
     public function next(SubjectState $state, Score $score, int $daysWatching): ?array
     {
         $config = config('trend.scoring');
-        $trending = $score->corroboration() >= $config['trending_corroboration'] && $score->trendScore >= $config['trending_score'];
-        $rising = $score->corroboration() >= 1 && $score->trendScore >= $config['rising_score'];
+        // Sustained growth beyond last year's is an Alarm on its own (ADR-0012): it held for weeks, so it is no spike.
+        $sustained = $score->sustained !== [];
+        $corroborated = $score->corroboration() >= $config['trending_corroboration'] && $score->trendScore >= $config['trending_score'];
+        $trending = $sustained || $corroborated;
+        $rising = $sustained || ($score->corroboration() >= 1 && $score->trendScore >= $config['rising_score']);
+        $why = $corroborated ? 'corroborated rise' : 'sustained growth';
 
         return match ($state) {
             SubjectState::Watching => match (true) {
-                $trending => [SubjectState::Trending, 'corroborated rise'],
+                $trending => [SubjectState::Trending, $why],
                 $rising => [SubjectState::Rising, 'accelerating'],
                 $daysWatching >= $config['archive_after_days'] => [SubjectState::Archived, "quiet for {$daysWatching} days"],
                 default => null,
             },
             SubjectState::Rising, SubjectState::Detrending => match (true) {
-                $trending => [SubjectState::Trending, 'corroborated rise'],
+                $trending => [SubjectState::Trending, $why],
                 $state === SubjectState::Detrending && $rising => [SubjectState::Rising, 'accelerating again'],
                 $state === SubjectState::Rising && ! $rising => [SubjectState::Detrending, 'the rise failed'],
                 default => null,

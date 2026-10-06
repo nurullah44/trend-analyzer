@@ -64,6 +64,19 @@ return [
         'trending_score' => 5.0,        // → Trending, together with…
         'trending_corroboration' => 2,  // …at least this many Sources rising
         'archive_after_days' => 30,     // Watching this long without rising → Archived
+
+        // Sustained growth (ADR-0012), read on App Store search instead of Velocity: a term that held
+        // its place for most of the recent weeks, above the weeks before, and above where it stood a
+        // year earlier. A week below Apple's top list counts below every ranked week, never as a number.
+        'growth' => [
+            'sources' => ['apple_ads'],
+            'history_weeks' => 56,      // measured this far back: the year-ago window ends 52 + 4 weeks ago
+            'recent_weeks' => 4,        // the weeks whose median is the Subject's level now…
+            'held_weeks' => 3,          // …ranked in at least this many of them, this week included
+            'prior_weeks' => 8,         // the weeks before them it must sit above
+            'year_ago_weeks' => 4,      // either side of the same week a year earlier: its best week there
+            'min_growth' => 3,          // popularity points above the weeks before, and above the year-ago best
+        ],
     ],
 
     // A Subject has arrived when one of its own measures holds over a line (ADR-0005).
@@ -85,8 +98,10 @@ return [
 
     // Apple Ads search-term popularity (ADR-0011): App Store demand, read for one storefront.
     // Each publication Monday the top terms of every genre are read (Apple ranks at most 500
-    // deep); a term that climbed at least `min_climb` places — a newcomer counted from just
-    // below the list — is a Candidate, the biggest climbs first, at most `max_candidates` a week.
+    // deep); a term ranked this week and last that climbed at least `min_climb` places since four
+    // weeks earlier — a newcomer counted from just below the list — is a Candidate (ADR-0012), the
+    // biggest climbs first. At most `max_candidates` a week are tracked, and at most `max_classified`
+    // are put to the Classifier, so searches for one brand, app or event never use up the places.
     'apple_ads' => [
         'client_id' => env('APPLE_ADS_CLIENT_ID'),
         'team_id' => env('APPLE_ADS_TEAM_ID'),
@@ -97,6 +112,7 @@ return [
         'top_terms' => 500,
         'min_climb' => 100,
         'max_candidates' => 20,
+        'max_classified' => 60,
     ],
 
     // Competition from the iTunes Search API (ADR-0011): the top apps App Store search returns

@@ -101,6 +101,8 @@ The first real week alarmed only on tech news, so App Store demand joined on 202
 
 The Apple charts stay deferred: they name single apps, and a single launch is not a trend.
 
+Since ADR-0012 a Subject's App Store series is measured 56 weeks back (one request, within the 65 Apple keeps), so its growth is compared with the same weeks a year earlier, and each publication Monday also reads the list from four weeks before.
+
 ## Geo rule
 
 **Global, or the United States — never Türkiye.**

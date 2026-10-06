@@ -70,21 +70,23 @@ class DiscoveryTest extends TestCase
         $this->assertSame(['Model Context Protocol'], array_keys($this->candidates()));
     }
 
-    public function test_app_store_terms_that_enter_or_climb_their_genres_top_list_are_candidates_with_their_genre(): void
+    public function test_app_store_terms_that_held_their_place_after_climbing_their_genres_top_list_are_candidates_with_their_genre(): void
     {
         $this->items('apple_ads', [
-            ['pdf scanner', 'PRODUCTIVITY_UTILITIES, rank 2, last week 3'],
-            ['step counter', 'HEALTH_FITNESS, rank 3, last week 250'],
-            ['ai note taker', 'PRODUCTIVITY_UTILITIES, rank 40, last week below 500'],
-            ['ai note taker', 'BUSINESS, rank 90, last week below 500'],
-            ['chatgpt', 'PRODUCTIVITY_UTILITIES, rank 1, last week below 500'],
+            ['pdf scanner', 'PRODUCTIVITY_UTILITIES, rank 2, last week 3, four weeks ago 4'],
+            ['step counter', 'HEALTH_FITNESS, rank 3, last week 250, four weeks ago 420'],
+            ['ai note taker', 'PRODUCTIVITY_UTILITIES, rank 40, last week 120, four weeks ago below 500'],
+            ['ai note taker', 'BUSINESS, rank 90, last week 300, four weeks ago below 500'],
+            ['chicago marathon', 'HEALTH_FITNESS, rank 5, last week below 500, four weeks ago below 500'],
+            ['chatgpt', 'PRODUCTIVITY_UTILITIES, rank 1, last week 1, four weeks ago below 500'],
         ]);
 
         $candidates = $this->candidates();
 
-        $this->assertSame(['ai note taker', 'step counter'], array_keys($candidates), 'new to the list counts from twice its depth, biggest climb first; a bare word is too broad and a small climb is not one');
+        $this->assertSame(['ai note taker', 'step counter'], array_keys($candidates), 'a newcomer counts from just below the list, biggest climb first; a one-week jump, a bare word and a small climb are not Candidates');
+        $this->assertSame(461, $candidates['ai note taker']['climb']);
         $this->assertSame(['productivity-utilities', 'business'], $candidates['ai note taker']['labels'], 'the genre rides along as a Label');
-        $this->assertSame(['App Store search in productivity-utilities: rank 40, last week below 500', 'App Store search in business: rank 90, last week below 500'], $candidates['ai note taker']['seen_in']);
+        $this->assertSame(['App Store search in productivity-utilities: rank 40, last week 120, four weeks ago below 500', 'App Store search in business: rank 90, last week 300, four weeks ago below 500'], $candidates['ai note taker']['seen_in']);
     }
 
     /** @param list<array{0: string, 1: ?string}> $rows */

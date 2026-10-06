@@ -45,6 +45,45 @@ class WeeklyRunTest extends TestCase
         $this->assertCount(10, $hn->asked, 'only the new week');
     }
 
+    public function test_app_store_search_is_measured_back_to_the_year_ago_window_and_alarms_on_sustained_growth(): void
+    {
+        $volumes = array_fill_keys(array_map(fn (int $back) => $this->week->subWeeks($back)->toDateString(), range(56, 4)), null);
+        $volumes = [...$volumes, '2026-08-31' => 49, '2026-09-07' => 51, '2026-09-14' => 54, '2026-09-21' => 56];
+        $apple = $this->measuring(new FakeMeasurement('apple_ads', $volumes), new FakeMeasurement('hacker_news', 0));
+        $subject = $this->app->make(Intake::class)->seed('ai maker');
+
+        $result = $this->app->make(WeeklyRun::class)->run($this->week);
+
+        $this->assertCount(57, $apple->asked, 'fifty-six weeks back and the scored week');
+        $this->assertSame(66, $subject->weeks()->count(), 'Hacker News still only its baseline');
+        $this->assertSame(['ai-maker' => 'trending'], $result['moved'], 'new demand that held for weeks, on App Store search alone');
+        $this->assertSame(['apple_ads'], $subject->alarms()->first()->evidence['sustained']);
+    }
+
+    public function test_a_week_the_source_no_longer_keeps_is_not_stored_as_below_its_list(): void
+    {
+        $answers = array_fill_keys(array_map(fn (int $back) => $this->week->subWeeks($back)->toDateString(), range(50, 0)), null);
+        $this->measuring(new FakeMeasurement('apple_ads', $answers, only: true));
+        $subject = $this->app->make(Intake::class)->seed('ai maker');
+
+        $this->app->make(WeeklyRun::class)->run($this->week);
+
+        $this->assertSame(51, $subject->weeks()->count(), 'the six weeks it left out stay unknown');
+        $this->assertSame(51, $subject->weeks()->whereNull('volume')->count(), 'below the list is still stored as no Volume');
+    }
+
+    public function test_a_scored_week_the_source_no_longer_keeps_moves_nothing(): void
+    {
+        $this->measuring(new FakeMeasurement('apple_ads', [], only: true), new FakeMeasurement('hacker_news', $this->rise()), new FakeMeasurement('stack_exchange', $this->rise()));
+        $subject = $this->app->make(Intake::class)->seed('Tidewave');
+
+        $result = $this->app->make(WeeklyRun::class)->run($this->week);
+
+        $this->assertSame([], $result['moved']);
+        $this->assertArrayHasKey('apple_ads', $result['failures']);
+        $this->assertNull($subject->fresh()->scored_week);
+    }
+
     public function test_re_running_the_same_week_changes_nothing(): void
     {
         $this->measuring(new FakeMeasurement('hacker_news', $this->rise()), new FakeMeasurement('stack_exchange', $this->rise()));

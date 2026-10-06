@@ -28,6 +28,12 @@ Issues live in GitHub Issues on `nurullah44/trend-analyzer`; see `docs/agents/is
 ## Subagents and review
 
 - Subagents and reviewers run through the OpenAI Codex CLI on `gpt-6.1-sol` at `high` reasoning, never another model or a lower level. Dispatch subagents only when really needed.
-- Every ticket is reviewed before its commit, read-only:
-  `codex review --uncommitted -c model="gpt-6.1-sol" -c model_reasoning_effort="high"`
+- Every ticket is reviewed before its commit, read-only, against the staged diff. `codex review` takes no custom prompt, so use `codex exec`, and keep the `< /dev/null` or it waits on stdin:
+  `git diff --cached > /tmp/ticket.diff && codex exec -m gpt-6.1-sol -c model_reasoning_effort="high" -s read-only -o review.md "<review prompt>" < /dev/null`
   Fix every critical or correctness finding, then commit.
+- **The review goal.** The analyzer exists to catch, early, trends the owner can build an app on. The reviewer judges the diff on three things, in this order:
+  1. **Correctness:** bugs, broken edge cases, data that a run would store wrong.
+  2. **The rules above:** glossary terms, no scraping, Sources only from `docs/sources.md`, statistics detect and the Classifier only answers typed questions, and the ADRs.
+  3. **The goal:** does the change bring app-buildable Subjects forward sooner, or let noise such as brands, events, news and people take their place?
+
+  The prompt tells the reviewer this goal and the rules, points it at the diff, and says not to run the test suite, which takes 20+ minutes under Codex. The agent runs the suite itself.

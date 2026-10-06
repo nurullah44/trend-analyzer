@@ -84,4 +84,72 @@ class ScorerTest extends TestCase
         $this->assertSame(SubjectState::Archived, (new States)->next(SubjectState::Watching, $score, 30)[0]);
         $this->assertNull((new States)->next(SubjectState::Watching, $score, 29));
     }
+
+    /**
+     * App Store popularity for the 57 weeks a Sustained growth score reads, every
+     * week below Apple's list unless given: weeks back from the scored one => popularity.
+     *
+     * @param  array<int, int>  $ranked
+     * @return array<string, ?int>
+     */
+    private static function apple(array $ranked): array
+    {
+        $weeks = [];
+
+        foreach (range(56, 0) as $back) {
+            $weeks[date('Y-m-d', strtotime(self::WEEK." -{$back} weeks"))] = $ranked[$back] ?? null;
+        }
+
+        return $weeks;
+    }
+
+    /** @return array<string, array{0: array<int, int>, 1: ?string}> */
+    public static function appStore(): array
+    {
+        return [
+            'new demand that held for weeks grows' => [[0 => 56, 1 => 54, 2 => 51, 3 => 49], 'sustained'],
+            'one week below the list still holds' => [[0 => 56, 1 => 54, 3 => 50], 'sustained'],
+            'a one-week jump is no growth' => [[0 => 66], null],
+            'two weeks are not yet held' => [[0 => 63, 1 => 61], null],
+            'flat demand is not growth' => [array_fill(0, 12, 60), null],
+            'a term that rose the same weeks a year ago is Seasonal' => [[0 => 56, 1 => 54, 2 => 51, 3 => 49, 50 => 55, 51 => 64, 54 => 50], 'seasonal'],
+            'a level below the ranked weeks before is no growth, however many weeks were below the list' => [[0 => 57, 1 => 57, 2 => 57, 3 => 57, 8 => 60, 9 => 60, 10 => 60, 11 => 60], null],
+            'beating last year by enough is growth again' => [[0 => 63, 1 => 61, 2 => 62, 3 => 60, 51 => 55, 52 => 53, 53 => 48], 'sustained'],
+        ];
+    }
+
+    /** @param array<int, int> $ranked */
+    #[DataProvider('appStore')]
+    public function test_app_store_search_counts_only_sustained_growth(array $ranked, ?string $growth): void
+    {
+        $score = (new Scorer)->score(['apple_ads' => self::apple($ranked)], self::WEEK);
+
+        $this->assertSame($growth === null ? [] : ['apple_ads'], $score->rising);
+        $this->assertSame($growth === 'sustained' ? ['apple_ads'] : [], $score->sustained);
+        $this->assertSame($growth === 'seasonal' ? ['apple_ads'] : [], $score->seasonal);
+    }
+
+    public function test_sustained_growth_beyond_last_years_alarms_on_its_own_and_seasonal_growth_does_not(): void
+    {
+        $growing = (new Scorer)->score(['apple_ads' => self::apple([0 => 56, 1 => 54, 2 => 51, 3 => 49])], self::WEEK);
+        $seasonal = (new Scorer)->score(['apple_ads' => self::apple([0 => 56, 1 => 54, 2 => 51, 3 => 49, 52 => 60])], self::WEEK);
+
+        $this->assertSame([SubjectState::Trending, 'sustained growth'], (new States)->next(SubjectState::Watching, $growing, 7));
+        $this->assertNotSame(SubjectState::Trending, (new States)->next(SubjectState::Watching, $seasonal, 7)[0] ?? null);
+        $this->assertNull((new States)->next(SubjectState::Trending, $growing, 7), 'it stays Trending while the growth holds');
+    }
+
+    public function test_weeks_apple_no_longer_keeps_are_unknown_not_below_the_list(): void
+    {
+        $weeks = array_slice(self::apple(array_fill(0, 4, 60)), -11, null, true);
+
+        $this->assertSame([], (new Scorer)->score(['apple_ads' => $weeks], self::WEEK)->rising, 'seven of the eight weeks before are too few to call it growth');
+    }
+
+    public function test_a_year_ago_window_never_measured_is_not_called_new(): void
+    {
+        $weeks = array_slice(self::apple([0 => 56, 1 => 54, 2 => 51, 3 => 49]), -12, null, true);
+
+        $this->assertSame(['apple_ads'], (new Scorer)->score(['apple_ads' => $weeks], self::WEEK)->seasonal);
+    }
 }

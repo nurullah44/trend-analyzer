@@ -1,0 +1,30 @@
+{
+  "result": {
+    "rows": [
+      {
+        "week": "2026-08-30",
+        "countryOrRegion": "US",
+        "genre": "HEALTH_FITNESS",
+        "searchTerm": "step counter",
+        "rankInGenre": 420,
+        "searchPopularity1to100": 47
+      },
+      {
+        "week": "2026-08-30",
+        "countryOrRegion": "US",
+        "genre": "PRODUCTIVITY_UTILITIES",
+        "searchTerm": "chatgpt",
+        "rankInGenre": 1,
+        "searchPopularity1to100": 100
+      },
+      {
+        "week": "2026-08-30",
+        "countryOrRegion": "US",
+        "genre": "PRODUCTIVITY_UTILITIES",
+        "searchTerm": "pdf scanner",
+        "rankInGenre": 4,
+        "searchPopularity1to100": 61
+      }
+    ]
+  }
+}

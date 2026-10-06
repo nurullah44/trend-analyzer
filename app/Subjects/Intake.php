@@ -25,9 +25,9 @@ final class Intake
     ) {}
 
     /**
-     * Turn one day's Items into Subjects, at most the daily cap of them. Names
-     * already known are skipped before the cap, so names ruled out once never
-     * crowd out new ones; Candidates over the cap are proposed again if they recur.
+     * Turn one day's Items into Subjects, at most the daily caps of them. Names
+     * already known are skipped before the caps, so names ruled out once never
+     * crowd out new ones; Candidates over a cap are proposed again if they recur.
      *
      * @return array<string, int> how many Candidates went to each outcome
      */
@@ -40,34 +40,107 @@ final class Intake
 
         $fresh = $candidates->reject(fn ($candidate, $name) => $known->contains(Subject::slugFor((string) $name)));
         $outcomes['known'] = $candidates->count() - $fresh->count();
+        $today = fn () => Subject::whereDate('first_seen_on', $day->toDateString())->whereRelation('events', 'type', 'discovered');
 
+        // App Store climbers have their own cap (ADR-0011): biggest climbs first, until the week's places are
+        // filled. One the Classifier rules out takes no place, so at most `max_classified` are asked (ADR-0012).
         // The caps are per day, not per run: a re-run of the same day only fills what is left of them.
-        $room = config('trend.discovery.max_candidates')
-            - Subject::whereDate('first_seen_on', $day->toDateString())->whereRelation('events', 'type', 'discovered')->count();
+        $climbed = fn () => $today()->whereHas('events', fn ($query) => $query->where('type', 'discovered')->whereNotNull('payload->climb'));
+        $places = config('trend.apple_ads.max_candidates') - $climbed()->where('state', '!=', SubjectState::Archived->value)->count();
+        $asks = config('trend.apple_ads.max_classified') - $climbed()->count();
 
-        // App Store climbers have their own cap, counted after known names are skipped (ADR-0011).
-        $climbers = config('trend.apple_ads.max_candidates')
-            - Subject::whereDate('first_seen_on', $day->toDateString())
-                ->whereHas('events', fn ($query) => $query->where('type', 'discovered')->whereNotNull('payload->climb'))
-                ->count();
-        $admitted = $fresh->filter(fn (array $candidate) => $candidate['climb'] !== null)
-            ->sortByDesc('climb')
-            ->take(max(0, $climbers))
-            ->keys();
-        $fresh = $fresh->filter(fn (array $candidate, $name) => $candidate['climb'] === null || $admitted->contains($name));
-
-        foreach ($fresh->take(max(0, $room)) as $name => $candidate) {
-            [$state, $payload, $label] = $this->route((string) $name, $candidate['seen_in']);
-
-            if ($candidate['climb'] !== null) {
-                $payload['climb'] = $candidate['climb'];
+        foreach ($fresh->filter(fn (array $candidate) => $candidate['climb'] !== null)->sortByDesc('climb') as $name => $candidate) {
+            if ($places <= 0 || $asks <= 0) {
+                break;
             }
 
-            $this->create((string) $name, $state, $day, 'discovered', $payload, [$label, ...$candidate['labels']]);
+            $state = $this->admit((string) $name, $candidate, $day);
             $outcomes[$state->value]++;
+            $asks--;
+            $places -= $state === SubjectState::Archived ? 0 : 1;
+        }
+
+        $room = config('trend.discovery.max_candidates')
+            - $today()->whereDoesntHave('events', fn ($query) => $query->where('type', 'discovered')->whereNotNull('payload->climb'))->count();
+
+        foreach ($fresh->filter(fn (array $candidate) => $candidate['climb'] === null)->take(max(0, $room)) as $name => $candidate) {
+            $outcomes[$this->admit((string) $name, $candidate, $day)->value]++;
         }
 
         return $outcomes;
+    }
+
+    /**
+     * App Store Subjects proposed before the Classifier was asked whether they are
+     * a need (ADR-0012), still in Watching or Backlog and never moved by a run or
+     * the owner, are asked once and routed as Intake routes a Candidate today.
+     *
+     * @return array<string, string> slug => the state each moved to
+     */
+    public function reclassify(): array
+    {
+        if (! $this->classifier->configured()) {
+            return [];
+        }
+
+        $moved = [];
+        $subjects = Subject::whereIn('state', [SubjectState::Watching->value, SubjectState::Backlog->value])
+            ->whereHas('events', fn ($query) => $query->where('type', 'discovered')->whereNotNull('payload->climb')->whereNull('payload->need'))
+            ->whereDoesntHave('events', fn ($query) => $query->whereIn('type', ['reclassified', 'state_changed', 'seeded']))
+            ->orderBy('id')
+            ->get();
+
+        foreach ($subjects as $subject) {
+            $discovered = $subject->events()->where('type', 'discovered')->first();
+            [$state, $payload, $label] = $this->route($subject->name, $discovered->payload['seen_in'] ?? [], true);
+
+            if (! isset($payload['need'])) {
+                continue; // the Classifier failed; asked again on the next run
+            }
+
+            DB::transaction(function () use ($subject, $state, $payload, $label, &$moved) {
+                // A run or the owner may have moved it while the Classifier answered.
+                $subject = Subject::whereKey($subject->id)->whereIn('state', [SubjectState::Watching->value, SubjectState::Backlog->value])
+                    ->whereDoesntHave('events', fn ($query) => $query->whereIn('type', ['reclassified', 'state_changed', 'seeded']))
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($subject === null) {
+                    return;
+                }
+
+                Event::create(['subject_id' => $subject->id, 'type' => 'reclassified', 'payload' => $payload, 'happened_at' => now()]);
+
+                if ($label !== null) {
+                    $subject->labels()->syncWithoutDetaching([Label::firstOrCreate(['name' => $label])->id]);
+                }
+
+                if ($state !== $subject->state) {
+                    $subject->moveTo($state, match ($state) {
+                        SubjectState::Archived => 'a search for one brand, app or event',
+                        SubjectState::Watching => 'a search for a kind of app',
+                        default => 'the Classifier was unsure',
+                    }, $payload);
+                    $moved[$subject->slug] = $state->value;
+                }
+            });
+        }
+
+        return $moved;
+    }
+
+    /** @param array{seen_in: list<string>, labels: list<string>, climb: ?int} $candidate */
+    private function admit(string $name, array $candidate, CarbonImmutable $day): SubjectState
+    {
+        [$state, $payload, $label] = $this->route($name, $candidate['seen_in'], $candidate['climb'] !== null);
+
+        if ($candidate['climb'] !== null) {
+            $payload['climb'] = $candidate['climb'];
+        }
+
+        $this->create($name, $state, $day, 'discovered', $payload, [$label, ...$candidate['labels']]);
+
+        return $state;
     }
 
     /** A Seed skips the Classifier and starts in Watching; seeding a Backlog or Archived Subject promotes it. */
@@ -90,6 +163,9 @@ final class Intake
             $subject->update(['query' => trim($query), 'scored_week' => null]);
         }
 
+        // The owner chose it: no later reclassification may overrule that (ADR-0012).
+        Event::create(['subject_id' => $subject->id, 'type' => 'seeded', 'payload' => ['query' => $subject->query], 'happened_at' => now()]);
+
         if (in_array($subject->state, [SubjectState::Backlog, SubjectState::Archived], true)) {
             $subject->moveTo(SubjectState::Watching, 'seeded by the owner');
         }
@@ -98,29 +174,31 @@ final class Intake
     }
 
     /**
+     * A Candidate the Classifier rules out is kept as Archived, so it is never classified again.
+     *
      * @param  list<string>  $seenIn
-     *                                A Candidate the Classifier rules out is kept as Archived, so it is never classified again.
+     * @param  bool  $appStore  an App Store search term, asked whether it is a need (ADR-0012)
      * @return array{0: SubjectState, 1: array<string, mixed>, 2: ?string}
      */
-    private function route(string $name, array $seenIn): array
+    private function route(string $name, array $seenIn, bool $appStore = false): array
     {
         if (! $this->classifier->configured()) {
             return [SubjectState::Backlog, ['seen_in' => $seenIn, 'classifier' => 'not configured'], null];
         }
 
         try {
-            $answer = $this->classifier->classify($name, $seenIn);
+            $answer = $this->classifier->classify($name, $seenIn, $appStore);
         } catch (Throwable $e) {
             return [SubjectState::Backlog, ['seen_in' => $seenIn, 'classifier' => 'failed: '.Str::limit($e->getMessage(), 200)], null];
         }
 
         $state = match (true) {
-            $answer->specific >= config('trend.classifier.track_at') => SubjectState::Watching,
-            $answer->specific >= config('trend.classifier.backlog_at') => SubjectState::Backlog,
+            $answer->probability >= config('trend.classifier.track_at') => SubjectState::Watching,
+            $answer->probability >= config('trend.classifier.backlog_at') => SubjectState::Backlog,
             default => SubjectState::Archived,
         };
 
-        return [$state, ['seen_in' => $seenIn, 'specific' => $answer->specific, 'label' => $answer->label], $answer->label];
+        return [$state, ['seen_in' => $seenIn, $answer->question => $answer->probability, 'label' => $answer->label], $answer->label];
     }
 
     /**

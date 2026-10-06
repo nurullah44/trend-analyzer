@@ -29,26 +29,32 @@ final class Series
     public function measure(Subject $subject, CarbonImmutable $week, ?array $only = null): array
     {
         $failures = [];
-        $weeks = $this->horizon($week);
 
         foreach ($this->measurementSources($only) as $source) {
+            $weeks = $this->horizon($week, $source->key);
             $known = $subject->weeks()->where('source_id', $source->id)->where('query', $subject->query)->pluck('week')->all();
 
             try {
                 $missing = array_values(array_diff($weeks, $known));
                 $volumes = $missing === [] ? [] : $this->sources->measurements()[$source->key]->volumes($subject->query, $missing);
 
-                foreach ($missing as $week) {
+                // A week left out of the answer is one the Source no longer keeps: unknown, so nothing is stored.
+                foreach (array_filter($missing, fn (string $monday) => array_key_exists($monday, $volumes)) as $monday) {
                     SubjectWeek::create([
                         'subject_id' => $subject->id,
                         'source_id' => $source->id,
                         'query' => $subject->query,
-                        'week' => $week,
-                        'volume' => $volumes[$week] ?? null,
+                        'week' => $monday,
+                        'volume' => $volumes[$monday] ?? null,
                     ]);
                 }
 
                 $source->update(['last_success_at' => now(), 'last_error' => null]);
+
+                // Without the scored week itself the week is incomplete, so it can move nothing.
+                if (in_array($week->toDateString(), $missing, true) && ! array_key_exists($week->toDateString(), $volumes)) {
+                    $failures[$source->key] = "{$source->key} no longer keeps the week of {$week->toDateString()}";
+                }
             } catch (Throwable $e) {
                 $failures[$source->key] = $e->getMessage();
                 $source->update(['last_error' => Str::limit($e->getMessage(), 500)]);
@@ -74,12 +80,12 @@ final class Series
         return $series;
     }
 
-    /** @return list<string> the weeks a score needs: the baseline and the week itself */
-    private function horizon(CarbonImmutable $week): array
+    /** @return list<string> the weeks a score needs from the Source: its lookback and the week itself */
+    private function horizon(CarbonImmutable $week, string $source): array
     {
         return array_map(
             fn (int $back) => $week->subWeeks($back)->toDateString(),
-            range(config('trend.scoring.baseline_weeks'), 0),
+            range(Scorer::lookback($source), 0),
         );
     }
 

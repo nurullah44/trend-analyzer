@@ -14,7 +14,8 @@ use Illuminate\Support\Str;
  *
  * A Candidate is two to five words long and either recurs — mentioned by at
  * least the configured number of Items in one day — or is an App Store search
- * term that entered or climbed its genre's top list that week (ADR-0011). A bare
+ * term that held its genre's top list two weeks running after climbing it
+ * (ADR-0011, ADR-0012). A bare
  * word ("Apple", "python") is too broad to measure cleanly, so it is never
  * proposed; the owner can still seed one.
  */
@@ -57,9 +58,10 @@ final class Discovery
     }
 
     /**
-     * App Store search terms that entered their genre's top list or climbed it by
-     * at least the configured places — a newcomer counted from just below the
-     * list — the biggest climbs first. Each counts as
+     * App Store search terms ranked in their genre's top list this week and last
+     * that climbed it by at least the configured places since four weeks earlier —
+     * a newcomer counted from just below the list — the biggest climbs first
+     * (ADR-0012). Each counts as
      * recurring and carries its genre; Intake caps how many a week become Subjects.
      *
      * @param  Collection<int, Item>  $items
@@ -71,14 +73,19 @@ final class Discovery
         $names = $climbs = $titles = $labels = [];
 
         foreach ($items as $item) {
-            if (! preg_match('/^(\w+), rank (\d+), last week (?:(\d+)|below (\d+))$/', (string) $item->excerpt, $match)
+            if (! preg_match('/^(\w+), rank (\d+), last week (\d+|below \d+), four weeks ago (?:(\d+)|below (\d+))$/', (string) $item->excerpt, $match)
                 || $this->topics([$item->title]) === []) {
                 continue;
             }
 
-            // A term new to the list climbed at least from just below it.
-            $ranked = ($match[3] ?? '') !== '';
-            $before = $ranked ? (int) $match[3] : (int) $match[4] + 1;
+            // A one-week jump is not a Candidate: the term must have held its place last week too (ADR-0012).
+            if (! ctype_digit($match[3])) {
+                continue;
+            }
+
+            // A term new to the list since four weeks earlier climbed at least from just below it.
+            $ranked = ($match[4] ?? '') !== '';
+            $before = $ranked ? (int) $match[4] : (int) $match[5] + 1;
             $climb = $before - (int) $match[2];
 
             if ($climb < $config['min_climb']) {
@@ -89,7 +96,7 @@ final class Discovery
             $genre = Str::slug(Str::lower($match[1]));
             $names[$slug] = $item->title;
             $climbs[$slug] = max($climbs[$slug] ?? PHP_INT_MIN, $climb);
-            $titles[$slug]["App Store search in {$genre}: rank {$match[2]}, last week ".($ranked ? $before : "below {$match[4]}")] = true;
+            $titles[$slug]["App Store search in {$genre}: rank {$match[2]}, last week {$match[3]}, four weeks ago ".($ranked ? $before : "below {$match[5]}")] = true;
             $labels[$slug][$genre] = true;
         }
 

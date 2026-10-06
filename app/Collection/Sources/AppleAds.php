@@ -27,7 +27,8 @@ use UnexpectedValueException;
  * Apple publishes on Mondays at 07:00 UTC and keeps for 65 weeks.
  *
  * Discovery reads, on each publication Monday, the top terms of every genre for
- * the week that just ended, with the rank each one held the week before. The
+ * the week that just ended, with the rank each one held the week before and
+ * four weeks before (ADR-0012). The
  * term is the Item's title, Apple's popularity (1–100) its measured quantity.
  * Measurement asks for one query by name: a week's Volume is the popularity
  * Apple reports for it, Apple's week answering for the ISO week that starts the
@@ -91,27 +92,17 @@ final class AppleAds implements NeedsCredentials, PublishesWeekly, SourceCollect
             throw new UnexpectedValueException("Apple has not published the week of {$week->toDateString()} yet.");
         }
 
-        $previous = $this->ranked($week->subWeek(), $depth);
+        $before = $this->ranks($week->subWeek(), $depth);
+        $earlier = $this->ranks($week->subWeeks(4), $depth);
+        $below = "below {$depth}";
 
-        // Without last week's list every term would look new; that must fail, not propose them all.
-        if ($previous === []) {
-            throw new UnexpectedValueException("Apple has no list for the week of {$week->subWeek()->toDateString()} to compare with.");
-        }
-
-        $before = [];
-
-        foreach ($previous as $row) {
-            $before[$row['genre'].':'.$row['searchTerm']] = (int) $row['rankInGenre'];
-        }
-
-        $items = array_map(function (array $row) use ($before, $week, $depth) {
+        $items = array_map(function (array $row) use ($before, $earlier, $week, $below) {
             $id = $row['genre'].':'.$row['searchTerm'];
-            $lastWeek = isset($before[$id]) ? 'last week '.$before[$id] : "last week below {$depth}";
 
             return new CollectedItem(
                 externalId: $id,
                 title: (string) $row['searchTerm'],
-                excerpt: "{$row['genre']}, rank {$row['rankInGenre']}, {$lastWeek}",
+                excerpt: "{$row['genre']}, rank {$row['rankInGenre']}, last week ".($before[$id] ?? $below).', four weeks ago '.($earlier[$id] ?? $below),
                 publishedAt: $week,
                 measuredQuantity: (int) ($row['searchPopularity1to100'] ?? 0),
             );
@@ -127,9 +118,10 @@ final class AppleAds implements NeedsCredentials, PublishesWeekly, SourceCollect
         }
 
         sort($weeks);
-        $volumes = array_fill_keys($weeks, null);
         $oldest = $this->latestPublishedWeek()->subWeeks(self::RETAINED_WEEKS - 1);
+        // A week Apple no longer keeps is left out: unknown, never a week the term was below the list.
         $asked = array_values(array_filter($weeks, fn (string $monday) => CarbonImmutable::parse($monday, 'UTC')->subDay()->gte($oldest)));
+        $volumes = array_fill_keys($asked, null);
 
         if ($asked === []) {
             return $volumes;
@@ -199,6 +191,29 @@ final class AppleAds implements NeedsCredentials, PublishesWeekly, SourceCollect
         }
 
         return false;
+    }
+
+    /**
+     * Each term's rank in its genre for an earlier week, keyed genre:term. Without
+     * that week's list every term would look new; that must fail, not propose them all.
+     *
+     * @return array<string, int>
+     */
+    private function ranks(CarbonImmutable $sunday, int $depth): array
+    {
+        $rows = $this->ranked($sunday, $depth);
+
+        if ($rows === []) {
+            throw new UnexpectedValueException("Apple has no list for the week of {$sunday->toDateString()} to compare with.");
+        }
+
+        $ranks = [];
+
+        foreach ($rows as $row) {
+            $ranks[$row['genre'].':'.$row['searchTerm']] = (int) $row['rankInGenre'];
+        }
+
+        return $ranks;
     }
 
     /**

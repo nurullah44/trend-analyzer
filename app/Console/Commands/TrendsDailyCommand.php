@@ -17,7 +17,8 @@ use Illuminate\Console\Command;
  * Items for, then propose each collected day's Candidates. A missed or
  * interrupted day heals itself. A Source that publishes weekly is only asked
  * for the day it publishes on — today included, once it has published, so the
- * weekly run that follows already measures what it proposed.
+ * weekly run that follows already measures what it proposed. App Store
+ * Subjects proposed before ADR-0012 are asked the Classifier's newer question once.
  */
 class TrendsDailyCommand extends Command
 {
@@ -53,6 +54,10 @@ class TrendsDailyCommand extends Command
                 $outcomes = $intake->discover($day);
                 $this->line("{$day->toDateString()} Candidates: ".collect($outcomes)->map(fn (int $count, string $outcome) => "{$count} {$outcome}")->join(', '));
             }
+        }
+
+        foreach ($intake->reclassify() as $slug => $state) {
+            $this->line("Reclassified {$slug}: {$state}");
         }
 
         return $failed ? self::FAILURE : self::SUCCESS;

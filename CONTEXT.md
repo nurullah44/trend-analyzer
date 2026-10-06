@@ -49,7 +49,7 @@ How large the opportunity behind a rising Subject could become — small, medium
 _Avoid_: score, size, importance
 
 **Seasonal**:
-A Subject that already rose in the same period a year earlier, so its rise is expected rather than new. Not computed until a year of series exists.
+A Subject that already rose in the same period a year earlier, so its rise is expected rather than new. Computed on App Store search, where Apple keeps more than a year of weeks: Sustained growth that does not clear the Subject's best week around the same time a year earlier is Seasonal. Elsewhere it waits until a year of series exists.
 
 **Discovery**:
 Reading what a Source published on one day only to propose candidates. Discovery never measures anything.
@@ -58,10 +58,10 @@ Reading what a Source published on one day only to propose candidates. Discovery
 Asking a Source how many items matched one Subject's query in one week. Measurement Sources answer for any past range, so a newly tracked Subject is backfilled at once.
 
 **Candidate**:
-A topic of two to five words that discovery proposed and that is not yet a Subject: a Stack Exchange tag or a phrase in titles mentioned by several Items on one day, or an App Store search term that entered or climbed its genre's top list that week. A bare word is too broad to be one. The Classifier decides whether it is tracked, waits in Backlog, or is Archived.
+A topic of two to five words that discovery proposed and that is not yet a Subject: a Stack Exchange tag or a phrase in titles mentioned by several Items on one day, or an App Store search term that held its genre's top list two weeks running after climbing it over four weeks — a one-week jump is not one. A bare word is too broad to be one. The Classifier decides whether it is tracked, waits in Backlog, or is Archived.
 
 **Classifier**:
-Jev, TypeSafe's System One model. It answers typed questions about a candidate — is it a specific, nameable thing, and which Label fits — with probabilities. It never measures, never scores, and never decides that something is emerging.
+Jev, TypeSafe's System One model. It answers typed questions about a candidate — is it a specific, nameable thing (for an App Store search term instead: is it a search for a kind of app or a task, rather than for one brand, title, person or dated event), and which Label fits — with probabilities. It never measures, never scores, and never decides that something is emerging.
 
 **Seed**:
 A Subject the owner names by hand, with its query. It skips the Classifier and starts in Watching.
@@ -107,6 +107,10 @@ How many items matching the Subject's query a Source published in a given week. 
 
 **Velocity**:
 This week's Volume against the Subject's own trailing eight weeks on the same Source: how many spreads above the baseline's median it sits. A year-ago comparison joins once a year of history exists.
+
+**Sustained growth**:
+How App Store search shows a Subject rising, read instead of its Velocity: ranked in most of the last four weeks, this one included, with their median popularity above the eight weeks before. A week below Apple's list counts below every ranked week, never as a number. Sustained growth that clears the Subject's best week around the same time a year earlier is an Alarm on its own; otherwise it is Seasonal and only counts towards Corroboration.
+_Avoid_: momentum, streak
 
 **Corroboration**:
 How many independent Sources show the Subject rising in the same week.

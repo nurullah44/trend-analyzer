@@ -15,6 +15,7 @@ interface SourceMeasurement
     /**
      * The Volume for the query in each ISO week starting on the given Mondays
      * (UTC, Y-m-d), or null for a week the Source has nothing it can measure.
+     * A week older than the Source keeps is left out: unknown, not nothing.
      * A Source may answer all the weeks in one request.
      *
      * @param  list<string>  $weeks

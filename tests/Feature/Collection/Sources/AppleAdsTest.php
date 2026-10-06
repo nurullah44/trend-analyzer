@@ -78,7 +78,7 @@ class AppleAdsTest extends TestCase
             && $request->hasHeader('X-AP-Context', 'adAccountId=4242'));
     }
 
-    public function test_a_publication_monday_yields_every_genres_top_terms_with_last_weeks_rank(): void
+    public function test_a_publication_monday_yields_every_genres_top_terms_with_their_ranks_last_week_and_four_weeks_earlier(): void
     {
         $this->travelTo(CarbonImmutable::parse('2026-10-06 09:00', 'UTC'));
         $this->fakeApple(fn (Request $request) => Http::response(Fixtures::json('AppleAds/top-'.$request['timeRange']['start'].'.json')));
@@ -88,8 +88,8 @@ class AppleAdsTest extends TestCase
         $this->assertSame('2026-10-05', $day->day->toDateString(), 'the Items are observed on the day Apple published them');
         $this->assertSame(['HEALTH_FITNESS:step counter', 'PRODUCTIVITY_UTILITIES:chatgpt', 'PRODUCTIVITY_UTILITIES:pdf scanner', 'PRODUCTIVITY_UTILITIES:ai note taker'], array_map(fn ($item) => $item->externalId, $day->items));
         $this->assertSame('step counter', $day->items[0]->title);
-        $this->assertSame('HEALTH_FITNESS, rank 3, last week 250', $day->items[0]->excerpt);
-        $this->assertSame('PRODUCTIVITY_UTILITIES, rank 40, last week below 500', $day->items[3]->excerpt, 'absent from the list the week before');
+        $this->assertSame('HEALTH_FITNESS, rank 3, last week 250, four weeks ago 420', $day->items[0]->excerpt);
+        $this->assertSame('PRODUCTIVITY_UTILITIES, rank 40, last week below 500, four weeks ago below 500', $day->items[3]->excerpt, 'absent from the earlier lists');
         $this->assertSame(60, $day->items[0]->measuredQuantity, "Apple's popularity, never computed");
         $this->assertSame('2026-09-27', $day->items[0]->publishedAt->toDateString(), 'the Sunday that started the week');
 
@@ -100,6 +100,7 @@ class AppleAdsTest extends TestCase
         Http::assertSent(fn (Request $request) => str_contains($request->url(), self::QUERY)
             && $request['timeRange']['start'] === '2026-09-20'
             && in_array(['field' => 'rankInGenre', 'operator' => 'LESS_THAN_OR_EQUAL_TO', 'value' => 500], $request['filters'], true));
+        Http::assertSent(fn (Request $request) => str_contains($request->url(), self::QUERY) && $request['timeRange']['start'] === '2026-08-30');
     }
 
     public function test_apple_publishes_on_monday_at_seven_and_on_no_other_day(): void
@@ -133,6 +134,18 @@ class AppleAdsTest extends TestCase
 
         $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage('no list for the week of 2026-09-20');
+
+        $this->apple()->collectForDay(new Source(['key' => 'apple_ads']), CarbonImmutable::parse('2026-10-05', 'UTC'));
+    }
+
+    public function test_without_the_list_four_weeks_earlier_no_term_is_called_new(): void
+    {
+        $this->fakeApple(fn (Request $request) => Http::response($request['timeRange']['start'] === '2026-08-30'
+            ? ['result' => ['rows' => []]]
+            : Fixtures::json('AppleAds/top-'.$request['timeRange']['start'].'.json')));
+
+        $this->expectException(UnexpectedValueException::class);
+        $this->expectExceptionMessage('no list for the week of 2026-08-30');
 
         $this->apple()->collectForDay(new Source(['key' => 'apple_ads']), CarbonImmutable::parse('2026-10-05', 'UTC'));
     }
@@ -188,7 +201,7 @@ class AppleAdsTest extends TestCase
         $this->travelTo(CarbonImmutable::parse('2026-10-05 08:00', 'UTC'));
         $this->fakeApple(fn () => Http::response(Fixtures::json('AppleAds/volume-pdf-scanner.json')));
 
-        $this->assertSame(['2025-06-30' => null, '2025-07-07' => null], $this->apple()->volumes('pdf scanner', ['2025-06-30', '2025-07-07']));
+        $this->assertSame(['2025-07-07' => null], $this->apple()->volumes('pdf scanner', ['2025-06-30', '2025-07-07']), 'the week before is no longer kept');
         Http::assertSent(fn (Request $request) => str_contains($request->url(), self::QUERY) && ($request['timeRange']['start'] ?? null) === '2025-07-06');
     }
 
@@ -196,7 +209,7 @@ class AppleAdsTest extends TestCase
     {
         $this->travelTo(CarbonImmutable::parse('2026-10-05 08:00', 'UTC'));
 
-        $this->assertSame(['2024-11-25' => null], $this->apple()->volumes('deepseek', ['2024-11-25']));
+        $this->assertSame([], $this->apple()->volumes('deepseek', ['2024-11-25']), 'unknown, not below the list');
         Http::assertNothingSent();
     }
 

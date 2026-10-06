@@ -12,12 +12,16 @@ final readonly class Score
      * @param  array<string, int>  $volumes  this week's Volume per Source
      * @param  array<string, float>  $velocities  per Source with enough baseline to judge
      * @param  list<string>  $rising  the Sources that count towards Corroboration
+     * @param  list<string>  $sustained  the Sources showing Sustained growth beyond last year's (ADR-0012)
+     * @param  list<string>  $seasonal  the Sources showing Sustained growth it already had a year earlier
      */
     public function __construct(
         public array $volumes,
         public array $velocities,
         public array $rising,
         public float $trendScore,
+        public array $sustained = [],
+        public array $seasonal = [],
     ) {}
 
     public function corroboration(): int
@@ -32,6 +36,8 @@ final readonly class Score
             'volumes' => $this->volumes,
             'velocities' => array_map(fn (float $velocity) => round($velocity, 2), $this->velocities),
             'rising' => $this->rising,
+            'sustained' => $this->sustained,
+            'seasonal' => $this->seasonal,
             'corroboration' => $this->corroboration(),
             'trend_score' => round($this->trendScore, 2),
         ];

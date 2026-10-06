@@ -5,8 +5,8 @@ namespace App\Trends;
 use Carbon\CarbonImmutable;
 
 /**
- * Velocity, Corroboration and the Trend Score as pure functions over a weekly
- * series (ADR-0004). The thresholds are a deliberately crude placeholder until
+ * Velocity, Sustained growth, Corroboration and the Trend Score as pure
+ * functions over a weekly series (ADR-0004, ADR-0012). The thresholds are a deliberately crude placeholder until
  * Verdicts and the backtest tune them.
  */
 final class Scorer
@@ -16,7 +16,7 @@ final class Scorer
      */
     public function score(array $series, string $week): Score
     {
-        $volumes = $velocities = $rising = [];
+        $volumes = $velocities = $rising = $sustained = $seasonal = [];
         $config = config('trend.scoring');
 
         foreach ($series as $source => $weeks) {
@@ -29,13 +29,23 @@ final class Scorer
             $volumes[$source] = $volume;
             $velocity = $this->velocity($volume, $this->baseline($weeks, $week));
 
-            if ($velocity === null) {
+            if ($velocity !== null) {
+                $velocities[$source] = $velocity;
+            }
+
+            // On a Source read for Sustained growth a one-week jump never counts: only growth that held does.
+            if (in_array($source, $config['growth']['sources'], true)) {
+                $growth = $this->growth($weeks, $week);
+
+                if ($growth !== null) {
+                    $rising[] = $source;
+                    $growth === 'seasonal' ? $seasonal[] = $source : $sustained[] = $source;
+                }
+
                 continue;
             }
 
-            $velocities[$source] = $velocity;
-
-            if ($velocity >= $config['rising_velocity'] && $volume >= $config['min_volume']) {
+            if ($velocity !== null && $velocity >= $config['rising_velocity'] && $volume >= $config['min_volume']) {
                 $rising[] = $source;
             }
         }
@@ -45,7 +55,85 @@ final class Scorer
             $velocities,
         ));
 
-        return new Score($volumes, $velocities, $rising, $trendScore);
+        return new Score($volumes, $velocities, $rising, $trendScore, $sustained, $seasonal);
+    }
+
+    /** How many weeks before the scored one a Source's series must reach. */
+    public static function lookback(string $source): int
+    {
+        $config = config('trend.scoring');
+
+        return in_array($source, $config['growth']['sources'], true)
+            ? max($config['baseline_weeks'], $config['growth']['history_weeks'])
+            : $config['baseline_weeks'];
+    }
+
+    /**
+     * Sustained growth (ADR-0012): ranked this week and in most of the recent
+     * weeks, their median above the weeks before, and — unless it is Seasonal —
+     * above its best week around the same time a year earlier. A week below the
+     * Source's list is ordered below every ranked week and never averaged as a
+     * number: an even median takes the lower middle for now and the upper middle
+     * for before. A week never measured or no longer kept makes the answer
+     * unknown, never growth.
+     *
+     * @param  array<string, ?int>  $weeks
+     * @return 'sustained'|'seasonal'|null
+     */
+    private function growth(array $weeks, string $week): ?string
+    {
+        $config = config('trend.scoring.growth');
+        $monday = CarbonImmutable::parse($week, 'UTC');
+        $measured = fn (array $backs) => array_values(array_map(
+            fn (string $day) => $weeks[$day],
+            array_filter(array_map(fn (int $back) => $monday->subWeeks($back)->toDateString(), $backs), fn (string $day) => array_key_exists($day, $weeks)),
+        ));
+
+        $recent = $measured(range(0, $config['recent_weeks'] - 1));
+        $prior = $measured(range($config['recent_weeks'], $config['recent_weeks'] + $config['prior_weeks'] - 1));
+
+        if (count($recent) < $config['recent_weeks'] || count(array_filter($recent, fn (?int $volume) => $volume !== null)) < $config['held_weeks']
+            || count($prior) < $config['prior_weeks']) {
+            return null;
+        }
+
+        $now = $this->censoredMedian($recent, upper: false);
+
+        if ($now === null || ! $this->clears($now, $this->censoredMedian($prior, upper: true), $config['min_growth'])) {
+            return null;
+        }
+
+        $window = range(52 - $config['year_ago_weeks'], 52 + $config['year_ago_weeks']);
+        $yearAgo = $measured($window);
+
+        // Without the whole year-ago window it cannot be told apart from a season.
+        if (count($yearAgo) < count($window)) {
+            return 'seasonal';
+        }
+
+        $ranked = array_filter($yearAgo, fn (?int $volume) => $volume !== null);
+
+        return $this->clears($now, $ranked === [] ? null : max($ranked), $config['min_growth']) ? 'sustained' : 'seasonal';
+    }
+
+    /** Whether a ranked level clears another by the margin; anything clears a week below the list. */
+    private function clears(int $level, ?int $other, int $margin): bool
+    {
+        return $other === null || $level >= $other + $margin;
+    }
+
+    /**
+     * The middle of weeks where below the list (null) sorts under every ranked
+     * week; for an even count the lower or the upper of the two middles.
+     *
+     * @param  list<?int>  $weeks
+     */
+    private function censoredMedian(array $weeks, bool $upper): ?int
+    {
+        usort($weeks, fn (?int $a, ?int $b) => ($a ?? PHP_INT_MIN) <=> ($b ?? PHP_INT_MIN));
+        $count = count($weeks);
+
+        return $weeks[$count % 2 ? intdiv($count, 2) : intdiv($count, 2) - ($upper ? 0 : 1)];
     }
 
     /**

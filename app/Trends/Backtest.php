@@ -36,10 +36,8 @@ final class Backtest
     public function replay(string $query, CarbonImmutable $from, CarbonImmutable $to, ?array $only = null): array
     {
         $result = ['query' => $query, 'rising' => null, 'trending' => null, 'mainstream' => null, 'lead_weeks' => null, 'failure' => null];
-        $baseline = config('trend.scoring.baseline_weeks');
-
         try {
-            $series = $this->measure($query, $from->subWeeks($baseline), $to, $only);
+            $series = $this->measure($query, $from, $to, $only);
             $subject = new Subject(['query' => $query, 'keyword_metrics' => $this->keywordMetrics($query)]);
         } catch (Throwable $e) {
             return ['failure' => $e->getMessage()] + $result;
@@ -100,12 +98,19 @@ final class Backtest
             fn (SourceMeasurement $source, string $key) => in_array($key, $enabled, true) && ($only === null || in_array($key, $only, true)),
             ARRAY_FILTER_USE_BOTH,
         );
-        $weeks = [];
+        $series = [];
 
-        for ($week = $from; $week <= $to; $week = $week->addWeek()) {
-            $weeks[] = $week->toDateString();
+        // Each Source from as far back as its score looks.
+        foreach ($measurements as $key => $measurement) {
+            $weeks = [];
+
+            for ($week = $from->subWeeks(Scorer::lookback($key)); $week <= $to; $week = $week->addWeek()) {
+                $weeks[] = $week->toDateString();
+            }
+
+            $series[$key] = $measurement->volumes($query, $weeks);
         }
 
-        return array_map(fn (SourceMeasurement $measurement) => $measurement->volumes($query, $weeks), $measurements);
+        return $series;
     }
 }

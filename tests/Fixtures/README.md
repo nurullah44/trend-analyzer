@@ -30,7 +30,7 @@ values arrive as strings and bids are micros of the account currency (TRY).
 
 - `volume-pdf-scanner.json` was recorded on 2026-10-05 with `searchTerm EQUALS "pdf scanner"`, `fields=["searchPopularity1to100"]`
   and the weeks starting 13 September to 27 September (`WEEKLY_SUN_SAT`).
-- `top-2026-09-27.json`, `top-2026-09-20.json` are **invented** small lists in the recorded shape (`result.rows`, each with `week`,
+- `top-2026-09-27.json`, `top-2026-09-20.json`, `top-2026-08-30.json` (four weeks earlier, ADR-0012) are **invented** small lists in the recorded shape (`result.rows`, each with `week`,
   `countryOrRegion`, `genre`, `searchTerm` and the requested fields): a real top 500 of every genre is 7,500 rows of mostly brand names.
 
 `AppStoreSearch/pdf-scanner.json` was recorded on 2026-10-05 from

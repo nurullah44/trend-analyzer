@@ -76,9 +76,9 @@ class IntakeTest extends TestCase
     public function test_an_app_store_candidate_carries_its_genre_beside_the_classifiers_label(): void
     {
         config(['trend.classifier.key' => 'jv_test']);
-        Item::create(['source_id' => Source::where('key', 'apple_ads')->value('id'), 'external_id' => 'HEALTH_FITNESS:step counter', 'title' => 'step counter', 'excerpt' => 'HEALTH_FITNESS, rank 3, last week 250', 'observed_on' => '2026-09-21']);
+        Item::create(['source_id' => Source::where('key', 'apple_ads')->value('id'), 'external_id' => 'HEALTH_FITNESS:step counter', 'title' => 'step counter', 'excerpt' => 'HEALTH_FITNESS, rank 3, last week 250, four weeks ago 250', 'observed_on' => '2026-09-21']);
         Http::fake(['api.typesafe.ai/v1/systemone' => Http::response(['answers' => [
-            'specific' => ['type' => 'noul', 'noul' => 0.9],
+            'need' => ['type' => 'noul', 'noul' => 0.9],
             'label' => ['type' => 'choice', 'choice' => 'mobile-app'],
         ]])]);
 
@@ -86,15 +86,16 @@ class IntakeTest extends TestCase
 
         $this->assertSame(['mobile-app', 'health-fitness'], Subject::where('slug', 'step-counter')->first()->labels->pluck('name')->all());
         Http::assertSent(fn (Request $request) => $request['state']['candidate'] === 'step counter'
-            && $request['state']['seen_in'] === ['App Store search in health-fitness: rank 3, last week 250']
-            && str_contains($request['questions']['specific']['instructions'], 'specific kind of app'));
+            && $request['state']['seen_in'] === ['App Store search in health-fitness: rank 3, last week 250, four weeks ago 250']
+            && ! isset($request['questions']['specific'])
+            && str_contains($request['questions']['need']['instructions'], 'kind of app'));
     }
 
     public function test_known_names_never_use_up_the_weekly_app_store_cap_and_a_rerun_never_goes_past_it(): void
     {
         config(['trend.classifier.key' => null, 'trend.apple_ads.max_candidates' => 1]);
         $apple = Source::where('key', 'apple_ads')->value('id');
-        foreach ([['step counter', 'rank 3, last week 250'], ['sleep tracker', 'rank 5, last week 600'], ['water reminder', 'rank 9, last week 400']] as [$term, $ranks]) {
+        foreach ([['step counter', 'rank 3, last week 9, four weeks ago 250'], ['sleep tracker', 'rank 5, last week 9, four weeks ago below 500'], ['water reminder', 'rank 9, last week 9, four weeks ago 400']] as [$term, $ranks]) {
             Item::create(['source_id' => $apple, 'external_id' => "HEALTH_FITNESS:{$term}", 'title' => $term, 'excerpt' => "HEALTH_FITNESS, {$ranks}", 'observed_on' => '2026-09-21']);
         }
         $this->app->make(Intake::class)->seed('Sleep Tracker');
@@ -111,8 +112,8 @@ class IntakeTest extends TestCase
     {
         config(['trend.classifier.key' => null, 'trend.apple_ads.max_candidates' => 1]);
         $apple = Source::where('key', 'apple_ads')->value('id');
-        Item::create(['source_id' => $apple, 'external_id' => 'HEALTH_FITNESS:step counter', 'title' => 'step counter', 'excerpt' => 'HEALTH_FITNESS, rank 3, last week 104', 'observed_on' => '2026-09-21']);
-        Item::create(['source_id' => $apple, 'external_id' => 'HEALTH_FITNESS:water reminder', 'title' => 'water reminder', 'excerpt' => 'HEALTH_FITNESS, rank 9, last week 900', 'observed_on' => '2026-09-21']);
+        Item::create(['source_id' => $apple, 'external_id' => 'HEALTH_FITNESS:step counter', 'title' => 'step counter', 'excerpt' => 'HEALTH_FITNESS, rank 3, last week 3, four weeks ago 104', 'observed_on' => '2026-09-21']);
+        Item::create(['source_id' => $apple, 'external_id' => 'HEALTH_FITNESS:water reminder', 'title' => 'water reminder', 'excerpt' => 'HEALTH_FITNESS, rank 9, last week 9, four weeks ago 900', 'observed_on' => '2026-09-21']);
         foreach (['Step Counter apps', 'Why Step Counter'] as $index => $title) {
             Item::create(['source_id' => Source::where('key', 'hacker_news')->value('id'), 'external_id' => "sc-{$index}", 'title' => $title, 'observed_on' => '2026-09-21']);
         }
@@ -121,6 +122,76 @@ class IntakeTest extends TestCase
 
         $this->assertTrue(Subject::where('slug', 'water-reminder')->exists());
         $this->assertFalse(Subject::where('slug', 'step-counter')->exists());
+    }
+
+    public function test_app_store_searches_for_one_brand_or_event_are_archived_and_take_no_place(): void
+    {
+        config(['trend.classifier.key' => 'jv_test', 'trend.apple_ads.max_candidates' => 1, 'trend.apple_ads.max_classified' => 3]);
+        $apple = Source::where('key', 'apple_ads')->value('id');
+        $terms = ['chicago marathon' => [5, 0.05], 'ufc fight pass' => [6, 0.1], 'ai maker' => [7, 0.9], 'pdf scanner' => [8, 0.95]];
+        foreach ($terms as $term => [$rank]) {
+            Item::create(['source_id' => $apple, 'external_id' => "HEALTH_FITNESS:{$term}", 'title' => $term, 'excerpt' => "HEALTH_FITNESS, rank {$rank}, last week {$rank}, four weeks ago below 500", 'observed_on' => '2026-09-21']);
+        }
+        Http::fake(['api.typesafe.ai/v1/systemone' => fn (Request $request) => Http::response(['answers' => [
+            'need' => ['type' => 'noul', 'noul' => $terms[$request['state']['candidate']][1]],
+            'label' => ['type' => 'choice', 'choice' => 'mobile-app'],
+        ]])]);
+
+        $outcomes = $this->discover();
+        $this->discover();
+
+        $this->assertSame(2, $outcomes['archived']);
+        $this->assertSame(SubjectState::Archived, Subject::where('slug', 'chicago-marathon')->first()->state);
+        $this->assertSame(SubjectState::Watching, Subject::where('slug', 'ai-maker')->first()->state, 'the places go to the next climber');
+        $this->assertSame(0.9, Subject::where('slug', 'ai-maker')->first()->events->first()->payload['need']);
+        $this->assertFalse(Subject::where('slug', 'pdf-scanner')->exists(), 'the week\'s one place is filled');
+    }
+
+    public function test_at_most_the_configured_number_of_climbers_are_put_to_the_classifier(): void
+    {
+        config(['trend.classifier.key' => 'jv_test', 'trend.apple_ads.max_classified' => 2]);
+        $apple = Source::where('key', 'apple_ads')->value('id');
+        foreach (['chicago marathon', 'ufc fight pass', 'game informer'] as $index => $term) {
+            Item::create(['source_id' => $apple, 'external_id' => "SPORTS:{$term}", 'title' => $term, 'excerpt' => 'SPORTS, rank '.($index + 1).', last week 9, four weeks ago below 500', 'observed_on' => '2026-09-21']);
+        }
+        Http::fake(['api.typesafe.ai/v1/systemone' => fn (Request $request) => Http::response(['answers' => [
+            isset($request['questions']['need']) ? 'need' : 'specific' => ['type' => 'noul', 'noul' => 0.05],
+            'label' => ['type' => 'choice', 'choice' => 'other'],
+        ]])]);
+
+        $this->discover();
+        $this->discover();
+
+        $this->assertSame(2, Subject::whereNotIn('slug', ['tide-wave', 'blob-store', 'programming-languages'])->count());
+    }
+
+    public function test_app_store_subjects_proposed_before_the_need_question_are_asked_it_once(): void
+    {
+        config(['trend.classifier.key' => 'jv_test']);
+        $subject = fn (string $name, SubjectState $state, array $payload) => tap(Subject::create(['name' => $name, 'slug' => Subject::slugFor($name), 'query' => $name, 'state' => $state, 'first_seen_on' => '2026-09-28']),
+            fn (Subject $subject) => $subject->events()->create(['type' => 'discovered', 'to_state' => $state->value, 'payload' => $payload, 'happened_at' => now()]));
+        $subject('willow tv', SubjectState::Watching, ['seen_in' => ['App Store search in sports: rank 302, last week below 500'], 'specific' => 0.95, 'climb' => 302]);
+        $subject('ai maker', SubjectState::Backlog, ['seen_in' => [], 'specific' => 0.56, 'climb' => 269]);
+        $subject('photos to pdf', SubjectState::Watching, ['seen_in' => [], 'specific' => 0.82, 'climb' => 333]);
+        $subject('Tidewave', SubjectState::Watching, ['seen_in' => [], 'specific' => 0.9]);
+        $risen = $subject('chicago marathon', SubjectState::Watching, ['seen_in' => [], 'specific' => 0.82, 'climb' => 306]);
+        $risen->moveTo(SubjectState::Rising, 'accelerating');
+        $risen->moveTo(SubjectState::Watching, 'test');
+        $subject('golf channel app', SubjectState::Watching, ['seen_in' => [], 'specific' => 0.92, 'climb' => 407]);
+        $this->app->make(Intake::class)->seed('golf channel app', 'golf channel');
+        $need = ['willow tv' => 0.05, 'ai maker' => 0.92, 'photos to pdf' => 0.9, 'golf channel app' => 0.05];
+        Http::fake(['api.typesafe.ai/v1/systemone' => fn (Request $request) => Http::response(['answers' => [
+            'need' => ['type' => 'noul', 'noul' => $need[$request['state']['candidate']]],
+            'label' => ['type' => 'choice', 'choice' => 'mobile-app'],
+        ]])]);
+
+        $intake = $this->app->make(Intake::class);
+
+        $this->assertSame(['willow-tv' => 'archived', 'ai-maker' => 'watching'], $intake->reclassify());
+        $this->assertSame([], $intake->reclassify(), 'asked once');
+        Http::assertSentCount(3);
+        $this->assertSame(SubjectState::Watching, Subject::where('slug', 'golf-channel-app')->first()->state, 'the owner seeded it: never overruled');
+        $this->assertSame('a search for one brand, app or event', Subject::where('slug', 'willow-tv')->first()->events()->latest('id')->first()->reason);
     }
 
     public function test_a_failing_classifier_leaves_candidates_in_backlog(): void
